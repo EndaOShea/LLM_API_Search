@@ -29,7 +29,7 @@ sel = select_provider(interactive=True)
 
 ## Live vs Static Discovery
 
-When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `OPENAI_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
+When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
 
 ```python
 # Force static-only (no network calls)
@@ -48,3 +48,33 @@ info = discover_provider("gemini", live=True)
 | `discover_provider(name, live=True)` | Discover a single provider |
 | `list_providers()` | List available provider keys |
 | `select_provider(provider_key, model_id, live, interactive)` | Select a provider/model and get a connection snippet |
+
+## MCP Server (Claude Code Integration)
+
+This repo also ships as an **MCP server** so Claude Code can call the discovery tools directly — no Python imports needed.
+
+### Setup
+
+```bash
+# Install with MCP support
+pip install -e ".[mcp]"
+
+# Register with Claude Code (user-wide)
+claude mcp add --transport stdio --scope user llm-api-search \
+  -- python /path/to/LLM_API_Search/mcp_server.py
+
+# Or for project-scope, the .mcp.json is already included in this repo
+```
+
+After registering, restart Claude Code and verify with `/mcp`.
+
+### Available MCP Tools
+
+| Tool | Description |
+|---|---|
+| `llm_list_providers` | List all supported provider keys |
+| `llm_discover_all` | Discover all providers with models, auth, and SDK info |
+| `llm_discover_provider` | Discover a single provider's details |
+| `llm_list_models` | List models for a specific provider |
+| `llm_get_connection_snippet` | Get a ready-to-use Python code snippet for any provider/model |
+| `llm_compare_providers` | Side-by-side comparison of all providers |
