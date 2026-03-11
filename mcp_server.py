@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""MCP server exposing LLM API discovery tools for Claude Code."""
+"""MCP server exposing LLM API discovery tools for Claude Code.
+
+Run locally (stdio):   python mcp_server.py
+Run as HTTP server:    python mcp_server.py --http --port 8080
+"""
+
+import argparse
 
 from mcp.server.fastmcp import FastMCP
 
@@ -125,4 +131,18 @@ def llm_compare_providers(live: bool = False) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    parser = argparse.ArgumentParser(description="LLM API Search MCP Server")
+    parser.add_argument(
+        "--http", action="store_true", help="Run as HTTP server (streamable-http)"
+    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to (default: 0.0.0.0)")
+    parser.add_argument("--port", type=int, default=8080, help="Port to listen on (default: 8080)")
+    args = parser.parse_args()
+
+    if args.http:
+        # Host/port are set on the FastMCP instance settings
+        mcp.settings.host = args.host
+        mcp.settings.port = args.port
+        mcp.run(transport="streamable-http")
+    else:
+        mcp.run()

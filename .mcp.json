@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "llm-api-search": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["mcp_server.py"],
-      "cwd": "/home/user/LLM_API_Search"
+      "type": "url",
+      "url": "http://YOUR_VPS_IP:8080/mcp"
     }
   }
 }

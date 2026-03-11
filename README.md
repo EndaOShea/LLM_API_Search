@@ -53,17 +53,52 @@ info = discover_provider("gemini", live=True)
 
 This repo also ships as an **MCP server** so Claude Code can call the discovery tools directly — no Python imports needed.
 
-### Setup
+### Option A: Remote server (recommended — zero local install)
+
+Deploy to any VPS and connect via URL. Nothing to install locally.
+
+**On the VPS:**
 
 ```bash
-# Install with MCP support
+git clone https://github.com/EndaOShea/LLM_API_Search.git
+cd LLM_API_Search
+
+# With Docker (easiest)
+docker build -t llm-api-search .
+docker run -d -p 8080:8080 --name llm-api-search llm-api-search
+
+# Or without Docker
+pip install -e ".[mcp]"
+python mcp_server.py --http --port 8080
+```
+
+**On your machine (Claude Code):**
+
+```bash
+claude mcp add --transport url --scope user llm-api-search \
+  http://YOUR_VPS_IP:8080/mcp
+```
+
+Or add to any project's `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "llm-api-search": {
+      "type": "url",
+      "url": "http://YOUR_VPS_IP:8080/mcp/"
+    }
+  }
+}
+```
+
+### Option B: Local (stdio)
+
+```bash
 pip install -e ".[mcp]"
 
-# Register with Claude Code (user-wide)
 claude mcp add --transport stdio --scope user llm-api-search \
   -- python /path/to/LLM_API_Search/mcp_server.py
-
-# Or for project-scope, the .mcp.json is already included in this repo
 ```
 
 After registering, restart Claude Code and verify with `/mcp`.
