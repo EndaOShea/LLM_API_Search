@@ -49,61 +49,46 @@ info = discover_provider("gemini", live=True)
 | `list_providers()` | List available provider keys |
 | `select_provider(provider_key, model_id, live, interactive)` | Select a provider/model and get a connection snippet |
 
-## MCP Server (Claude Code Integration)
+## MCP Server (Use from Claude Code — no install needed)
 
-This repo also ships as an **MCP server** so Claude Code can call the discovery tools directly — no Python imports needed.
+This repo runs as a remote **MCP server** so Claude Code can call the tools directly. The server supports hosting multiple MCP services — you connect only to the ones you need.
 
-### Option A: Remote server (recommended — zero local install)
+### Connect to a hosted server
 
-Deploy to any VPS and connect via URL. Nothing to install locally.
+Browse what's available:
 
-**On the VPS:**
+```
+curl http://YOUR_SERVER:8080/
+```
+
+Then connect the one(s) you want:
+
+```bash
+claude mcp add --transport url --scope user llm-api-search http://YOUR_SERVER:8080/llm-api-search/mcp
+```
+
+Restart Claude Code. That's it — no installs, no dependencies. Verify with `/mcp`.
+
+### Deploy the server (VPS)
 
 ```bash
 git clone https://github.com/EndaOShea/LLM_API_Search.git
 cd LLM_API_Search
 
-# With Docker (easiest)
+# Docker
 docker build -t llm-api-search .
 docker run -d -p 8080:8080 --name llm-api-search llm-api-search
 
-# Or without Docker
+# Or directly
 pip install -e ".[mcp]"
 python mcp_server.py --http --port 8080
 ```
 
-**On your machine (Claude Code):**
+### Adding more MCP servers
 
-```bash
-claude mcp add --transport url --scope user llm-api-search \
-  http://YOUR_VPS_IP:8080/mcp
-```
+Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, and `DESCRIPTION`. It will be auto-discovered and mounted at its own path. See `mcp_servers/llm_api_search.py` as a template.
 
-Or add to any project's `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "llm-api-search": {
-      "type": "url",
-      "url": "http://YOUR_VPS_IP:8080/mcp/"
-    }
-  }
-}
-```
-
-### Option B: Local (stdio)
-
-```bash
-pip install -e ".[mcp]"
-
-claude mcp add --transport stdio --scope user llm-api-search \
-  -- python /path/to/LLM_API_Search/mcp_server.py
-```
-
-After registering, restart Claude Code and verify with `/mcp`.
-
-### Available MCP Tools
+### Available tools (llm-api-search)
 
 | Tool | Description |
 |---|---|
