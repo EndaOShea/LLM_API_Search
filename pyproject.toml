@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-api-search"
+version = "0.1.0"
+description = "Discover and connect to the latest LLM API versions (Claude, Gemini, OpenAI)"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["llm", "api", "anthropic", "claude", "gemini", "openai"]
+
+[project.optional-dependencies]
+anthropic = ["anthropic"]
+google = ["google-genai"]
+openai = ["openai"]
+all = ["anthropic", "google-genai", "openai"]
+
+[tool.setuptools.packages.find]
+include = ["llm_api_search*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
