@@ -45,6 +45,16 @@ Connection snippets are available in five languages:
 
 Each snippet is idiomatic for its language, uses official SDKs where available, and includes auth setup via environment variables.
 
+## Model Pricing
+
+All static model data includes per-model pricing (USD per million tokens) for input and output. This appears in summaries, model listings, and provider comparisons.
+
+```python
+info = discover_provider("anthropic", live=False)
+for m in info.models:
+    print(f"{m.model_id}: ${m.input_cost_per_mtok}/in, ${m.output_cost_per_mtok}/out per 1M tok")
+```
+
 ## Live vs Static Discovery
 
 When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
@@ -113,6 +123,6 @@ Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, an
 | `llm_list_providers` | List all supported provider keys |
 | `llm_discover_all` | Discover all providers with models, auth, and SDK info |
 | `llm_discover_provider` | Discover a single provider's details |
-| `llm_list_models` | List models for a specific provider |
+| `llm_list_models` | List models for a specific provider (includes per-model pricing) |
 | `llm_get_connection_snippet` | Get a ready-to-use code snippet for any provider/model/language |
-| `llm_compare_providers` | Side-by-side comparison of all providers |
+| `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
