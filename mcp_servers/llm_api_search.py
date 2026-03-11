@@ -124,10 +124,24 @@ def llm_compare_providers(live: bool = False) -> str:
     for key, info in results.items():
         max_ctx = max((m.context_window or 0) for m in info.models)
         max_out = max((m.max_output_tokens or 0) for m in info.models)
+        priced = [m for m in info.models if m.input_cost_per_mtok is not None]
         lines.append(f"{info.name}")
         lines.append(f"  Models available:    {len(info.models)}")
         lines.append(f"  Max context window:  {max_ctx:,} tokens")
         lines.append(f"  Max output tokens:   {max_out:,} tokens")
+        if priced:
+            cheapest = min(priced, key=lambda m: m.input_cost_per_mtok)
+            priciest = max(priced, key=lambda m: m.input_cost_per_mtok)
+            lines.append(
+                f"  Price range:         "
+                f"${cheapest.input_cost_per_mtok:.2f}/${cheapest.output_cost_per_mtok:.2f} "
+                f"— ${priciest.input_cost_per_mtok:.2f}/${priciest.output_cost_per_mtok:.2f} per 1M tok"
+            )
+            lines.append(f"  Per-model pricing:")
+            for m in priced:
+                lines.append(
+                    f"    {m.model_id:40s} ${m.input_cost_per_mtok:>7.2f} in / ${m.output_cost_per_mtok:>7.2f} out"
+                )
         lines.append(f"  SDK:                 {info.sdk_install}")
         lines.append(f"  Auth env var:        {info.auth_env_var}")
         lines.append(f"  Docs:                {info.documentation_url}")
