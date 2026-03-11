@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
+SUPPORTED_LANGUAGES = ("python", "typescript", "javascript", "java", "cpp")
+
 
 @dataclass
 class ModelInfo:
@@ -28,10 +30,24 @@ class ProviderInfo:
     api_version: str | None
     auth_env_var: str
     auth_header: str
-    sdk_package: str
-    sdk_install: str
+    sdk_packages: dict[str, str] = field(default_factory=dict)
+    sdk_installs: dict[str, str] = field(default_factory=dict)
     models: list[ModelInfo] = field(default_factory=list)
     documentation_url: str = ""
+
+    @property
+    def sdk_package(self) -> str:
+        """Return the Python SDK package name (backward compat)."""
+        return self.sdk_packages.get("python", "")
+
+    @property
+    def sdk_install(self) -> str:
+        """Return the Python SDK install command (backward compat)."""
+        return self.sdk_installs.get("python", "")
+
+    def sdk_install_for(self, language: str) -> str:
+        """Return the SDK install command for a given language."""
+        return self.sdk_installs.get(language, self.sdk_installs.get("python", ""))
 
     def summary(self) -> str:
         """Return a human-readable summary of this provider."""
@@ -44,8 +60,10 @@ class ProviderInfo:
         lines += [
             f"  Auth Env Var:    {self.auth_env_var}",
             f"  Auth Header:     {self.auth_header}",
-            f"  SDK Package:     {self.sdk_package}",
-            f"  Install:         {self.sdk_install}",
+        ]
+        for lang, install in self.sdk_installs.items():
+            lines.append(f"  SDK ({lang:>10}): {install}")
+        lines += [
             f"  Docs:            {self.documentation_url}",
             f"  Models ({len(self.models)}):",
         ]
@@ -71,6 +89,8 @@ class Provider(ABC):
         """
         ...
 
-    def get_connection_snippet(self, model_id: str | None = None) -> str:
-        """Return a Python code snippet showing how to connect."""
+    def get_connection_snippet(
+        self, model_id: str | None = None, language: str = "python"
+    ) -> str:
+        """Return a code snippet showing how to connect."""
         ...

@@ -24,6 +24,7 @@ def select_provider(
     *,
     live: bool = True,
     interactive: bool = False,
+    language: str = "python",
 ) -> Selection:
     """Select a provider and model, either programmatically or interactively.
 
@@ -34,6 +35,8 @@ def select_provider(
                   the user is prompted.
         live: Fetch live model lists when True.
         interactive: When True, prompt the user via stdin for choices.
+        language: Programming language for the connection snippet
+                  (python, typescript, javascript, java, cpp).
 
     Returns:
         A ``Selection`` with provider info, model info, and a connection snippet.
@@ -76,7 +79,7 @@ def select_provider(
 
     from llm_api_search.providers import PROVIDERS
 
-    snippet = PROVIDERS[provider_key]().get_connection_snippet(model_id)
+    snippet = PROVIDERS[provider_key]().get_connection_snippet(model_id, language=language)
 
     return Selection(
         provider_key=provider_key,

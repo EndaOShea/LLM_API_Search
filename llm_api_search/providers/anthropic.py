@@ -71,8 +71,19 @@ class AnthropicProvider(Provider):
             api_version=_API_VERSION,
             auth_env_var="ANTHROPIC_API_KEY",
             auth_header="x-api-key",
-            sdk_package="anthropic",
-            sdk_install="pip install anthropic",
+            sdk_packages={
+                "python": "anthropic",
+                "typescript": "@anthropic-ai/sdk",
+                "javascript": "@anthropic-ai/sdk",
+                "java": "com.anthropic:anthropic-java",
+            },
+            sdk_installs={
+                "python": "pip install anthropic",
+                "typescript": "npm install @anthropic-ai/sdk",
+                "javascript": "npm install @anthropic-ai/sdk",
+                "java": "Maven/Gradle: com.anthropic:anthropic-java",
+                "cpp": "No official SDK — use REST API via libcurl",
+            },
             models=list(_STATIC_MODELS),
             documentation_url="https://docs.anthropic.com/en/api",
         )
@@ -113,15 +124,93 @@ class AnthropicProvider(Provider):
 
         return info
 
-    def get_connection_snippet(self, model_id: str | None = None) -> str:
+    def get_connection_snippet(
+        self, model_id: str | None = None, language: str = "python"
+    ) -> str:
         model = model_id or "claude-sonnet-4-6"
-        return (
-            'import anthropic\n\n'
-            'client = anthropic.Anthropic()  # uses ANTHROPIC_API_KEY env var\n\n'
-            'message = client.messages.create(\n'
-            f'    model="{model}",\n'
-            '    max_tokens=1024,\n'
-            '    messages=[{"role": "user", "content": "Hello!"}],\n'
-            ')\n'
-            'print(message.content[0].text)\n'
-        )
+        snippets = {
+            "python": (
+                'import anthropic\n\n'
+                'client = anthropic.Anthropic()  # uses ANTHROPIC_API_KEY env var\n\n'
+                'message = client.messages.create(\n'
+                f'    model="{model}",\n'
+                '    max_tokens=1024,\n'
+                '    messages=[{"role": "user", "content": "Hello!"}],\n'
+                ')\n'
+                'print(message.content[0].text)\n'
+            ),
+            "typescript": (
+                'import Anthropic from "@anthropic-ai/sdk";\n\n'
+                'const client = new Anthropic(); // uses ANTHROPIC_API_KEY env var\n\n'
+                'const message = await client.messages.create({\n'
+                f'  model: "{model}",\n'
+                '  max_tokens: 1024,\n'
+                '  messages: [{ role: "user", content: "Hello!" }],\n'
+                '});\n'
+                'console.log(message.content[0].text);\n'
+            ),
+            "javascript": (
+                'const Anthropic = require("@anthropic-ai/sdk");\n\n'
+                'const client = new Anthropic(); // uses ANTHROPIC_API_KEY env var\n\n'
+                'const message = await client.messages.create({\n'
+                f'  model: "{model}",\n'
+                '  max_tokens: 1024,\n'
+                '  messages: [{ role: "user", content: "Hello!" }],\n'
+                '});\n'
+                'console.log(message.content[0].text);\n'
+            ),
+            "java": (
+                'import com.anthropic.client.AnthropicClient;\n'
+                'import com.anthropic.client.okhttp.AnthropicOkHttpClient;\n'
+                'import com.anthropic.models.messages.*;\n\n'
+                '// Uses ANTHROPIC_API_KEY env var\n'
+                'AnthropicClient client = AnthropicOkHttpClient.builder().build();\n\n'
+                'Message message = client.messages().create(\n'
+                '    MessageCreateParams.builder()\n'
+                f'        .model("{model}")\n'
+                '        .maxTokens(1024)\n'
+                '        .addUserMessage("Hello!")\n'
+                '        .build()\n'
+                ');\n'
+                'System.out.println(message.content().get(0).text());\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("ANTHROPIC_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                f'        {{"model", "{model}"}},\n'
+                '        {"max_tokens", 1024},\n'
+                '        {"messages", {{{"role", "user"}, {"content", "Hello!"}}}}\n'
+                '    };\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, ("x-api-key: " + std::string(api_key)).c_str());\n'
+                '    headers = curl_slist_append(headers, "anthropic-version: 2023-06-01");\n'
+                '    headers = curl_slist_append(headers, "content-type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, "https://api.anthropic.com/v1/messages");\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << result["content"][0]["text"].get<std::string>() << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])

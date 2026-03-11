@@ -52,21 +52,29 @@ def llm_discover_provider(provider: str, live: bool = False) -> str:
 
 
 @mcp.tool()
-def llm_get_connection_snippet(provider: str, model_id: str | None = None) -> str:
-    """Get a ready-to-use Python code snippet for connecting to an LLM API.
+def llm_get_connection_snippet(
+    provider: str,
+    model_id: str | None = None,
+    language: str = "python",
+) -> str:
+    """Get a ready-to-use code snippet for connecting to an LLM API.
 
     Args:
         provider: Provider key — one of "anthropic", "gemini", or "openai".
         model_id: Optional specific model ID. Defaults to the provider's recommended model.
+        language: Programming language for the snippet. One of "python", "typescript",
+                  "javascript", "java", or "cpp". Defaults to "python".
 
     Returns:
-        A Python code snippet showing how to install the SDK and make a basic API call.
+        A code snippet showing how to install the SDK and make a basic API call.
     """
-    sel = select_provider(provider, model_id=model_id, live=False)
+    sel = select_provider(provider, model_id=model_id, live=False, language=language)
+    install = sel.provider_info.sdk_install_for(language)
     header = (
         f"# Provider: {sel.provider_info.name}\n"
         f"# Model:    {sel.model.model_id}\n"
-        f"# Install:  {sel.provider_info.sdk_install}\n"
+        f"# Language: {language}\n"
+        f"# Install:  {install}\n"
         f"# Auth:     Set {sel.provider_info.auth_env_var} environment variable\n\n"
     )
     return header + sel.connection_snippet

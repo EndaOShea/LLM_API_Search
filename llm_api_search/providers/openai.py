@@ -95,8 +95,19 @@ class OpenAIProvider(Provider):
             api_version=None,
             auth_env_var="OPENAI_API_KEY",
             auth_header="Authorization",
-            sdk_package="openai",
-            sdk_install="pip install openai",
+            sdk_packages={
+                "python": "openai",
+                "typescript": "openai",
+                "javascript": "openai",
+                "java": "com.openai:openai-java",
+            },
+            sdk_installs={
+                "python": "pip install openai",
+                "typescript": "npm install openai",
+                "javascript": "npm install openai",
+                "java": "Maven/Gradle: com.openai:openai-java",
+                "cpp": "No official SDK — use REST API via libcurl",
+            },
             models=list(_STATIC_MODELS),
             documentation_url="https://platform.openai.com/docs/api-reference",
         )
@@ -134,14 +145,90 @@ class OpenAIProvider(Provider):
 
         return info
 
-    def get_connection_snippet(self, model_id: str | None = None) -> str:
+    def get_connection_snippet(
+        self, model_id: str | None = None, language: str = "python"
+    ) -> str:
         model = model_id or "gpt-5.4"
-        return (
-            'from openai import OpenAI\n\n'
-            'client = OpenAI()  # uses OPENAI_API_KEY env var\n\n'
-            'response = client.chat.completions.create(\n'
-            f'    model="{model}",\n'
-            '    messages=[{{"role": "user", "content": "Hello!"}}],\n'
-            ')\n'
-            'print(response.choices[0].message.content)\n'
-        )
+        snippets = {
+            "python": (
+                'from openai import OpenAI\n\n'
+                'client = OpenAI()  # uses OPENAI_API_KEY env var\n\n'
+                'response = client.chat.completions.create(\n'
+                f'    model="{model}",\n'
+                '    messages=[{"role": "user", "content": "Hello!"}],\n'
+                ')\n'
+                'print(response.choices[0].message.content)\n'
+            ),
+            "typescript": (
+                'import OpenAI from "openai";\n\n'
+                'const client = new OpenAI(); // uses OPENAI_API_KEY env var\n\n'
+                'const response = await client.chat.completions.create({\n'
+                f'  model: "{model}",\n'
+                '  messages: [{ role: "user", content: "Hello!" }],\n'
+                '});\n'
+                'console.log(response.choices[0].message.content);\n'
+            ),
+            "javascript": (
+                'const OpenAI = require("openai");\n\n'
+                'const client = new OpenAI(); // uses OPENAI_API_KEY env var\n\n'
+                'const response = await client.chat.completions.create({\n'
+                f'  model: "{model}",\n'
+                '  messages: [{ role: "user", content: "Hello!" }],\n'
+                '});\n'
+                'console.log(response.choices[0].message.content);\n'
+            ),
+            "java": (
+                'import com.openai.client.OpenAIClient;\n'
+                'import com.openai.client.okhttp.OpenAIOkHttpClient;\n'
+                'import com.openai.models.chat.*;\n\n'
+                '// Uses OPENAI_API_KEY env var\n'
+                'OpenAIClient client = OpenAIOkHttpClient.builder().build();\n\n'
+                'ChatCompletion response = client.chat().completions().create(\n'
+                '    ChatCompletionCreateParams.builder()\n'
+                f'        .model("{model}")\n'
+                '        .addUserMessage("Hello!")\n'
+                '        .build()\n'
+                ');\n'
+                'System.out.println(response.choices().get(0).message().content());\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("OPENAI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                f'        {{"model", "{model}"}},\n'
+                '        {"messages", {{{"role", "user"}, {"content", "Hello!"}}}}\n'
+                '    };\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers,\n'
+                '        ("Authorization: Bearer " + std::string(api_key)).c_str());\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL,\n'
+                '        "https://api.openai.com/v1/chat/completions");\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << result["choices"][0]["message"]["content"]\n'
+                '              .get<std::string>() << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])

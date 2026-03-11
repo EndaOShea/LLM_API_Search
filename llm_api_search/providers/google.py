@@ -77,8 +77,19 @@ class GeminiProvider(Provider):
             api_version="v1beta",
             auth_env_var="GEMINI_API_KEY",
             auth_header="x-goog-api-key",
-            sdk_package="google-genai",
-            sdk_install="pip install google-genai",
+            sdk_packages={
+                "python": "google-genai",
+                "typescript": "@google/genai",
+                "javascript": "@google/genai",
+                "java": "com.google.genai:google-genai",
+            },
+            sdk_installs={
+                "python": "pip install google-genai",
+                "typescript": "npm install @google/genai",
+                "javascript": "npm install @google/genai",
+                "java": "Maven/Gradle: com.google.genai:google-genai",
+                "cpp": "No official SDK — use REST API via libcurl",
+            },
             models=list(_STATIC_MODELS),
             documentation_url="https://ai.google.dev/gemini-api/docs",
         )
@@ -120,14 +131,86 @@ class GeminiProvider(Provider):
 
         return info
 
-    def get_connection_snippet(self, model_id: str | None = None) -> str:
+    def get_connection_snippet(
+        self, model_id: str | None = None, language: str = "python"
+    ) -> str:
         model = model_id or "gemini-2.5-flash"
-        return (
-            'from google import genai\n\n'
-            'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
-            'response = client.models.generate_content(\n'
-            f'    model="{model}",\n'
-            '    contents="Hello!",\n'
-            ')\n'
-            'print(response.text)\n'
-        )
+        snippets = {
+            "python": (
+                'from google import genai\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                'response = client.models.generate_content(\n'
+                f'    model="{model}",\n'
+                '    contents="Hello!",\n'
+                ')\n'
+                'print(response.text)\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "Hello!",\n'
+                '});\n'
+                'console.log(response.text);\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "Hello!",\n'
+                '});\n'
+                'console.log(response.text);\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.GenerateContentResponse;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'GenerateContentResponse response = client.models.generateContent(\n'
+                f'    "{model}",\n'
+                '    "Hello!"\n'
+                ');\n'
+                'System.out.println(response.text());\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                '        {"contents", {{{"parts", {{{"text", "Hello!"}}}}}}}}\n'
+                '    };\n\n'
+                '    std::string url =\n'
+                '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
+                f'        "{model}:generateContent?key=" + std::string(api_key);\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << result["candidates"][0]["content"]["parts"][0]["text"]\n'
+                '              .get<std::string>() << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])

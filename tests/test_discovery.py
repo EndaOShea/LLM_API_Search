@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
 from llm_api_search.selector import select_provider, Selection
-from llm_api_search.providers.base import ProviderInfo
+from llm_api_search.providers.base import ProviderInfo, SUPPORTED_LANGUAGES
 
 
 def test_list_providers():
@@ -100,3 +100,84 @@ def test_model_info_fields():
         for m in info.models:
             assert m.model_id, f"{key}: model missing model_id"
             assert m.display_name, f"{key}: model missing display_name"
+
+
+# --- Multi-language snippet tests ---
+
+
+def test_connection_snippet_typescript():
+    """Verify TypeScript snippets use TS import syntax."""
+    for key in list_providers():
+        sel = select_provider(key, live=False, language="typescript")
+        assert "import" in sel.connection_snippet
+        # TS snippets should not use Python syntax
+        assert "print(" not in sel.connection_snippet
+
+
+def test_connection_snippet_javascript():
+    """Verify JavaScript snippets use require syntax."""
+    for key in list_providers():
+        sel = select_provider(key, live=False, language="javascript")
+        assert "require(" in sel.connection_snippet
+        assert "console.log" in sel.connection_snippet
+
+
+def test_connection_snippet_java():
+    """Verify Java snippets use Java import syntax."""
+    for key in list_providers():
+        sel = select_provider(key, live=False, language="java")
+        assert "import com." in sel.connection_snippet
+        assert "System.out.println" in sel.connection_snippet
+
+
+def test_connection_snippet_cpp():
+    """Verify C++ snippets use libcurl and include directives."""
+    for key in list_providers():
+        sel = select_provider(key, live=False, language="cpp")
+        assert "#include" in sel.connection_snippet
+        assert "curl" in sel.connection_snippet.lower()
+
+
+def test_connection_snippet_all_languages_all_providers():
+    """Every provider should return a non-empty snippet for every supported language."""
+    for key in list_providers():
+        for lang in SUPPORTED_LANGUAGES:
+            sel = select_provider(key, live=False, language=lang)
+            assert len(sel.connection_snippet) > 20, (
+                f"{key}/{lang}: snippet too short"
+            )
+
+
+def test_connection_snippet_model_id_in_all_languages():
+    """Model ID should appear in snippets for all languages."""
+    model = "claude-sonnet-4-6"
+    for lang in SUPPORTED_LANGUAGES:
+        sel = select_provider("anthropic", model_id=model, live=False, language=lang)
+        assert model in sel.connection_snippet, (
+            f"Model ID missing from {lang} snippet"
+        )
+
+
+def test_sdk_installs_per_language():
+    """Verify sdk_installs contains entries for multiple languages."""
+    results = discover(live=False)
+    for key, info in results.items():
+        assert "python" in info.sdk_installs, f"{key} missing python sdk_install"
+        assert "typescript" in info.sdk_installs, f"{key} missing typescript sdk_install"
+        assert "java" in info.sdk_installs, f"{key} missing java sdk_install"
+        assert "cpp" in info.sdk_installs, f"{key} missing cpp sdk_install"
+
+
+def test_sdk_install_for():
+    """Verify sdk_install_for returns the correct install command."""
+    info = discover_provider("anthropic", live=False)
+    assert info.sdk_install_for("python") == "pip install anthropic"
+    assert "npm" in info.sdk_install_for("typescript")
+    assert info.sdk_install_for("cpp").lower().count("libcurl") or "REST" in info.sdk_install_for("cpp")
+
+
+def test_unknown_language_falls_back_to_python():
+    """Unknown language should fall back to Python snippet."""
+    sel = select_provider("anthropic", live=False, language="rust")
+    python_sel = select_provider("anthropic", live=False, language="python")
+    assert sel.connection_snippet == python_sel.connection_snippet
