@@ -53,9 +53,9 @@ def test_select_provider_programmatic():
 
 
 def test_select_provider_with_model():
-    sel = select_provider("openai", model_id="gpt-4.1", live=False)
-    assert sel.model.model_id == "gpt-4.1"
-    assert "gpt-4.1" in sel.connection_snippet
+    sel = select_provider("openai", model_id="gpt-5.4", live=False)
+    assert sel.model.model_id == "gpt-5.4"
+    assert "gpt-5.4" in sel.connection_snippet
 
 
 def test_select_provider_unknown_model():

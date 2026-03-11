@@ -11,9 +11,36 @@ from llm_api_search.providers.base import ModelInfo, Provider, ProviderInfo
 
 _STATIC_MODELS = [
     ModelInfo(
+        model_id="gpt-5.4",
+        display_name="GPT-5.4",
+        description="Current top recommendation for reasoning and coding",
+        context_window=1_000_000,
+        max_output_tokens=32_768,
+        supports_vision=True,
+        supports_tool_use=True,
+    ),
+    ModelInfo(
+        model_id="gpt-5.4-pro",
+        display_name="GPT-5.4 Pro",
+        description="More compute for harder problems, supports reasoning effort levels",
+        context_window=1_000_000,
+        max_output_tokens=32_768,
+        supports_vision=True,
+        supports_tool_use=True,
+    ),
+    ModelInfo(
+        model_id="gpt-5-mini",
+        display_name="GPT-5 Mini",
+        description="Lower latency and cost GPT-5 variant",
+        context_window=1_000_000,
+        max_output_tokens=32_768,
+        supports_vision=True,
+        supports_tool_use=True,
+    ),
+    ModelInfo(
         model_id="o3",
         display_name="o3",
-        description="Most capable reasoning model",
+        description="Reasoning model",
         context_window=200_000,
         max_output_tokens=100_000,
         supports_vision=True,
@@ -31,7 +58,7 @@ _STATIC_MODELS = [
     ModelInfo(
         model_id="gpt-4.1",
         display_name="GPT-4.1",
-        description="Flagship GPT model for complex tasks",
+        description="Previous generation GPT model (retired from ChatGPT, still in API)",
         context_window=1_047_576,
         max_output_tokens=32_768,
         supports_vision=True,
@@ -40,7 +67,7 @@ _STATIC_MODELS = [
     ModelInfo(
         model_id="gpt-4.1-mini",
         display_name="GPT-4.1 Mini",
-        description="Balanced GPT model for most tasks",
+        description="Previous generation balanced model (retired from ChatGPT, still in API)",
         context_window=1_047_576,
         max_output_tokens=32_768,
         supports_vision=True,
@@ -49,7 +76,7 @@ _STATIC_MODELS = [
     ModelInfo(
         model_id="gpt-4.1-nano",
         display_name="GPT-4.1 Nano",
-        description="Fastest, most cost-effective GPT model",
+        description="Previous generation fastest model (retired from ChatGPT, still in API)",
         context_window=1_047_576,
         max_output_tokens=32_768,
         supports_vision=True,
@@ -82,7 +109,7 @@ class OpenAIProvider(Provider):
             return info
 
         # Well-known model prefixes we care about (skip fine-tunes, embeddings, etc.)
-        _PREFIXES = ("gpt-4", "gpt-3.5", "o1", "o3", "o4")
+        _PREFIXES = ("gpt-5", "gpt-4", "o3", "o4")
 
         try:
             req = urllib.request.Request(
@@ -108,7 +135,7 @@ class OpenAIProvider(Provider):
         return info
 
     def get_connection_snippet(self, model_id: str | None = None) -> str:
-        model = model_id or "gpt-4.1"
+        model = model_id or "gpt-5.4"
         return (
             'from openai import OpenAI\n\n'
             'client = OpenAI()  # uses OPENAI_API_KEY env var\n\n'
