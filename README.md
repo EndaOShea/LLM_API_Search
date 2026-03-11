@@ -1,6 +1,6 @@
 # LLM API Search
 
-A Python library that discovers the latest API versions for **Claude (Anthropic)**, **Gemini (Google)**, and **OpenAI**, and provides connection helpers for each.
+A Python library and MCP server that discovers the latest API versions for **Claude (Anthropic)**, **Gemini (Google)**, and **OpenAI**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
 ## Install
 
@@ -23,9 +23,27 @@ for key, info in providers.items():
 sel = select_provider("anthropic", model_id="claude-sonnet-4-6")
 print(sel.connection_snippet)
 
+# Get a TypeScript snippet instead
+sel = select_provider("openai", model_id="gpt-5.4", language="typescript")
+print(sel.connection_snippet)
+
 # Interactive selection (prompts via stdin)
 sel = select_provider(interactive=True)
 ```
+
+## Supported Languages
+
+Connection snippets are available in five languages:
+
+| Language | SDK / Approach | Example Install |
+|---|---|---|
+| **Python** | Official SDK (`anthropic`, `openai`, `google-genai`) | `pip install anthropic` |
+| **TypeScript** | Official SDK (ES module imports) | `npm install @anthropic-ai/sdk` |
+| **JavaScript** | Official SDK (CommonJS `require`) | `npm install openai` |
+| **Java** | Official SDK (Maven/Gradle) | `com.openai:openai-java` |
+| **C++** | REST API via libcurl + nlohmann/json | No official SDK |
+
+Each snippet is idiomatic for its language, uses official SDKs where available, and includes auth setup via environment variables.
 
 ## Live vs Static Discovery
 
@@ -47,7 +65,7 @@ info = discover_provider("gemini", live=True)
 | `discover(live=True, providers=None)` | Discover all (or selected) providers in parallel |
 | `discover_provider(name, live=True)` | Discover a single provider |
 | `list_providers()` | List available provider keys |
-| `select_provider(provider_key, model_id, live, interactive)` | Select a provider/model and get a connection snippet |
+| `select_provider(provider_key, model_id, live, interactive, language)` | Select a provider/model and get a connection snippet |
 
 ## MCP Server (Use from Claude Code — no install needed)
 
@@ -96,5 +114,5 @@ Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, an
 | `llm_discover_all` | Discover all providers with models, auth, and SDK info |
 | `llm_discover_provider` | Discover a single provider's details |
 | `llm_list_models` | List models for a specific provider |
-| `llm_get_connection_snippet` | Get a ready-to-use Python code snippet for any provider/model |
+| `llm_get_connection_snippet` | Get a ready-to-use code snippet for any provider/model/language |
 | `llm_compare_providers` | Side-by-side comparison of all providers |
