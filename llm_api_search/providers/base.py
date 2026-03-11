@@ -19,6 +19,8 @@ class ModelInfo:
     max_output_tokens: int | None = None
     supports_vision: bool = False
     supports_tool_use: bool = False
+    input_cost_per_mtok: float | None = None   # USD per 1M input tokens
+    output_cost_per_mtok: float | None = None  # USD per 1M output tokens
 
 
 @dataclass

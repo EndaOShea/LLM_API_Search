@@ -18,6 +18,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_768,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=2.50,
+        output_cost_per_mtok=15.00,
     ),
     ModelInfo(
         model_id="gpt-5.4-pro",
@@ -27,6 +29,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_768,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=30.00,
+        output_cost_per_mtok=180.00,
     ),
     ModelInfo(
         model_id="gpt-5-mini",
@@ -36,6 +40,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_768,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.25,
+        output_cost_per_mtok=2.00,
     ),
     ModelInfo(
         model_id="o3",
@@ -45,6 +51,8 @@ _STATIC_MODELS = [
         max_output_tokens=100_000,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=2.00,
+        output_cost_per_mtok=8.00,
     ),
     ModelInfo(
         model_id="o4-mini",
@@ -54,6 +62,8 @@ _STATIC_MODELS = [
         max_output_tokens=100_000,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=1.10,
+        output_cost_per_mtok=4.40,
     ),
     ModelInfo(
         model_id="gpt-4.1",
@@ -63,6 +73,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_768,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=2.00,
+        output_cost_per_mtok=8.00,
     ),
     ModelInfo(
         model_id="gpt-4.1-mini",
@@ -72,6 +84,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_768,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.40,
+        output_cost_per_mtok=1.60,
     ),
     ModelInfo(
         model_id="gpt-4.1-nano",
@@ -81,6 +95,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_768,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.10,
+        output_cost_per_mtok=0.40,
     ),
 ]
 

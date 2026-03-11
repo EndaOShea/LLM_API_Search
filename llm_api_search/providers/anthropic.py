@@ -19,6 +19,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_000,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=5.00,
+        output_cost_per_mtok=25.00,
     ),
     ModelInfo(
         model_id="claude-sonnet-4-6",
@@ -28,6 +30,8 @@ _STATIC_MODELS = [
         max_output_tokens=16_000,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=3.00,
+        output_cost_per_mtok=15.00,
     ),
     ModelInfo(
         model_id="claude-sonnet-4-5-20250929",
@@ -37,6 +41,8 @@ _STATIC_MODELS = [
         max_output_tokens=16_000,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=3.00,
+        output_cost_per_mtok=15.00,
     ),
     ModelInfo(
         model_id="claude-opus-4-5-20251124",
@@ -46,6 +52,8 @@ _STATIC_MODELS = [
         max_output_tokens=32_000,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=5.00,
+        output_cost_per_mtok=25.00,
     ),
     ModelInfo(
         model_id="claude-haiku-4-5-20251001",
@@ -55,6 +63,8 @@ _STATIC_MODELS = [
         max_output_tokens=8_192,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=1.00,
+        output_cost_per_mtok=5.00,
     ),
 ]
 

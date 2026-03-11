@@ -18,6 +18,8 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=2.00,
+        output_cost_per_mtok=12.00,
     ),
     ModelInfo(
         model_id="gemini-3-flash-preview",
@@ -27,6 +29,8 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.50,
+        output_cost_per_mtok=3.00,
     ),
     ModelInfo(
         model_id="gemini-3.1-flash-lite-preview",
@@ -36,6 +40,8 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.25,
+        output_cost_per_mtok=1.50,
     ),
     ModelInfo(
         model_id="gemini-2.5-pro",
@@ -45,6 +51,8 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=1.25,
+        output_cost_per_mtok=10.00,
     ),
     ModelInfo(
         model_id="gemini-2.5-flash",
@@ -54,6 +62,8 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.30,
+        output_cost_per_mtok=2.50,
     ),
     ModelInfo(
         model_id="gemini-2.5-flash-lite",
@@ -63,6 +73,8 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        input_cost_per_mtok=0.10,
+        output_cost_per_mtok=0.40,
     ),
 ]
 

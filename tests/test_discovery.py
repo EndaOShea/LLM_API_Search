@@ -181,3 +181,25 @@ def test_unknown_language_falls_back_to_python():
     sel = select_provider("anthropic", live=False, language="rust")
     python_sel = select_provider("anthropic", live=False, language="python")
     assert sel.connection_snippet == python_sel.connection_snippet
+
+
+def test_model_pricing_fields():
+    """All static models should have pricing set."""
+    results = discover(live=False)
+    for key, info in results.items():
+        for m in info.models:
+            assert m.input_cost_per_mtok is not None, (
+                f"{key}/{m.model_id}: missing input_cost_per_mtok"
+            )
+            assert m.output_cost_per_mtok is not None, (
+                f"{key}/{m.model_id}: missing output_cost_per_mtok"
+            )
+            assert m.input_cost_per_mtok >= 0, (
+                f"{key}/{m.model_id}: negative input cost"
+            )
+            assert m.output_cost_per_mtok >= 0, (
+                f"{key}/{m.model_id}: negative output cost"
+            )
+            assert m.output_cost_per_mtok >= m.input_cost_per_mtok, (
+                f"{key}/{m.model_id}: output cost should be >= input cost"
+            )
