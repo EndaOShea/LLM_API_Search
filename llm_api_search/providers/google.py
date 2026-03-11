@@ -11,9 +11,36 @@ from llm_api_search.providers.base import ModelInfo, Provider, ProviderInfo
 
 _STATIC_MODELS = [
     ModelInfo(
+        model_id="gemini-3.1-pro-preview",
+        display_name="Gemini 3.1 Pro Preview",
+        description="Most advanced model; reasoning-first for agentic workflows and coding",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+    ),
+    ModelInfo(
+        model_id="gemini-3-flash-preview",
+        display_name="Gemini 3 Flash Preview",
+        description="Fast frontier-class; strong visual/spatial reasoning and agentic coding",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+    ),
+    ModelInfo(
+        model_id="gemini-3.1-flash-lite-preview",
+        display_name="Gemini 3.1 Flash Lite Preview",
+        description="Most cost-efficient; low latency, high volume",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+    ),
+    ModelInfo(
         model_id="gemini-2.5-pro",
         display_name="Gemini 2.5 Pro",
-        description="Most capable Gemini model with thinking",
+        description="Complex reasoning with adaptive thinking",
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -22,18 +49,18 @@ _STATIC_MODELS = [
     ModelInfo(
         model_id="gemini-2.5-flash",
         display_name="Gemini 2.5 Flash",
-        description="Fast model with thinking",
+        description="Balance of speed and intelligence with controllable thinking budgets",
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
     ),
     ModelInfo(
-        model_id="gemini-2.0-flash",
-        display_name="Gemini 2.0 Flash",
-        description="Next generation fast model",
+        model_id="gemini-2.5-flash-lite",
+        display_name="Gemini 2.5 Flash Lite",
+        description="Massive scale, cost-optimized",
         context_window=1_000_000,
-        max_output_tokens=8_192,
+        max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
     ),
@@ -48,7 +75,7 @@ class GeminiProvider(Provider):
             name="Google (Gemini)",
             api_base_url="https://generativelanguage.googleapis.com",
             api_version="v1beta",
-            auth_env_var="GOOGLE_API_KEY",
+            auth_env_var="GEMINI_API_KEY",
             auth_header="x-goog-api-key",
             sdk_package="google-genai",
             sdk_install="pip install google-genai",
@@ -59,7 +86,7 @@ class GeminiProvider(Provider):
     def fetch_live_models(self) -> ProviderInfo:
         """Fetch models from the Gemini API, fall back to static."""
         info = self.get_static_info()
-        api_key = os.environ.get("GOOGLE_API_KEY")
+        api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             return info
 
@@ -97,7 +124,7 @@ class GeminiProvider(Provider):
         model = model_id or "gemini-2.5-flash"
         return (
             'from google import genai\n\n'
-            'client = genai.Client()  # uses GOOGLE_API_KEY env var\n\n'
+            'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
             'response = client.models.generate_content(\n'
             f'    model="{model}",\n'
             '    contents="Hello!",\n'
