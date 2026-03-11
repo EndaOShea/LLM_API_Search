@@ -183,6 +183,18 @@ def test_unknown_language_falls_back_to_python():
     assert sel.connection_snippet == python_sel.connection_snippet
 
 
+def test_summary_includes_pricing():
+    """Provider summary should show pricing for each model."""
+    results = discover(live=False)
+    for key, info in results.items():
+        summary = info.summary()
+        for m in info.models:
+            if m.input_cost_per_mtok is not None:
+                assert f"${m.input_cost_per_mtok:.2f}" in summary, (
+                    f"{key}/{m.model_id}: pricing missing from summary"
+                )
+
+
 def test_model_pricing_fields():
     """All static models should have pricing set."""
     results = discover(live=False)

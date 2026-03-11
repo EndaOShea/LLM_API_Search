@@ -71,7 +71,10 @@ class ProviderInfo:
         ]
         for m in self.models:
             ctx = f" | ctx: {m.context_window}" if m.context_window else ""
-            lines.append(f"    - {m.model_id}{ctx}")
+            cost = ""
+            if m.input_cost_per_mtok is not None and m.output_cost_per_mtok is not None:
+                cost = f" | ${m.input_cost_per_mtok:.2f}/${m.output_cost_per_mtok:.2f} per 1M tok"
+            lines.append(f"    - {m.model_id}{ctx}{cost}")
         return "\n".join(lines)
 
 

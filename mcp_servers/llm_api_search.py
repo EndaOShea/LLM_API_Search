@@ -101,6 +101,8 @@ def llm_list_models(provider: str, live: bool = False) -> list[dict]:
             "max_output_tokens": m.max_output_tokens,
             "supports_vision": m.supports_vision,
             "supports_tool_use": m.supports_tool_use,
+            "input_cost_per_mtok": m.input_cost_per_mtok,
+            "output_cost_per_mtok": m.output_cost_per_mtok,
         }
         for m in info.models
     ]
