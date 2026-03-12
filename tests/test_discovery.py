@@ -11,7 +11,7 @@ from llm_api_search.providers.base import ProviderInfo, SUPPORTED_LANGUAGES
 def test_list_providers():
     names = list_providers()
     assert "anthropic" in names
-    assert "gemini" in names
+    assert "google" in names
     assert "openai" in names
 
 
@@ -25,7 +25,7 @@ def test_discover_provider_static():
 
 def test_discover_all_static():
     results = discover(live=False)
-    assert set(results.keys()) == {"anthropic", "gemini", "openai"}
+    assert set(results.keys()) == {"anthropic", "google", "openai"}
     for key, info in results.items():
         assert isinstance(info, ProviderInfo)
         assert len(info.models) > 0

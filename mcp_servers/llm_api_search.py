@@ -13,7 +13,7 @@ mcp = FastMCP("llm-api-search")
 
 @mcp.tool()
 def llm_list_providers() -> list[str]:
-    """List all supported LLM API providers (e.g. anthropic, gemini, openai)."""
+    """List all supported LLM API providers (e.g. anthropic, google, openai)."""
     return list_providers()
 
 
@@ -41,7 +41,7 @@ def llm_discover_provider(provider: str, live: bool = False) -> str:
     """Discover API info for a single LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "gemini", or "openai".
+        provider: Provider key — one of "anthropic", "google", or "openai".
         live: If True, fetch live model lists (requires API key in environment).
 
     Returns:
@@ -60,7 +60,7 @@ def llm_get_connection_snippet(
     """Get a ready-to-use code snippet for connecting to an LLM API.
 
     Args:
-        provider: Provider key — one of "anthropic", "gemini", or "openai".
+        provider: Provider key — one of "anthropic", "google", or "openai".
         model_id: Optional specific model ID. Defaults to the provider's recommended model.
         language: Programming language for the snippet. One of "python", "typescript",
                   "javascript", "java", or "cpp". Defaults to "python".
@@ -85,7 +85,7 @@ def llm_list_models(provider: str, live: bool = False) -> list[dict]:
     """List available models for a specific LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "gemini", or "openai".
+        provider: Provider key — one of "anthropic", "google", or "openai".
         live: If True, fetch live model lists (requires API key in environment).
 
     Returns:

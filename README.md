@@ -65,7 +65,7 @@ providers = discover(live=False)
 
 # Query a single provider
 from llm_api_search import discover_provider
-info = discover_provider("gemini", live=True)
+info = discover_provider("google", live=True)
 ```
 
 ## API

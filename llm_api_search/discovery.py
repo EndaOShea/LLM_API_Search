@@ -21,7 +21,7 @@ def discover_provider(
     """Discover API info for a single provider.
 
     Args:
-        name: Provider key (e.g. "anthropic", "gemini", "openai").
+        name: Provider key (e.g. "anthropic", "google", "openai").
         live: If True, attempt to fetch live model lists from the provider's
               API (requires the relevant API key in the environment).  Falls
               back to built-in static data on failure or when False.

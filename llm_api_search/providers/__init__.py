@@ -5,7 +5,7 @@ from llm_api_search.providers.openai import OpenAIProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
-    "gemini": GeminiProvider,
+    "google": GeminiProvider,
     "openai": OpenAIProvider,
 }
 
