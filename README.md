@@ -1,15 +1,143 @@
 # LLM API Search
 
-A Python library and MCP server that discovers the latest API versions for **Claude (Anthropic)**, **Gemini (Google)**, and **OpenAI**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
+An MCP server and Python library that discovers the latest API versions, models, and pricing for **Claude (Anthropic)**, **Gemini (Google)**, and **OpenAI**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
-## Install
+Works with any MCP-compatible client — **Claude Code**, **Gemini CLI**, **OpenAI Codex CLI**, and more.
+
+## MCP Server
+
+This is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server. MCP is an open standard supported by multiple AI coding tools, so one server works with all of them.
+
+### Connect to a hosted server
+
+Browse what's available:
+
+```
+curl http://YOUR_SERVER:8080/
+```
+
+Then connect from your preferred tool:
+
+**Claude Code:**
+```bash
+claude mcp add --transport url --scope user llm-api-search http://YOUR_SERVER:8080/llm-api-search/mcp
+```
+
+**Gemini CLI:**
+```bash
+gemini mcp add llm-api-search --url http://YOUR_SERVER:8080/llm-api-search/mcp
+```
+
+**OpenAI Codex CLI** (add to `.codex/config.json`):
+```json
+{
+  "mcpServers": {
+    "llm-api-search": {
+      "url": "http://YOUR_SERVER:8080/llm-api-search/mcp"
+    }
+  }
+}
+```
+
+No installs, no dependencies. All three use the same URL, same protocol, same tools.
+
+### Run locally (stdio mode)
+
+If you prefer to run the server locally instead of connecting to a hosted instance:
+
+```bash
+pip install -e ".[mcp]"
+python mcp_server.py
+```
+
+Then configure your tool to use the local server:
+
+**Claude Code:**
+```bash
+claude mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
+```
+
+**Gemini CLI** (add to `~/.gemini/settings.json`):
+```json
+{
+  "mcpServers": {
+    "llm-api-search": {
+      "command": "python3",
+      "args": ["/path/to/LLM_API_Search/mcp_server.py"]
+    }
+  }
+}
+```
+
+**OpenAI Codex CLI** (add to `.codex/config.json`):
+```json
+{
+  "mcpServers": {
+    "llm-api-search": {
+      "command": "python3",
+      "args": ["/path/to/LLM_API_Search/mcp_server.py"]
+    }
+  }
+}
+```
+
+### Available tools
+
+| Tool | Description |
+|---|---|
+| `llm_list_providers` | List all supported provider keys |
+| `llm_discover_all` | Discover all providers with models, auth, and SDK info |
+| `llm_discover_provider` | Discover a single provider's details |
+| `llm_list_models` | List models for a specific provider (includes per-model pricing) |
+| `llm_get_connection_snippet` | Get a ready-to-use code snippet for any provider/model/language |
+| `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
+
+### Deploy your own server
+
+```bash
+git clone https://github.com/EndaOShea/LLM_API_Search.git
+cd LLM_API_Search
+
+# Docker
+docker build -t llm-api-search .
+docker run -d -p 8080:8080 --name llm-api-search llm-api-search
+
+# Or directly
+pip install -e ".[mcp]"
+python mcp_server.py --http --port 8080
+```
+
+### Adding more MCP servers
+
+Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, and `DESCRIPTION`. It will be auto-discovered and mounted at its own path. See `mcp_servers/llm_api_search.py` as a template.
+
+## Automatic model updates
+
+A GitHub Actions workflow runs weekly to fetch the latest model lists from each provider's API and open a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
+
+```bash
+# Run manually
+ANTHROPIC_API_KEY=... OPENAI_API_KEY=... GEMINI_API_KEY=... python scripts/update_models.py
+```
+
+To enable the weekly workflow, add these **repository secrets** in GitHub (`Settings → Secrets → Actions`):
+
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
+
+## Python library
+
+The MCP tools are backed by a Python library you can also use directly.
+
+### Install
 
 ```bash
 pip install -e .          # core (no SDK deps)
 pip install -e ".[all]"   # with all provider SDKs
 ```
 
-## Quick Start
+### Quick start
 
 ```python
 from llm_api_search import discover, select_provider
@@ -31,7 +159,7 @@ print(sel.connection_snippet)
 sel = select_provider(interactive=True)
 ```
 
-## Supported Languages
+### Supported languages
 
 Connection snippets are available in five languages:
 
@@ -43,19 +171,19 @@ Connection snippets are available in five languages:
 | **Java** | Official SDK (Maven/Gradle) | `com.openai:openai-java` |
 | **C++** | REST API via libcurl + nlohmann/json | No official SDK |
 
-Each snippet is idiomatic for its language, uses official SDKs where available, and includes auth setup via environment variables.
-
-## Model Pricing
+### Model pricing
 
 All static model data includes per-model pricing (USD per million tokens) for input and output. This appears in summaries, model listings, and provider comparisons.
 
 ```python
+from llm_api_search import discover_provider
+
 info = discover_provider("anthropic", live=False)
 for m in info.models:
     print(f"{m.model_id}: ${m.input_cost_per_mtok}/in, ${m.output_cost_per_mtok}/out per 1M tok")
 ```
 
-## Live vs Static Discovery
+### Live vs static discovery
 
 When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
 
@@ -64,11 +192,10 @@ When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_K
 providers = discover(live=False)
 
 # Query a single provider
-from llm_api_search import discover_provider
 info = discover_provider("google", live=True)
 ```
 
-## API
+### API
 
 | Function | Description |
 |---|---|
@@ -76,53 +203,3 @@ info = discover_provider("google", live=True)
 | `discover_provider(name, live=True)` | Discover a single provider |
 | `list_providers()` | List available provider keys |
 | `select_provider(provider_key, model_id, live, interactive, language)` | Select a provider/model and get a connection snippet |
-
-## MCP Server (Use from Claude Code — no install needed)
-
-This repo runs as a remote **MCP server** so Claude Code can call the tools directly. The server supports hosting multiple MCP services — you connect only to the ones you need.
-
-### Connect to a hosted server
-
-Browse what's available:
-
-```
-curl http://YOUR_SERVER:8080/
-```
-
-Then connect the one(s) you want:
-
-```bash
-claude mcp add --transport url --scope user llm-api-search http://YOUR_SERVER:8080/llm-api-search/mcp
-```
-
-Restart Claude Code. That's it — no installs, no dependencies. Verify with `/mcp`.
-
-### Deploy the server (VPS)
-
-```bash
-git clone https://github.com/EndaOShea/LLM_API_Search.git
-cd LLM_API_Search
-
-# Docker
-docker build -t llm-api-search .
-docker run -d -p 8080:8080 --name llm-api-search llm-api-search
-
-# Or directly
-pip install -e ".[mcp]"
-python mcp_server.py --http --port 8080
-```
-
-### Adding more MCP servers
-
-Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, and `DESCRIPTION`. It will be auto-discovered and mounted at its own path. See `mcp_servers/llm_api_search.py` as a template.
-
-### Available tools (llm-api-search)
-
-| Tool | Description |
-|---|---|
-| `llm_list_providers` | List all supported provider keys |
-| `llm_discover_all` | Discover all providers with models, auth, and SDK info |
-| `llm_discover_provider` | Discover a single provider's details |
-| `llm_list_models` | List models for a specific provider (includes per-model pricing) |
-| `llm_get_connection_snippet` | Get a ready-to-use code snippet for any provider/model/language |
-| `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
