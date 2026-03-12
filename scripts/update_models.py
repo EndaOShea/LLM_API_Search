@@ -32,6 +32,7 @@ _PROVIDER_FILES = {
     "anthropic": PROJECT_ROOT / "llm_api_search" / "providers" / "anthropic.py",
     "google": PROJECT_ROOT / "llm_api_search" / "providers" / "google.py",
     "openai": PROJECT_ROOT / "llm_api_search" / "providers" / "openai.py",
+    "inception": PROJECT_ROOT / "llm_api_search" / "providers" / "inception.py",
 }
 
 # Regex that matches the entire `_STATIC_MODELS = [...]` block.

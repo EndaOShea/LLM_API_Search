@@ -1,0 +1,7 @@
+services:
+  llm-api-search:
+    build: .
+    container_name: llm-api-search
+    restart: unless-stopped
+    ports:
+      - "8082:8080"

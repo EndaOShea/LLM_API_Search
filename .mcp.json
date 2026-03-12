@@ -2,7 +2,7 @@
   "mcpServers": {
     "llm-api-search": {
       "type": "url",
-      "url": "http://YOUR_SERVER:8080/llm-api-search/mcp"
+      "url": "https://llm-mcp.cora-branch.com/llm-api-search/mcp"
     }
   }
 }

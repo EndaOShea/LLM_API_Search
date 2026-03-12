@@ -25,7 +25,7 @@ def test_discover_provider_static():
 
 def test_discover_all_static():
     results = discover(live=False)
-    assert set(results.keys()) == {"anthropic", "google", "openai"}
+    assert set(results.keys()) == {"anthropic", "google", "openai", "inception"}
     for key, info in results.items():
         assert isinstance(info, ProviderInfo)
         assert len(info.models) > 0
@@ -106,19 +106,21 @@ def test_model_info_fields():
 
 
 def test_connection_snippet_typescript():
-    """Verify TypeScript snippets use TS import syntax."""
+    """Verify TypeScript snippets use TS syntax (import or fetch)."""
     for key in list_providers():
         sel = select_provider(key, live=False, language="typescript")
-        assert "import" in sel.connection_snippet
+        # Providers with SDKs use import; others use fetch API directly
+        assert "import" in sel.connection_snippet or "fetch" in sel.connection_snippet
         # TS snippets should not use Python syntax
         assert "print(" not in sel.connection_snippet
 
 
 def test_connection_snippet_javascript():
-    """Verify JavaScript snippets use require syntax."""
+    """Verify JavaScript snippets use JS syntax (require or fetch)."""
     for key in list_providers():
         sel = select_provider(key, live=False, language="javascript")
-        assert "require(" in sel.connection_snippet
+        # Providers with SDKs use require; others use fetch API directly
+        assert "require(" in sel.connection_snippet or "fetch" in sel.connection_snippet
         assert "console.log" in sel.connection_snippet
 
 
@@ -126,8 +128,9 @@ def test_connection_snippet_java():
     """Verify Java snippets use Java import syntax."""
     for key in list_providers():
         sel = select_provider(key, live=False, language="java")
-        assert "import com." in sel.connection_snippet
-        assert "System.out.println" in sel.connection_snippet
+        # Providers with SDKs use com.*; others use java.net.http
+        assert "import com." in sel.connection_snippet or "import java." in sel.connection_snippet
+        assert "System.out.println" in sel.connection_snippet or "System.getenv" in sel.connection_snippet
 
 
 def test_connection_snippet_cpp():

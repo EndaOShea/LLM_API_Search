@@ -1,6 +1,6 @@
 # LLM API Search
 
-An MCP server and Python library that discovers the latest API versions, models, and pricing for **Claude (Anthropic)**, **Gemini (Google)**, and **OpenAI**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
+An MCP server and Python library that discovers the latest API versions, models, and pricing for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, and **Mercury (Inception Labs)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
 Works with any MCP-compatible client — **Claude Code**, **Gemini CLI**, **OpenAI Codex CLI**, and more.
 
@@ -13,19 +13,19 @@ This is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) serve
 Browse what's available:
 
 ```
-curl http://YOUR_SERVER:8080/
+curl https://llm-mcp.cora-branch.com/
 ```
 
 Then connect from your preferred tool:
 
 **Claude Code:**
 ```bash
-claude mcp add --transport url --scope user llm-api-search http://YOUR_SERVER:8080/llm-api-search/mcp
+claude mcp add --transport url --scope user llm-api-search https://llm-mcp.cora-branch.com/llm-api-search/mcp
 ```
 
 **Gemini CLI:**
 ```bash
-gemini mcp add llm-api-search --url http://YOUR_SERVER:8080/llm-api-search/mcp
+gemini mcp add llm-api-search --url https://llm-mcp.cora-branch.com/llm-api-search/mcp
 ```
 
 **OpenAI Codex CLI** (add to `.codex/config.json`):
@@ -33,7 +33,7 @@ gemini mcp add llm-api-search --url http://YOUR_SERVER:8080/llm-api-search/mcp
 {
   "mcpServers": {
     "llm-api-search": {
-      "url": "http://YOUR_SERVER:8080/llm-api-search/mcp"
+      "url": "https://llm-mcp.cora-branch.com/llm-api-search/mcp"
     }
   }
 }
@@ -125,6 +125,7 @@ To enable the weekly workflow, add these **repository secrets** in GitHub (`Sett
 - `ANTHROPIC_API_KEY`
 - `OPENAI_API_KEY`
 - `GEMINI_API_KEY`
+- `INCEPTION_API_KEY`
 
 ## Python library
 
@@ -185,7 +186,7 @@ for m in info.models:
 
 ### Live vs static discovery
 
-When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
+When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`, `INCEPTION_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
 
 ```python
 # Force static-only (no network calls)

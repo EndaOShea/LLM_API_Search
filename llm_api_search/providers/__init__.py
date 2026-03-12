@@ -2,11 +2,13 @@ from llm_api_search.providers.base import Provider, ModelInfo, SUPPORTED_LANGUAG
 from llm_api_search.providers.anthropic import AnthropicProvider
 from llm_api_search.providers.google import GeminiProvider
 from llm_api_search.providers.openai import OpenAIProvider
+from llm_api_search.providers.inception import InceptionProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
     "google": GeminiProvider,
     "openai": OpenAIProvider,
+    "inception": InceptionProvider,
 }
 
 __all__ = [
@@ -16,5 +18,6 @@ __all__ = [
     "AnthropicProvider",
     "GeminiProvider",
     "OpenAIProvider",
+    "InceptionProvider",
     "PROVIDERS",
 ]
