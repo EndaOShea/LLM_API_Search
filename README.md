@@ -2,6 +2,8 @@
 
 An MCP server and Python library that discovers the latest API versions, models, and pricing for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, and **Mercury (Inception Labs)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
+Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**.
+
 Works with any MCP-compatible client — **Claude Code**, **Gemini CLI**, **OpenAI Codex CLI**, and more.
 
 ## MCP Server
@@ -88,7 +90,7 @@ claude mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 | `llm_list_providers` | List all supported provider keys |
 | `llm_discover_all` | Discover all providers with models, auth, and SDK info |
 | `llm_discover_provider` | Discover a single provider's details |
-| `llm_list_models` | List models for a specific provider (includes per-model pricing) |
+| `llm_list_models` | List models for a specific provider, with optional `model_type` filter |
 | `llm_get_connection_snippet` | Get a ready-to-use code snippet for any provider/model/language |
 | `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
 
@@ -172,16 +174,36 @@ Connection snippets are available in five languages:
 | **Java** | Official SDK (Maven/Gradle) | `com.openai:openai-java` |
 | **C++** | REST API via libcurl + nlohmann/json | No official SDK |
 
-### Model pricing
+### Model types
 
-All static model data includes per-model pricing (USD per million tokens) for input and output. This appears in summaries, model listings, and provider comparisons.
+Models are organized by type, each with type-specific fields and pricing:
+
+| Type | Subclass | Pricing | Example |
+|------|----------|---------|---------|
+| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 4.6 |
+| `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4 |
+| `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS |
+| `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
+| `embedding` | `EmbeddingModelInfo` | per 1M tokens (input) | text-embedding-3-large |
+| `music` | `MusicModelInfo` | per second | Lyria 2 |
+| `video` | `VideoModelInfo` | per second | Veo 3.1 |
+
+Filter by type using the MCP tool or programmatically:
 
 ```python
 from llm_api_search import discover_provider
+from llm_api_search.providers.base import TextModelInfo, ImageModelInfo
 
-info = discover_provider("anthropic", live=False)
+info = discover_provider("openai", live=False)
+
+# All models
 for m in info.models:
-    print(f"{m.model_id}: ${m.input_cost_per_mtok}/in, ${m.output_cost_per_mtok}/out per 1M tok")
+    print(f"{m.model_id} ({m.model_type.value})")
+
+# Just image models
+for m in info.models:
+    if isinstance(m, ImageModelInfo):
+        print(f"{m.model_id}: ${m.cost_per_image}/image")
 ```
 
 ### Live vs static discovery
