@@ -9,7 +9,7 @@ from llm_api_search.selector import select_provider, Selection
 from llm_api_search.providers.base import (
     ProviderInfo, SUPPORTED_LANGUAGES, ModelInfo, ModelType,
     TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    AudioTranscriptionModelInfo, EmbeddingModelInfo, VideoModelInfo,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo, MusicModelInfo, VideoModelInfo,
 )
 
 
@@ -231,6 +231,9 @@ def test_model_pricing_fields():
             elif isinstance(m, EmbeddingModelInfo):
                 assert m.input_cost_per_mtok is not None, f"{key}/{m.model_id}: missing input_cost_per_mtok"
                 assert m.input_cost_per_mtok >= 0
+            elif isinstance(m, MusicModelInfo):
+                assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
+                assert m.cost_per_second >= 0
             elif isinstance(m, VideoModelInfo):
                 assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
                 assert m.cost_per_second >= 0
@@ -539,3 +542,25 @@ def test_google_video_snippet():
     sel = select_provider("google", model_id="veo-3.1", live=False)
     assert "veo-3.1" in sel.connection_snippet
     assert "video" in sel.connection_snippet.lower()
+
+
+def test_google_has_music_model():
+    info = discover_provider("google", live=False)
+    music_models = [m for m in info.models if isinstance(m, MusicModelInfo)]
+    assert len(music_models) >= 1
+    assert music_models[0].model_id == "lyria-2"
+    assert music_models[0].cost_per_second == 0.002
+
+
+def test_google_music_snippet():
+    sel = select_provider("google", model_id="lyria-2", live=False)
+    assert "lyria-2" in sel.connection_snippet
+    assert "audio" in sel.connection_snippet.lower() or "music" in sel.connection_snippet.lower()
+
+
+def test_google_has_opensource_embeddings():
+    info = discover_provider("google", live=False)
+    emb_models = [m for m in info.models if isinstance(m, EmbeddingModelInfo)]
+    ids = [m.model_id for m in emb_models]
+    assert "multilingual-e5-small" in ids
+    assert "multilingual-e5-large" in ids

@@ -1,6 +1,6 @@
 from llm_api_search.providers.base import (
     Provider, ModelInfo, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    AudioTranscriptionModelInfo, EmbeddingModelInfo, VideoModelInfo, ModelType,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo, MusicModelInfo, VideoModelInfo, ModelType,
     ProviderInfo, SUPPORTED_LANGUAGES,
 )
 from llm_api_search.providers.anthropic import AnthropicProvider
@@ -23,6 +23,7 @@ __all__ = [
     "AudioTTSModelInfo",
     "AudioTranscriptionModelInfo",
     "EmbeddingModelInfo",
+    "MusicModelInfo",
     "VideoModelInfo",
     "ModelType",
     "ProviderInfo",

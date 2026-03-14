@@ -9,7 +9,7 @@ import urllib.error
 
 from llm_api_search.providers.base import (
     ModelInfo, ModelType, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    EmbeddingModelInfo, VideoModelInfo, Provider, ProviderInfo,
+    EmbeddingModelInfo, MusicModelInfo, VideoModelInfo, Provider, ProviderInfo,
 )
 
 _STATIC_MODELS = [
@@ -144,6 +144,30 @@ _STATIC_MODELS = [
         supports_multimodal=True,
         input_cost_per_mtok=0.20,
     ),
+    # --- Embeddings (open-source) ---
+    EmbeddingModelInfo(
+        model_id="multilingual-e5-small",
+        display_name="Multilingual E5 Small",
+        description="Open-source multilingual text embedding model (small)",
+        dimensions=384,
+        max_input_tokens=512,
+        input_cost_per_mtok=0.015,
+    ),
+    EmbeddingModelInfo(
+        model_id="multilingual-e5-large",
+        display_name="Multilingual E5 Large",
+        description="Open-source multilingual text embedding model (large)",
+        dimensions=1024,
+        max_input_tokens=512,
+        input_cost_per_mtok=0.025,
+    ),
+    # --- Music generation (Lyria) ---
+    MusicModelInfo(
+        model_id="lyria-2",
+        display_name="Lyria 2",
+        description="High-quality instrumental music generation from text prompts",
+        cost_per_second=0.002,
+    ),
     # --- Video generation (Veo) ---
     VideoModelInfo(
         model_id="veo-3.1",
@@ -223,6 +247,8 @@ class GeminiProvider(Provider):
             return EmbeddingModelInfo
         elif "tts" in model_id:
             return AudioTTSModelInfo
+        elif model_id.startswith("lyria"):
+            return MusicModelInfo
         elif model_id.startswith("veo-"):
             return VideoModelInfo
         return TextModelInfo
@@ -280,6 +306,8 @@ class GeminiProvider(Provider):
             return self._tts_snippet(model, language)
         elif mtype == ModelType.EMBEDDING:
             return self._embedding_snippet(model, language)
+        elif mtype == ModelType.MUSIC:
+            return self._music_snippet(model, language)
         elif mtype == ModelType.VIDEO:
             return self._video_snippet(model, language)
         return self._text_snippet(model, language)
@@ -653,6 +681,101 @@ class GeminiProvider(Provider):
                 '    auto result = json::parse(response);\n'
                 '    std::cout << "Embedding: " << result["embedding"]["values"][0]\n'
                 '              << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
+
+    def _music_snippet(self, model: str, language: str) -> str:
+        snippets = {
+            "python": (
+                'from google import genai\n'
+                'from google.genai import types\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                'response = client.models.generate_content(\n'
+                f'    model="{model}",\n'
+                '    contents="A mellow jazz piano piece with soft drums",\n'
+                '    config=types.GenerateContentConfig(\n'
+                '        response_modalities=["AUDIO"],\n'
+                '    ),\n'
+                ')\n\n'
+                'with open("output.wav", "wb") as f:\n'
+                '    f.write(response.candidates[0].content.parts[0].inline_data.data)\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "A mellow jazz piano piece with soft drums",\n'
+                '  config: { responseModalities: ["AUDIO"] },\n'
+                '});\n\n'
+                'const audioData = response.candidates![0].content!.parts![0].inlineData!.data;\n'
+                'console.log("Audio generated, length:", audioData.length);\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "A mellow jazz piano piece with soft drums",\n'
+                '  config: { responseModalities: ["AUDIO"] },\n'
+                '});\n\n'
+                'const audioData = response.candidates[0].content.parts[0].inlineData.data;\n'
+                'console.log("Audio generated, length:", audioData.length);\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.GenerateContentConfig;\n'
+                'import com.google.genai.types.GenerateContentResponse;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'GenerateContentResponse response = client.models.generateContent(\n'
+                f'    "{model}",\n'
+                '    "A mellow jazz piano piece with soft drums",\n'
+                '    GenerateContentConfig.builder()\n'
+                '        .responseModalities(java.util.List.of("AUDIO"))\n'
+                '        .build()\n'
+                ');\n'
+                'System.out.println("Audio generated");\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                '        {"contents", {{{"parts", {{{"text",\n'
+                '            "A mellow jazz piano piece with soft drums"}}}}}}}},\n'
+                '        {"generationConfig", {{"responseModalities", {"AUDIO"}}}}\n'
+                '    };\n\n'
+                '    std::string url =\n'
+                '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
+                f'        "{model}:generateContent?key=" + std::string(api_key);\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << "Generated audio response" << std::endl;\n'
                 '    return 0;\n'
                 '}\n'
             ),

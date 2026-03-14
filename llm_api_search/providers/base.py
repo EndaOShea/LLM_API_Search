@@ -16,6 +16,7 @@ class ModelType(str, Enum):
     AUDIO_TRANSCRIPTION = "audio_transcription"
     EMBEDDING = "embedding"
     VIDEO = "video"
+    MUSIC = "music"
 
 
 @dataclass
@@ -79,6 +80,13 @@ class EmbeddingModelInfo(ModelInfo):
     max_input_tokens: int | None = None
     supports_multimodal: bool = False
     input_cost_per_mtok: float | None = None
+
+
+@dataclass
+class MusicModelInfo(ModelInfo):
+    """Music generation model."""
+    model_type: ModelType = field(default=ModelType.MUSIC, init=False)
+    cost_per_second: float | None = None
 
 
 @dataclass
@@ -181,6 +189,10 @@ def _format_model_cost(m: ModelInfo) -> str:
         if m.input_cost_per_mtok is not None:
             parts.append(f"${m.input_cost_per_mtok:.2f}/1M tok")
         return f" | {' | '.join(parts)}" if parts else ""
+    elif isinstance(m, MusicModelInfo):
+        if m.cost_per_second is not None:
+            return f" | ${m.cost_per_second:.3f}/sec"
+        return ""
     elif isinstance(m, VideoModelInfo):
         if m.cost_per_second is not None:
             return f" | ${m.cost_per_second:.2f}/sec"
