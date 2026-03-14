@@ -1,5 +1,6 @@
 """Tests for the discovery and selector modules."""
 
+import dataclasses
 import os
 from unittest.mock import patch
 
@@ -435,3 +436,83 @@ def test_google_embedding_snippet():
     sel = select_provider("google", model_id="gemini-embedding-001", live=False)
     assert "gemini-embedding-001" in sel.connection_snippet
     assert "embed" in sel.connection_snippet.lower()
+
+
+# --- Comprehensive multi-type cross-cutting tests ---
+
+
+def test_list_models_filter_by_type():
+    """model_type filter should return correct subset."""
+    info = discover_provider("openai", live=False)
+    all_models = info.models
+    text_only = [m for m in all_models if m.model_type.value == "text"]
+    image_only = [m for m in all_models if m.model_type.value == "image"]
+    assert len(all_models) > len(text_only)
+    assert len(text_only) > 0
+    assert len(image_only) > 0
+
+
+def test_list_models_no_filter_returns_all():
+    """Without model_type filter, all models should be returned."""
+    info = discover_provider("openai", live=False)
+    # 14 text + 3 image + 3 tts + 3 transcription + 2 embedding = 25
+    assert len(info.models) >= 25
+
+
+def test_connection_snippet_all_types_all_languages():
+    """Every model type should produce a non-empty snippet in every language."""
+    test_cases = [
+        ("openai", "gpt-5.4"),
+        ("openai", "gpt-image-1"),
+        ("openai", "tts-1"),
+        ("openai", "whisper-1"),
+        ("openai", "text-embedding-3-small"),
+        ("google", "gemini-2.5-flash"),
+        ("google", "imagen-4.0-generate-001"),
+        ("google", "gemini-2.5-flash-preview-tts"),
+        ("google", "gemini-embedding-001"),
+    ]
+    for provider, model_id in test_cases:
+        for lang in SUPPORTED_LANGUAGES:
+            sel = select_provider(provider, model_id=model_id, live=False, language=lang)
+            assert len(sel.connection_snippet) > 20, (
+                f"{provider}/{model_id}/{lang}: snippet too short"
+            )
+            assert model_id in sel.connection_snippet, (
+                f"{provider}/{model_id}/{lang}: model_id missing from snippet"
+            )
+
+
+def test_dataclasses_asdict_includes_type_specific_fields():
+    """dataclasses.asdict should include all subclass-specific fields."""
+    info = discover_provider("openai", live=False)
+    for m in info.models:
+        d = dataclasses.asdict(m)
+        assert "model_type" in d
+        assert "model_id" in d
+        if isinstance(m, TextModelInfo):
+            assert "context_window" in d
+            assert "input_cost_per_mtok" in d
+        elif isinstance(m, ImageModelInfo):
+            assert "cost_per_image" in d
+            assert "supported_sizes" in d
+        elif isinstance(m, AudioTTSModelInfo):
+            assert "supported_voices" in d
+        elif isinstance(m, AudioTranscriptionModelInfo):
+            assert "cost_per_minute" in d
+            assert "supported_input_formats" in d
+        elif isinstance(m, EmbeddingModelInfo):
+            assert "dimensions" in d
+            assert "input_cost_per_mtok" in d
+
+
+def test_mcp_list_models_filter_multiple_types():
+    """MCP tool should filter correctly across model types."""
+    from mcp_servers.llm_api_search import llm_list_models
+    all_models = llm_list_models("openai")
+    text_models = llm_list_models("openai", model_type="text")
+    image_models = llm_list_models("openai", model_type="image")
+    embedding_models = llm_list_models("openai", model_type="embedding")
+    assert len(all_models) == len(text_models) + len(image_models) + len(llm_list_models("openai", model_type="audio_tts")) + len(llm_list_models("openai", model_type="audio_transcription")) + len(embedding_models)
+    assert len(image_models) >= 3
+    assert len(embedding_models) >= 2
