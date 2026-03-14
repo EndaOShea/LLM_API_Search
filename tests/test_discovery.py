@@ -273,6 +273,19 @@ def test_embedding_model_info_has_model_type():
     assert isinstance(m, ModelInfo)
 
 
+def test_mcp_list_models_type_filter():
+    """MCP llm_list_models tool should support model_type filtering."""
+    from mcp_servers.llm_api_search import llm_list_models
+    all_models = llm_list_models("openai")
+    # All models should have model_type field
+    assert all("model_type" in m for m in all_models)
+    text_models = llm_list_models("openai", model_type="text")
+    assert all(m["model_type"] == "text" for m in text_models)
+    # Currently all OpenAI models are text, so counts should match.
+    # After non-text models are added (later tasks), all_models > text_models.
+    assert len(text_models) > 0
+
+
 def test_summary_groups_by_model_type():
     """Summary should group models by type when multiple types exist."""
     info = ProviderInfo(

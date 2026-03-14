@@ -1,9 +1,12 @@
 """LLM API Search — discover models, providers, and get connection snippets."""
 
+import dataclasses
+
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
+from llm_api_search.providers.base import TextModelInfo
 from llm_api_search.selector import select_provider
 
 DESCRIPTION = "Discover LLM API providers, models, and get ready-to-use code snippets"
@@ -91,31 +94,27 @@ def llm_get_connection_snippet(
 
 
 @mcp.tool()
-def llm_list_models(provider: str, live: bool = False) -> list[dict]:
+def llm_list_models(
+    provider: str,
+    live: bool = False,
+    model_type: str | None = None,
+) -> list[dict]:
     """List available models for a specific LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", or "openai".
+        provider: Provider key — one of "anthropic", "google", "openai", or "inception".
         live: If True, fetch live model lists (requires API key in environment).
+        model_type: Optional filter — one of "text", "image", "audio_tts",
+                    "audio_transcription", "embedding". Returns all types if omitted.
 
     Returns:
-        A list of model details including ID, name, context window, and capabilities.
+        A list of model details. Fields vary by model type.
     """
     info = discover_provider(provider, live=live)
-    return [
-        {
-            "model_id": m.model_id,
-            "display_name": m.display_name,
-            "description": m.description,
-            "context_window": m.context_window,
-            "max_output_tokens": m.max_output_tokens,
-            "supports_vision": m.supports_vision,
-            "supports_tool_use": m.supports_tool_use,
-            "input_cost_per_mtok": m.input_cost_per_mtok,
-            "output_cost_per_mtok": m.output_cost_per_mtok,
-        }
-        for m in info.models
-    ]
+    models = info.models
+    if model_type:
+        models = [m for m in models if m.model_type.value == model_type]
+    return [dataclasses.asdict(m) for m in models]
 
 
 @mcp.tool()
@@ -132,22 +131,27 @@ def llm_compare_providers(live: bool = False) -> str:
     lines = ["LLM Provider Comparison", "=" * 60, ""]
 
     for key, info in results.items():
-        max_ctx = max((m.context_window or 0) for m in info.models)
-        max_out = max((m.max_output_tokens or 0) for m in info.models)
-        priced = [m for m in info.models if m.input_cost_per_mtok is not None]
+        text_models = [m for m in info.models if isinstance(m, TextModelInfo)]
+        max_ctx = max((m.context_window or 0) for m in text_models) if text_models else 0
+        max_out = max((m.max_output_tokens or 0) for m in text_models) if text_models else 0
+        priced = [m for m in text_models if m.input_cost_per_mtok is not None]
+        model_types = sorted(set(m.model_type.value for m in info.models))
+
         lines.append(f"{info.name}")
         lines.append(f"  Models available:    {len(info.models)}")
-        lines.append(f"  Max context window:  {max_ctx:,} tokens")
-        lines.append(f"  Max output tokens:   {max_out:,} tokens")
+        lines.append(f"  Model types:         {', '.join(model_types)}")
+        if text_models:
+            lines.append(f"  Max context window:  {max_ctx:,} tokens")
+            lines.append(f"  Max output tokens:   {max_out:,} tokens")
         if priced:
             cheapest = min(priced, key=lambda m: m.input_cost_per_mtok)
             priciest = max(priced, key=lambda m: m.input_cost_per_mtok)
             lines.append(
-                f"  Price range:         "
+                f"  Text price range:    "
                 f"${cheapest.input_cost_per_mtok:.2f}/${cheapest.output_cost_per_mtok:.2f} "
                 f"— ${priciest.input_cost_per_mtok:.2f}/${priciest.output_cost_per_mtok:.2f} per 1M tok"
             )
-            lines.append(f"  Per-model pricing:")
+            lines.append(f"  Per-model pricing (text):")
             for m in priced:
                 lines.append(
                     f"    {m.model_id:40s} ${m.input_cost_per_mtok:>7.2f} in / ${m.output_cost_per_mtok:>7.2f} out"
