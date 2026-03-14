@@ -19,18 +19,12 @@ class ModelType(str, Enum):
 
 @dataclass
 class ModelInfo:
-    """Information about a single model available from a provider."""
+    """Base class for all model types."""
 
     model_id: str
     display_name: str
     model_type: ModelType = ModelType.TEXT
     description: str = ""
-    context_window: int | None = None
-    max_output_tokens: int | None = None
-    supports_vision: bool = False
-    supports_tool_use: bool = False
-    input_cost_per_mtok: float | None = None   # USD per 1M input tokens
-    output_cost_per_mtok: float | None = None  # USD per 1M output tokens
 
 
 @dataclass
@@ -177,14 +171,7 @@ def _format_model_cost(m: ModelInfo) -> str:
         if m.input_cost_per_mtok is not None:
             parts.append(f"${m.input_cost_per_mtok:.2f}/1M tok")
         return f" | {' | '.join(parts)}" if parts else ""
-    # Fallback for plain ModelInfo (pre-migration)
-    parts = []
-    if hasattr(m, 'context_window') and m.context_window:
-        parts.append(f"ctx: {m.context_window}")
-    if hasattr(m, 'input_cost_per_mtok') and m.input_cost_per_mtok is not None:
-        if hasattr(m, 'output_cost_per_mtok') and m.output_cost_per_mtok is not None:
-            parts.append(f"${m.input_cost_per_mtok:.2f}/${m.output_cost_per_mtok:.2f} per 1M tok")
-    return f" | {' | '.join(parts)}" if parts else ""
+    return ""
 
 
 class Provider(ABC):

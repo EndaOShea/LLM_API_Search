@@ -81,8 +81,8 @@ def test_provider_summaries():
 def test_connection_snippets_all_providers():
     for key in list_providers():
         sel = select_provider(key, live=False)
-        assert "import" in sel.connection_snippet
         assert len(sel.connection_snippet) > 20
+        assert sel.model.model_id in sel.connection_snippet
 
 
 def test_provider_info_fields():
@@ -196,32 +196,40 @@ def test_summary_includes_pricing():
     for key, info in results.items():
         summary = info.summary()
         for m in info.models:
-            if m.input_cost_per_mtok is not None:
+            if isinstance(m, TextModelInfo) and m.input_cost_per_mtok is not None:
                 assert f"${m.input_cost_per_mtok:.2f}" in summary, (
+                    f"{key}/{m.model_id}: pricing missing from summary"
+                )
+            elif isinstance(m, ImageModelInfo) and m.cost_per_image is not None:
+                assert f"${m.cost_per_image:.3f}" in summary, (
                     f"{key}/{m.model_id}: pricing missing from summary"
                 )
 
 
 def test_model_pricing_fields():
-    """All static models should have pricing set."""
+    """All static models should have type-appropriate pricing set."""
     results = discover(live=False)
     for key, info in results.items():
         for m in info.models:
-            assert m.input_cost_per_mtok is not None, (
-                f"{key}/{m.model_id}: missing input_cost_per_mtok"
-            )
-            assert m.output_cost_per_mtok is not None, (
-                f"{key}/{m.model_id}: missing output_cost_per_mtok"
-            )
-            assert m.input_cost_per_mtok >= 0, (
-                f"{key}/{m.model_id}: negative input cost"
-            )
-            assert m.output_cost_per_mtok >= 0, (
-                f"{key}/{m.model_id}: negative output cost"
-            )
-            assert m.output_cost_per_mtok >= m.input_cost_per_mtok, (
-                f"{key}/{m.model_id}: output cost should be >= input cost"
-            )
+            if isinstance(m, TextModelInfo):
+                assert m.input_cost_per_mtok is not None, f"{key}/{m.model_id}: missing input_cost_per_mtok"
+                assert m.output_cost_per_mtok is not None, f"{key}/{m.model_id}: missing output_cost_per_mtok"
+                assert m.input_cost_per_mtok >= 0
+                assert m.output_cost_per_mtok >= 0
+                assert m.output_cost_per_mtok >= m.input_cost_per_mtok, f"{key}/{m.model_id}: output < input"
+            elif isinstance(m, ImageModelInfo):
+                assert m.cost_per_image is not None, f"{key}/{m.model_id}: missing cost_per_image"
+                assert m.cost_per_image >= 0
+            elif isinstance(m, AudioTTSModelInfo):
+                has_char = m.cost_per_mchars is not None
+                has_tok = m.input_cost_per_mtok is not None and m.output_cost_per_mtok is not None
+                assert has_char or has_tok, f"{key}/{m.model_id}: missing TTS pricing"
+            elif isinstance(m, AudioTranscriptionModelInfo):
+                assert m.cost_per_minute is not None, f"{key}/{m.model_id}: missing cost_per_minute"
+                assert m.cost_per_minute >= 0
+            elif isinstance(m, EmbeddingModelInfo):
+                assert m.input_cost_per_mtok is not None, f"{key}/{m.model_id}: missing input_cost_per_mtok"
+                assert m.input_cost_per_mtok >= 0
 
 
 # --- ModelType enum and subclass tests ---
