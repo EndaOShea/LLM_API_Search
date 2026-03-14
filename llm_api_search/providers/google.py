@@ -144,6 +144,15 @@ _STATIC_MODELS = [
         supports_multimodal=True,
         input_cost_per_mtok=0.20,
     ),
+    # --- Embeddings (multimodal) ---
+    EmbeddingModelInfo(
+        model_id="multimodalembedding",
+        display_name="Multimodal Embedding",
+        description="Embeddings for text ($0.0002/1K chars), image ($0.0001/image), and video ($0.0005-$0.002/sec)",
+        dimensions=1408,
+        supports_multimodal=True,
+        input_cost_per_mtok=0.80,  # approximate: $0.0002/1K chars, ~4 chars/token
+    ),
     # --- Embeddings (open-source) ---
     EmbeddingModelInfo(
         model_id="multilingual-e5-small",
