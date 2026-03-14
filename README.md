@@ -20,7 +20,7 @@ Then connect from your preferred tool:
 
 **Claude Code:**
 ```bash
-claude mcp add --transport url --scope user llm-api-search https://llm-mcp.cora-branch.com/llm-api-search/mcp
+claude mcp add --transport http --scope user llm-api-search https://llm-mcp.cora-branch.com/llm-api-search/mcp
 ```
 
 **Gemini CLI:**
