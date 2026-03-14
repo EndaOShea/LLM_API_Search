@@ -30,15 +30,9 @@ claude mcp add --transport http --scope user llm-api-search https://llm-mcp.cora
 gemini mcp add llm-api-search -t http -s user https://llm-mcp.cora-branch.com/llm-api-search/mcp
 ```
 
-**OpenAI Codex CLI** (add to `.codex/config.json`):
-```json
-{
-  "mcpServers": {
-    "llm-api-search": {
-      "url": "https://llm-mcp.cora-branch.com/llm-api-search/mcp"
-    }
-  }
-}
+**OpenAI Codex CLI:**
+```bash
+codex mcp add llm-api-search --url https://llm-mcp.cora-branch.com/llm-api-search/mcp
 ```
 
 No installs, no dependencies. All three use the same URL, same protocol, same tools.
@@ -64,16 +58,9 @@ claude mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 gemini mcp add llm-api-search -t stdio -s user -- python3 /path/to/LLM_API_Search/mcp_server.py
 ```
 
-**OpenAI Codex CLI** (add to `.codex/config.json`):
-```json
-{
-  "mcpServers": {
-    "llm-api-search": {
-      "command": "python3",
-      "args": ["/path/to/LLM_API_Search/mcp_server.py"]
-    }
-  }
-}
+**OpenAI Codex CLI:**
+```bash
+codex mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 ```
 
 ### Available tools
