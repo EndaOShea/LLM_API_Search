@@ -281,9 +281,9 @@ def test_mcp_list_models_type_filter():
     assert all("model_type" in m for m in all_models)
     text_models = llm_list_models("openai", model_type="text")
     assert all(m["model_type"] == "text" for m in text_models)
-    # Currently all OpenAI models are text, so counts should match.
-    # After non-text models are added (later tasks), all_models > text_models.
     assert len(text_models) > 0
+    # OpenAI has non-text models, so all_models should be more than text_models.
+    assert len(all_models) > len(text_models)
 
 
 def test_summary_groups_by_model_type():
@@ -304,3 +304,134 @@ def test_summary_groups_by_model_type():
     assert "Models (image):" in summary
     assert "$1.00/$5.00 per 1M tok" in summary
     assert "$0.040/image" in summary
+
+
+# --- OpenAI non-text model tests ---
+
+
+def test_openai_has_image_models():
+    info = discover_provider("openai", live=False)
+    image_models = [m for m in info.models if isinstance(m, ImageModelInfo)]
+    assert len(image_models) >= 3
+    ids = [m.model_id for m in image_models]
+    assert "gpt-image-1.5" in ids
+    assert "gpt-image-1" in ids
+    assert "gpt-image-1-mini" in ids
+    for m in image_models:
+        assert m.cost_per_image is not None
+        assert len(m.supported_sizes) > 0
+
+
+def test_openai_has_tts_models():
+    info = discover_provider("openai", live=False)
+    tts_models = [m for m in info.models if isinstance(m, AudioTTSModelInfo)]
+    assert len(tts_models) >= 3
+    ids = [m.model_id for m in tts_models]
+    assert "gpt-4o-mini-tts" in ids
+    assert "tts-1" in ids
+    for m in tts_models:
+        assert len(m.supported_voices) > 0
+        assert len(m.supported_output_formats) > 0
+
+
+def test_openai_has_transcription_models():
+    info = discover_provider("openai", live=False)
+    trans_models = [m for m in info.models if isinstance(m, AudioTranscriptionModelInfo)]
+    assert len(trans_models) >= 3
+    ids = [m.model_id for m in trans_models]
+    assert "gpt-4o-transcribe" in ids
+    assert "whisper-1" in ids
+    for m in trans_models:
+        assert m.cost_per_minute is not None
+        assert len(m.supported_input_formats) > 0
+
+
+def test_openai_has_embedding_models():
+    info = discover_provider("openai", live=False)
+    emb_models = [m for m in info.models if isinstance(m, EmbeddingModelInfo)]
+    assert len(emb_models) >= 2
+    ids = [m.model_id for m in emb_models]
+    assert "text-embedding-3-large" in ids
+    assert "text-embedding-3-small" in ids
+    for m in emb_models:
+        assert m.input_cost_per_mtok is not None
+        assert m.dimensions is not None
+
+
+def test_openai_image_snippet():
+    sel = select_provider("openai", model_id="gpt-image-1", live=False)
+    assert "images" in sel.connection_snippet.lower() or "generate" in sel.connection_snippet.lower()
+    assert "gpt-image-1" in sel.connection_snippet
+
+
+def test_openai_tts_snippet():
+    sel = select_provider("openai", model_id="tts-1", live=False)
+    assert "speech" in sel.connection_snippet.lower() or "audio" in sel.connection_snippet.lower()
+    assert "tts-1" in sel.connection_snippet
+
+
+def test_openai_transcription_snippet():
+    sel = select_provider("openai", model_id="whisper-1", live=False)
+    assert "transcri" in sel.connection_snippet.lower()
+    assert "whisper-1" in sel.connection_snippet
+
+
+def test_openai_embedding_snippet():
+    sel = select_provider("openai", model_id="text-embedding-3-small", live=False)
+    assert "embed" in sel.connection_snippet.lower()
+    assert "text-embedding-3-small" in sel.connection_snippet
+
+
+# --- Google non-text model tests ---
+
+
+def test_google_has_image_models():
+    info = discover_provider("google", live=False)
+    image_models = [m for m in info.models if isinstance(m, ImageModelInfo)]
+    assert len(image_models) >= 3
+    ids = [m.model_id for m in image_models]
+    assert "imagen-4.0-generate-001" in ids
+    for m in image_models:
+        assert m.cost_per_image is not None
+
+
+def test_google_has_tts_models():
+    info = discover_provider("google", live=False)
+    tts_models = [m for m in info.models if isinstance(m, AudioTTSModelInfo)]
+    assert len(tts_models) >= 2
+    ids = [m.model_id for m in tts_models]
+    assert "gemini-2.5-flash-preview-tts" in ids
+    assert "gemini-2.5-pro-preview-tts" in ids
+    for m in tts_models:
+        assert m.input_cost_per_mtok is not None
+        assert len(m.supported_voices) > 0
+
+
+def test_google_has_embedding_models():
+    info = discover_provider("google", live=False)
+    emb_models = [m for m in info.models if isinstance(m, EmbeddingModelInfo)]
+    assert len(emb_models) >= 2
+    ids = [m.model_id for m in emb_models]
+    assert "gemini-embedding-001" in ids
+    assert "gemini-embedding-2-preview" in ids
+    for m in emb_models:
+        assert m.input_cost_per_mtok is not None
+        assert m.dimensions is not None
+
+
+def test_google_image_snippet():
+    sel = select_provider("google", model_id="imagen-4.0-generate-001", live=False)
+    assert "imagen-4.0-generate-001" in sel.connection_snippet
+    assert "image" in sel.connection_snippet.lower()
+
+
+def test_google_tts_snippet():
+    sel = select_provider("google", model_id="gemini-2.5-flash-preview-tts", live=False)
+    assert "gemini-2.5-flash-preview-tts" in sel.connection_snippet
+    assert "audio" in sel.connection_snippet.lower() or "speech" in sel.connection_snippet.lower()
+
+
+def test_google_embedding_snippet():
+    sel = select_provider("google", model_id="gemini-embedding-001", live=False)
+    assert "gemini-embedding-001" in sel.connection_snippet
+    assert "embed" in sel.connection_snippet.lower()
