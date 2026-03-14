@@ -27,7 +27,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from llm_api_search.providers import PROVIDERS
 from llm_api_search.providers.base import (
     ModelInfo, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    AudioTranscriptionModelInfo, EmbeddingModelInfo, ModelType,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo, VideoModelInfo, ModelType,
 )
 
 _PRICING_FIELDS = {
@@ -36,6 +36,7 @@ _PRICING_FIELDS = {
     AudioTTSModelInfo: ("cost_per_mchars", "input_cost_per_mtok", "output_cost_per_mtok"),
     AudioTranscriptionModelInfo: ("cost_per_minute",),
     EmbeddingModelInfo: ("input_cost_per_mtok",),
+    VideoModelInfo: ("cost_per_second",),
 }
 
 # Map provider key → source file path.

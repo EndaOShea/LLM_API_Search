@@ -9,7 +9,7 @@ from llm_api_search.selector import select_provider, Selection
 from llm_api_search.providers.base import (
     ProviderInfo, SUPPORTED_LANGUAGES, ModelInfo, ModelType,
     TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    AudioTranscriptionModelInfo, EmbeddingModelInfo,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo, VideoModelInfo,
 )
 
 
@@ -231,6 +231,9 @@ def test_model_pricing_fields():
             elif isinstance(m, EmbeddingModelInfo):
                 assert m.input_cost_per_mtok is not None, f"{key}/{m.model_id}: missing input_cost_per_mtok"
                 assert m.input_cost_per_mtok >= 0
+            elif isinstance(m, VideoModelInfo):
+                assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
+                assert m.cost_per_second >= 0
 
 
 # --- ModelType enum and subclass tests ---
@@ -471,6 +474,7 @@ def test_connection_snippet_all_types_all_languages():
         ("google", "imagen-4.0-generate-001"),
         ("google", "gemini-2.5-flash-preview-tts"),
         ("google", "gemini-embedding-001"),
+        ("google", "veo-3.1"),
     ]
     for provider, model_id in test_cases:
         for lang in SUPPORTED_LANGUAGES:
@@ -516,3 +520,22 @@ def test_mcp_list_models_filter_multiple_types():
     assert len(all_models) == len(text_models) + len(image_models) + len(llm_list_models("openai", model_type="audio_tts")) + len(llm_list_models("openai", model_type="audio_transcription")) + len(embedding_models)
     assert len(image_models) >= 3
     assert len(embedding_models) >= 2
+
+
+def test_google_has_video_models():
+    info = discover_provider("google", live=False)
+    video_models = [m for m in info.models if isinstance(m, VideoModelInfo)]
+    assert len(video_models) >= 5
+    ids = [m.model_id for m in video_models]
+    assert "veo-3.1" in ids
+    assert "veo-3" in ids
+    assert "veo-2" in ids
+    for m in video_models:
+        assert m.cost_per_second is not None
+        assert len(m.supported_resolutions) > 0
+
+
+def test_google_video_snippet():
+    sel = select_provider("google", model_id="veo-3.1", live=False)
+    assert "veo-3.1" in sel.connection_snippet
+    assert "video" in sel.connection_snippet.lower()

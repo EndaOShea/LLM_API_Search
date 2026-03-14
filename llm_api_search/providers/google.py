@@ -9,7 +9,7 @@ import urllib.error
 
 from llm_api_search.providers.base import (
     ModelInfo, ModelType, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    EmbeddingModelInfo, Provider, ProviderInfo,
+    EmbeddingModelInfo, VideoModelInfo, Provider, ProviderInfo,
 )
 
 _STATIC_MODELS = [
@@ -144,6 +144,47 @@ _STATIC_MODELS = [
         supports_multimodal=True,
         input_cost_per_mtok=0.20,
     ),
+    # --- Video generation (Veo) ---
+    VideoModelInfo(
+        model_id="veo-3.1",
+        display_name="Veo 3.1",
+        description="High-quality video generation with optional synchronized audio",
+        supported_resolutions=["720p", "1080p", "4k"],
+        supports_audio=True,
+        cost_per_second=0.40,
+    ),
+    VideoModelInfo(
+        model_id="veo-3.1-fast",
+        display_name="Veo 3.1 Fast",
+        description="Faster video generation with optional synchronized audio",
+        supported_resolutions=["720p", "1080p", "4k"],
+        supports_audio=True,
+        cost_per_second=0.15,
+    ),
+    VideoModelInfo(
+        model_id="veo-3",
+        display_name="Veo 3",
+        description="Video generation with synchronized speech and sound effects",
+        supported_resolutions=["720p", "1080p"],
+        supports_audio=True,
+        cost_per_second=0.40,
+    ),
+    VideoModelInfo(
+        model_id="veo-3-fast",
+        display_name="Veo 3 Fast",
+        description="Faster video generation with synchronized audio",
+        supported_resolutions=["720p", "1080p"],
+        supports_audio=True,
+        cost_per_second=0.15,
+    ),
+    VideoModelInfo(
+        model_id="veo-2",
+        display_name="Veo 2",
+        description="Video generation with advanced controls and frame interpolation",
+        supported_resolutions=["720p"],
+        supports_audio=False,
+        cost_per_second=0.50,
+    ),
 ]
 
 
@@ -182,6 +223,8 @@ class GeminiProvider(Provider):
             return EmbeddingModelInfo
         elif "tts" in model_id:
             return AudioTTSModelInfo
+        elif model_id.startswith("veo-"):
+            return VideoModelInfo
         return TextModelInfo
 
     def fetch_live_models(self) -> ProviderInfo:
@@ -237,6 +280,8 @@ class GeminiProvider(Provider):
             return self._tts_snippet(model, language)
         elif mtype == ModelType.EMBEDDING:
             return self._embedding_snippet(model, language)
+        elif mtype == ModelType.VIDEO:
+            return self._video_snippet(model, language)
         return self._text_snippet(model, language)
 
     def _text_snippet(self, model: str, language: str) -> str:
@@ -608,6 +653,117 @@ class GeminiProvider(Provider):
                 '    auto result = json::parse(response);\n'
                 '    std::cout << "Embedding: " << result["embedding"]["values"][0]\n'
                 '              << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
+
+    def _video_snippet(self, model: str, language: str) -> str:
+        snippets = {
+            "python": (
+                'from google import genai\n'
+                'from google.genai import types\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                'operation = client.models.generate_videos(\n'
+                f'    model="{model}",\n'
+                '    prompt="A cinematic drone shot over a mountain lake at sunrise",\n'
+                '    config=types.GenerateVideosConfig(aspect_ratio="16:9"),\n'
+                ')\n\n'
+                '# Poll until complete\n'
+                'import time\n'
+                'while not operation.done:\n'
+                '    time.sleep(10)\n'
+                '    operation = client.operations.get(operation)\n\n'
+                'video = operation.result.generated_videos[0]\n'
+                'client.files.download(file=video.video, download_path="output.mp4")\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'let operation = await ai.models.generateVideos({\n'
+                f'  model: "{model}",\n'
+                '  prompt: "A cinematic drone shot over a mountain lake at sunrise",\n'
+                '  config: { aspectRatio: "16:9" },\n'
+                '});\n\n'
+                '// Poll until complete\n'
+                'while (!operation.done) {\n'
+                '  await new Promise(r => setTimeout(r, 10000));\n'
+                '  operation = await ai.operations.get(operation);\n'
+                '}\n\n'
+                'const video = operation.result!.generatedVideos![0];\n'
+                'console.log("Video generated:", video.video);\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'let operation = await ai.models.generateVideos({\n'
+                f'  model: "{model}",\n'
+                '  prompt: "A cinematic drone shot over a mountain lake at sunrise",\n'
+                '  config: { aspectRatio: "16:9" },\n'
+                '});\n\n'
+                '// Poll until complete\n'
+                'while (!operation.done) {\n'
+                '  await new Promise(r => setTimeout(r, 10000));\n'
+                '  operation = await ai.operations.get(operation);\n'
+                '}\n\n'
+                'const video = operation.result.generatedVideos[0];\n'
+                'console.log("Video generated:", video.video);\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.GenerateVideosConfig;\n'
+                'import com.google.genai.types.Operation;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'Operation operation = client.models.generateVideos(\n'
+                f'    "{model}",\n'
+                '    "A cinematic drone shot over a mountain lake at sunrise",\n'
+                '    GenerateVideosConfig.builder().aspectRatio("16:9").build()\n'
+                ');\n\n'
+                '// Poll until complete\n'
+                'while (!operation.done()) {\n'
+                '    Thread.sleep(10000);\n'
+                '    operation = client.operations.get(operation);\n'
+                '}\n'
+                'System.out.println("Video: " + operation.result().generatedVideos().get(0));\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                f'        {{"model", "{model}"}},\n'
+                '        {"prompt", "A cinematic drone shot over a mountain lake"},\n'
+                '        {"config", {{"aspectRatio", "16:9"}}}\n'
+                '    };\n\n'
+                '    std::string url =\n'
+                '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
+                f'        "{model}:generateVideos?key=" + std::string(api_key);\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << "Operation: " << result.dump(2) << std::endl;\n'
                 '    return 0;\n'
                 '}\n'
             ),
