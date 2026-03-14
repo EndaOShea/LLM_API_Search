@@ -4,8 +4,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
+from enum import Enum
 
 SUPPORTED_LANGUAGES = ("python", "typescript", "javascript", "java", "cpp")
+
+
+class ModelType(str, Enum):
+    TEXT = "text"
+    IMAGE = "image"
+    AUDIO_TTS = "audio_tts"
+    AUDIO_TRANSCRIPTION = "audio_transcription"
+    EMBEDDING = "embedding"
 
 
 @dataclass
@@ -14,6 +23,7 @@ class ModelInfo:
 
     model_id: str
     display_name: str
+    model_type: ModelType = ModelType.TEXT
     description: str = ""
     context_window: int | None = None
     max_output_tokens: int | None = None
@@ -21,6 +31,59 @@ class ModelInfo:
     supports_tool_use: bool = False
     input_cost_per_mtok: float | None = None   # USD per 1M input tokens
     output_cost_per_mtok: float | None = None  # USD per 1M output tokens
+
+
+@dataclass
+class TextModelInfo(ModelInfo):
+    """Text/chat LLM model."""
+    model_type: ModelType = field(default=ModelType.TEXT, init=False)
+    context_window: int | None = None
+    max_output_tokens: int | None = None
+    supports_vision: bool = False
+    supports_tool_use: bool = False
+    supports_image_generation: bool = False
+    input_cost_per_mtok: float | None = None
+    output_cost_per_mtok: float | None = None
+
+
+@dataclass
+class ImageModelInfo(ModelInfo):
+    """Image generation model."""
+    model_type: ModelType = field(default=ModelType.IMAGE, init=False)
+    supported_sizes: list[str] = field(default_factory=list)
+    supported_qualities: list[str] = field(default_factory=list)
+    max_images_per_request: int | None = None
+    cost_per_image: float | None = None
+
+
+@dataclass
+class AudioTTSModelInfo(ModelInfo):
+    """Text-to-speech model."""
+    model_type: ModelType = field(default=ModelType.AUDIO_TTS, init=False)
+    supported_voices: list[str] = field(default_factory=list)
+    supported_output_formats: list[str] = field(default_factory=list)
+    cost_per_mchars: float | None = None
+    input_cost_per_mtok: float | None = None
+    output_cost_per_mtok: float | None = None
+
+
+@dataclass
+class AudioTranscriptionModelInfo(ModelInfo):
+    """Speech-to-text model."""
+    model_type: ModelType = field(default=ModelType.AUDIO_TRANSCRIPTION, init=False)
+    supported_input_formats: list[str] = field(default_factory=list)
+    max_file_size_mb: int | None = None
+    cost_per_minute: float | None = None
+
+
+@dataclass
+class EmbeddingModelInfo(ModelInfo):
+    """Embedding/vector model."""
+    model_type: ModelType = field(default=ModelType.EMBEDDING, init=False)
+    dimensions: int | None = None
+    max_input_tokens: int | None = None
+    supports_multimodal: bool = False
+    input_cost_per_mtok: float | None = None
 
 
 @dataclass

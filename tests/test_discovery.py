@@ -5,7 +5,11 @@ from unittest.mock import patch
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
 from llm_api_search.selector import select_provider, Selection
-from llm_api_search.providers.base import ProviderInfo, SUPPORTED_LANGUAGES
+from llm_api_search.providers.base import (
+    ProviderInfo, SUPPORTED_LANGUAGES, ModelInfo, ModelType,
+    TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo,
+)
 
 
 def test_list_providers():
@@ -218,3 +222,44 @@ def test_model_pricing_fields():
             assert m.output_cost_per_mtok >= m.input_cost_per_mtok, (
                 f"{key}/{m.model_id}: output cost should be >= input cost"
             )
+
+
+# --- ModelType enum and subclass tests ---
+
+
+def test_model_type_enum():
+    assert ModelType.TEXT.value == "text"
+    assert ModelType.IMAGE.value == "image"
+    assert ModelType.AUDIO_TTS.value == "audio_tts"
+    assert ModelType.AUDIO_TRANSCRIPTION.value == "audio_transcription"
+    assert ModelType.EMBEDDING.value == "embedding"
+
+
+def test_text_model_info_has_model_type():
+    m = TextModelInfo(model_id="test", display_name="Test")
+    assert m.model_type == ModelType.TEXT
+    assert isinstance(m, ModelInfo)
+
+
+def test_image_model_info_has_model_type():
+    m = ImageModelInfo(model_id="test", display_name="Test")
+    assert m.model_type == ModelType.IMAGE
+    assert isinstance(m, ModelInfo)
+
+
+def test_audio_tts_model_info_has_model_type():
+    m = AudioTTSModelInfo(model_id="test", display_name="Test")
+    assert m.model_type == ModelType.AUDIO_TTS
+    assert isinstance(m, ModelInfo)
+
+
+def test_audio_transcription_model_info_has_model_type():
+    m = AudioTranscriptionModelInfo(model_id="test", display_name="Test")
+    assert m.model_type == ModelType.AUDIO_TRANSCRIPTION
+    assert isinstance(m, ModelInfo)
+
+
+def test_embedding_model_info_has_model_type():
+    m = EmbeddingModelInfo(model_id="test", display_name="Test")
+    assert m.model_type == ModelType.EMBEDDING
+    assert isinstance(m, ModelInfo)
