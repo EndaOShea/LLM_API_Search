@@ -27,7 +27,7 @@ claude mcp add --transport http --scope user llm-api-search https://llm-mcp.cora
 
 **Gemini CLI:**
 ```bash
-gemini mcp add llm-api-search --url https://llm-mcp.cora-branch.com/llm-api-search/mcp
+gemini mcp add llm-api-search -t http -s user https://llm-mcp.cora-branch.com/llm-api-search/mcp
 ```
 
 **OpenAI Codex CLI** (add to `.codex/config.json`):
@@ -59,16 +59,9 @@ Then configure your tool to use the local server:
 claude mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 ```
 
-**Gemini CLI** (add to `~/.gemini/settings.json`):
-```json
-{
-  "mcpServers": {
-    "llm-api-search": {
-      "command": "python3",
-      "args": ["/path/to/LLM_API_Search/mcp_server.py"]
-    }
-  }
-}
+**Gemini CLI:**
+```bash
+gemini mcp add llm-api-search -t stdio -s user -- python3 /path/to/LLM_API_Search/mcp_server.py
 ```
 
 **OpenAI Codex CLI** (add to `.codex/config.json`):
