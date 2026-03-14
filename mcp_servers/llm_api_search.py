@@ -8,7 +8,7 @@ from llm_api_search.selector import select_provider
 DESCRIPTION = "Discover LLM API providers, models, and get ready-to-use code snippets"
 MOUNT_PATH = "/llm-api-search"
 
-mcp = FastMCP("llm-api-search")
+mcp = FastMCP("llm-api-search", stateless_http=True, json_response=True)
 
 
 @mcp.tool()
