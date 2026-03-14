@@ -25,7 +25,18 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from llm_api_search.providers import PROVIDERS
-from llm_api_search.providers.base import ModelInfo
+from llm_api_search.providers.base import (
+    ModelInfo, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo, ModelType,
+)
+
+_PRICING_FIELDS = {
+    TextModelInfo: ("input_cost_per_mtok", "output_cost_per_mtok"),
+    ImageModelInfo: ("cost_per_image",),
+    AudioTTSModelInfo: ("cost_per_mchars", "input_cost_per_mtok", "output_cost_per_mtok"),
+    AudioTranscriptionModelInfo: ("cost_per_minute",),
+    EmbeddingModelInfo: ("input_cost_per_mtok",),
+}
 
 # Map provider key → source file path.
 _PROVIDER_FILES = {
@@ -43,21 +54,32 @@ _STATIC_BLOCK_RE = re.compile(
 
 
 def _serialize_model(m: ModelInfo, indent: str = "    ") -> str:
-    """Render a ModelInfo as a Python constructor call."""
-    lines = [f"{indent}ModelInfo("]
-    for f in fields(ModelInfo):
+    """Render a ModelInfo subclass as a Python constructor call."""
+    cls_name = type(m).__name__
+    all_pricing = set()
+    for pfields in _PRICING_FIELDS.values():
+        all_pricing.update(pfields)
+
+    lines = [f"{indent}{cls_name}("]
+    for f in fields(type(m)):
+        if f.name == "model_type":
+            continue  # set automatically by subclass
         val = getattr(m, f.name)
-        if f.name in ("input_cost_per_mtok", "output_cost_per_mtok"):
+        if f.name in all_pricing:
             if val is None:
                 lines.append(f"{indent}    {f.name}=None,  # TODO: add pricing")
+            elif isinstance(val, float):
+                lines.append(f"{indent}    {f.name}={val},")
             else:
-                lines.append(f"{indent}    {f.name}={val:.2f},")
+                lines.append(f"{indent}    {f.name}={val!r},")
         elif isinstance(val, str):
             lines.append(f"{indent}    {f.name}={val!r},")
         elif isinstance(val, bool):
             lines.append(f"{indent}    {f.name}={val},")
         elif isinstance(val, int):
             lines.append(f"{indent}    {f.name}={val:_},")
+        elif isinstance(val, list):
+            lines.append(f"{indent}    {f.name}={val!r},")
         else:
             lines.append(f"{indent}    {f.name}={val!r},")
     lines.append(f"{indent}),")
@@ -74,28 +96,21 @@ def _serialize_models_block(models: list[ModelInfo]) -> str:
 
 
 def update_provider(key: str) -> tuple[int, int]:
-    """Fetch live models for a provider and update its source file.
-
-    Returns (new_count, total_count).
-    """
+    """Fetch live models for a provider and update its source file."""
     source_path = _PROVIDER_FILES[key]
     provider_cls = PROVIDERS[key]
     provider = provider_cls()
 
-    # Load existing static models to preserve pricing.
     static_info = provider.get_static_info()
-    pricing_map: dict[str, tuple[float | None, float | None]] = {
-        m.model_id: (m.input_cost_per_mtok, m.output_cost_per_mtok)
-        for m in static_info.models
-    }
-    # Also preserve full ModelInfo for models the live API might miss fields on.
+    pricing_map: dict[str, dict[str, float | None]] = {}
+    for m in static_info.models:
+        pfields = _PRICING_FIELDS.get(type(m), ())
+        pricing_map[m.model_id] = {f: getattr(m, f) for f in pfields}
     static_map: dict[str, ModelInfo] = {m.model_id: m for m in static_info.models}
 
-    # Fetch live models.
     live_info = provider.fetch_live_models()
     live_map: dict[str, ModelInfo] = {m.model_id: m for m in live_info.models}
 
-    # Merge: start with live models, enrich with static data.
     merged: list[ModelInfo] = []
     seen: set[str] = set()
 
@@ -103,28 +118,34 @@ def update_provider(key: str) -> tuple[int, int]:
         seen.add(model_id)
         static_m = static_map.get(model_id)
 
-        merged.append(ModelInfo(
-            model_id=model_id,
-            display_name=live_m.display_name or (static_m.display_name if static_m else model_id),
-            description=live_m.description or (static_m.description if static_m else ""),
-            context_window=live_m.context_window or (static_m.context_window if static_m else None),
-            max_output_tokens=live_m.max_output_tokens or (static_m.max_output_tokens if static_m else None),
-            supports_vision=live_m.supports_vision or (static_m.supports_vision if static_m else False),
-            supports_tool_use=live_m.supports_tool_use or (static_m.supports_tool_use if static_m else False),
-            # Preserve pricing from static data.
-            input_cost_per_mtok=pricing_map.get(model_id, (None, None))[0],
-            output_cost_per_mtok=pricing_map.get(model_id, (None, None))[1],
-        ))
+        model_cls = type(static_m) if static_m else type(live_m)
+        if model_cls is ModelInfo:
+            model_cls = TextModelInfo
 
-    # Keep any static-only models that didn't appear in live (could be
-    # newly-added manually or the API filtered them out).
+        kwargs: dict = {
+            "model_id": model_id,
+            "display_name": live_m.display_name or (static_m.display_name if static_m else model_id),
+            "description": live_m.description or (static_m.description if static_m else ""),
+        }
+
+        if static_m:
+            for f in fields(type(static_m)):
+                if f.name in ("model_id", "display_name", "description", "model_type"):
+                    continue
+                if f.name not in kwargs:
+                    kwargs[f.name] = getattr(static_m, f.name)
+
+        if model_id in pricing_map:
+            kwargs.update(pricing_map[model_id])
+
+        merged.append(model_cls(**kwargs))
+
     for model_id, static_m in static_map.items():
         if model_id not in seen:
             merged.append(static_m)
 
     new_count = sum(1 for m in merged if m.model_id not in static_map)
 
-    # Rewrite the source file.
     source = source_path.read_text()
     new_block = _serialize_models_block(merged)
 
