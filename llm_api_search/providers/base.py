@@ -128,17 +128,63 @@ class ProviderInfo:
         ]
         for lang, install in self.sdk_installs.items():
             lines.append(f"  SDK ({lang:>10}): {install}")
-        lines += [
-            f"  Docs:            {self.documentation_url}",
-            f"  Models ({len(self.models)}):",
-        ]
+        lines.append(f"  Docs:            {self.documentation_url}")
+
+        # Group models by type.
+        from collections import defaultdict
+        by_type: dict[ModelType, list[ModelInfo]] = defaultdict(list)
         for m in self.models:
-            ctx = f" | ctx: {m.context_window}" if m.context_window else ""
-            cost = ""
-            if m.input_cost_per_mtok is not None and m.output_cost_per_mtok is not None:
-                cost = f" | ${m.input_cost_per_mtok:.2f}/${m.output_cost_per_mtok:.2f} per 1M tok"
-            lines.append(f"    - {m.model_id}{ctx}{cost}")
+            by_type[m.model_type].append(m)
+
+        for mtype in ModelType:
+            models = by_type.get(mtype, [])
+            if not models:
+                continue
+            lines.append(f"  Models ({mtype.value}): {len(models)}")
+            for m in models:
+                lines.append(f"    - {m.model_id}{_format_model_cost(m)}")
+
         return "\n".join(lines)
+
+
+def _format_model_cost(m: ModelInfo) -> str:
+    """Format the cost string for a model based on its type."""
+    if isinstance(m, TextModelInfo):
+        parts = []
+        if m.context_window:
+            parts.append(f"ctx: {m.context_window:,}")
+        if m.input_cost_per_mtok is not None and m.output_cost_per_mtok is not None:
+            parts.append(f"${m.input_cost_per_mtok:.2f}/${m.output_cost_per_mtok:.2f} per 1M tok")
+        return f" | {' | '.join(parts)}" if parts else ""
+    elif isinstance(m, ImageModelInfo):
+        if m.cost_per_image is not None:
+            return f" | ${m.cost_per_image:.3f}/image"
+        return ""
+    elif isinstance(m, AudioTTSModelInfo):
+        if m.cost_per_mchars is not None:
+            return f" | ${m.cost_per_mchars:.2f}/1M chars"
+        if m.input_cost_per_mtok is not None and m.output_cost_per_mtok is not None:
+            return f" | ${m.input_cost_per_mtok:.2f}/${m.output_cost_per_mtok:.2f} per 1M tok"
+        return ""
+    elif isinstance(m, AudioTranscriptionModelInfo):
+        if m.cost_per_minute is not None:
+            return f" | ${m.cost_per_minute:.3f}/min"
+        return ""
+    elif isinstance(m, EmbeddingModelInfo):
+        parts = []
+        if m.dimensions:
+            parts.append(f"{m.dimensions}d")
+        if m.input_cost_per_mtok is not None:
+            parts.append(f"${m.input_cost_per_mtok:.2f}/1M tok")
+        return f" | {' | '.join(parts)}" if parts else ""
+    # Fallback for plain ModelInfo (pre-migration)
+    parts = []
+    if hasattr(m, 'context_window') and m.context_window:
+        parts.append(f"ctx: {m.context_window}")
+    if hasattr(m, 'input_cost_per_mtok') and m.input_cost_per_mtok is not None:
+        if hasattr(m, 'output_cost_per_mtok') and m.output_cost_per_mtok is not None:
+            parts.append(f"${m.input_cost_per_mtok:.2f}/${m.output_cost_per_mtok:.2f} per 1M tok")
+    return f" | {' | '.join(parts)}" if parts else ""
 
 
 class Provider(ABC):

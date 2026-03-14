@@ -263,3 +263,23 @@ def test_embedding_model_info_has_model_type():
     m = EmbeddingModelInfo(model_id="test", display_name="Test")
     assert m.model_type == ModelType.EMBEDDING
     assert isinstance(m, ModelInfo)
+
+
+def test_summary_groups_by_model_type():
+    """Summary should group models by type when multiple types exist."""
+    info = ProviderInfo(
+        name="TestProvider",
+        api_base_url="https://test.com",
+        api_version=None,
+        auth_env_var="TEST_KEY",
+        auth_header="Authorization",
+        models=[
+            TextModelInfo(model_id="t1", display_name="T1", input_cost_per_mtok=1.0, output_cost_per_mtok=5.0, context_window=100_000),
+            ImageModelInfo(model_id="i1", display_name="I1", cost_per_image=0.04),
+        ],
+    )
+    summary = info.summary()
+    assert "Models (text):" in summary
+    assert "Models (image):" in summary
+    assert "$1.00/$5.00 per 1M tok" in summary
+    assert "$0.040/image" in summary
