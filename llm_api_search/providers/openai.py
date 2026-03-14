@@ -7,11 +7,11 @@ import os
 import urllib.request
 import urllib.error
 
-from llm_api_search.providers.base import ModelInfo, Provider, ProviderInfo
+from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, ProviderInfo
 
 _STATIC_MODELS = [
     # --- GPT-5 family (current) ---
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5.4",
         display_name="GPT-5.4",
         description="Best intelligence at scale for agentic, coding, and professional workflows",
@@ -22,7 +22,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=2.50,
         output_cost_per_mtok=15.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5.4-pro",
         display_name="GPT-5.4 Pro",
         description="More compute for harder problems, supports reasoning effort levels",
@@ -33,7 +33,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=30.00,
         output_cost_per_mtok=180.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5.3-codex",
         display_name="GPT-5.3 Codex",
         description="Most capable agentic coding model, optimized for Codex environments",
@@ -44,7 +44,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.75,
         output_cost_per_mtok=14.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5.2",
         display_name="GPT-5.2",
         description="Previous frontier model for complex professional work",
@@ -55,7 +55,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.75,
         output_cost_per_mtok=14.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5.1",
         display_name="GPT-5.1",
         description="Earlier frontier iteration",
@@ -66,7 +66,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.25,
         output_cost_per_mtok=10.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5",
         display_name="GPT-5",
         description="Reasoning model with configurable reasoning effort",
@@ -77,7 +77,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.25,
         output_cost_per_mtok=10.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5-mini",
         display_name="GPT-5 Mini",
         description="Near-frontier intelligence optimized for cost-sensitive workloads",
@@ -88,7 +88,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.25,
         output_cost_per_mtok=2.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-5-nano",
         display_name="GPT-5 Nano",
         description="Fastest, most cost-efficient GPT-5 variant",
@@ -100,7 +100,7 @@ _STATIC_MODELS = [
         output_cost_per_mtok=0.40,
     ),
     # --- Reasoning models ---
-    ModelInfo(
+    TextModelInfo(
         model_id="o3",
         display_name="o3",
         description="Reasoning model for complex tasks",
@@ -111,7 +111,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=2.00,
         output_cost_per_mtok=8.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="o3-pro",
         display_name="o3 Pro",
         description="o3 with increased compute for harder reasoning problems",
@@ -122,7 +122,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=20.00,
         output_cost_per_mtok=80.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="o4-mini",
         display_name="o4-mini",
         description="Fast, affordable reasoning model",
@@ -134,7 +134,7 @@ _STATIC_MODELS = [
         output_cost_per_mtok=4.40,
     ),
     # --- Previous generation (GPT-4.1) ---
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-4.1",
         display_name="GPT-4.1",
         description="Previous generation GPT model (retired from ChatGPT, still in API)",
@@ -145,7 +145,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=2.00,
         output_cost_per_mtok=8.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-4.1-mini",
         display_name="GPT-4.1 Mini",
         description="Previous generation balanced model (retired from ChatGPT, still in API)",
@@ -156,7 +156,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.40,
         output_cost_per_mtok=1.60,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gpt-4.1-nano",
         display_name="GPT-4.1 Nano",
         description="Previous generation fastest model (retired from ChatGPT, still in API)",
@@ -215,12 +215,12 @@ class OpenAIProvider(Provider):
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read())
 
-            live_models: list[ModelInfo] = []
+            live_models: list[TextModelInfo] = []
             for m in data.get("data", []):
                 mid = m.get("id", "")
                 if any(mid.startswith(p) for p in _PREFIXES):
                     live_models.append(
-                        ModelInfo(model_id=mid, display_name=mid)
+                        TextModelInfo(model_id=mid, display_name=mid)
                     )
             if live_models:
                 live_models.sort(key=lambda x: x.model_id)

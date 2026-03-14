@@ -7,11 +7,11 @@ import os
 import urllib.request
 import urllib.error
 
-from llm_api_search.providers.base import ModelInfo, Provider, ProviderInfo
+from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, ProviderInfo
 
 # Known models — kept as a fallback when the live API is unavailable.
 _STATIC_MODELS = [
-    ModelInfo(
+    TextModelInfo(
         model_id="claude-opus-4-6",
         display_name="Claude Opus 4.6",
         description="Most capable model for complex tasks",
@@ -22,7 +22,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=5.00,
         output_cost_per_mtok=25.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="claude-sonnet-4-6",
         display_name="Claude Sonnet 4.6",
         description="Balanced performance and speed",
@@ -33,7 +33,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=3.00,
         output_cost_per_mtok=15.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="claude-sonnet-4-5-20250929",
         display_name="Claude Sonnet 4.5",
         description="Previous generation balanced model",
@@ -44,7 +44,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=3.00,
         output_cost_per_mtok=15.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="claude-opus-4-5-20251124",
         display_name="Claude Opus 4.5",
         description="Previous generation most capable model",
@@ -55,7 +55,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=5.00,
         output_cost_per_mtok=25.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="claude-haiku-4-5-20251001",
         display_name="Claude Haiku 4.5",
         description="Fastest and most compact model",
@@ -117,11 +117,11 @@ class AnthropicProvider(Provider):
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read())
 
-            live_models: list[ModelInfo] = []
+            live_models: list[TextModelInfo] = []
             for m in data.get("data", []):
                 model_id = m.get("id", "")
                 live_models.append(
-                    ModelInfo(
+                    TextModelInfo(
                         model_id=model_id,
                         display_name=m.get("display_name", model_id),
                         description=m.get("description", ""),

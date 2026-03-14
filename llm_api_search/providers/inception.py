@@ -7,12 +7,12 @@ import os
 import urllib.request
 import urllib.error
 
-from llm_api_search.providers.base import ModelInfo, Provider, ProviderInfo
+from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, ProviderInfo
 
 # Known models — kept as a fallback when the live API is unavailable.
 # NOTE: Pricing is in EUR, not USD.
 _STATIC_MODELS = [
-    ModelInfo(
+    TextModelInfo(
         model_id="mercury-2",
         display_name="Mercury 2",
         description="Fastest reasoning LLM — diffusion-based with adjustable reasoning effort",
@@ -23,7 +23,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.25,   # EUR
         output_cost_per_mtok=0.75,  # EUR
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="mercury-edit",
         display_name="Mercury Edit",
         description="Code editing LLM for autocomplete (FIM), apply-edit, and next-edit",
@@ -80,11 +80,11 @@ class InceptionProvider(Provider):
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read())
 
-            live_models: list[ModelInfo] = []
+            live_models: list[TextModelInfo] = []
             for m in data.get("data", []):
                 model_id = m.get("id", "")
                 live_models.append(
-                    ModelInfo(
+                    TextModelInfo(
                         model_id=model_id,
                         display_name=m.get("display_name", model_id),
                         description=m.get("description", ""),

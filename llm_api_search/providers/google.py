@@ -7,10 +7,10 @@ import os
 import urllib.request
 import urllib.error
 
-from llm_api_search.providers.base import ModelInfo, Provider, ProviderInfo
+from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, ProviderInfo
 
 _STATIC_MODELS = [
-    ModelInfo(
+    TextModelInfo(
         model_id="gemini-3.1-pro-preview",
         display_name="Gemini 3.1 Pro Preview",
         description="Most advanced model; reasoning-first for agentic workflows and coding",
@@ -21,7 +21,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=2.00,
         output_cost_per_mtok=12.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gemini-3-flash-preview",
         display_name="Gemini 3 Flash Preview",
         description="Fast frontier-class; strong visual/spatial reasoning and agentic coding",
@@ -32,7 +32,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.50,
         output_cost_per_mtok=3.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gemini-3.1-flash-lite-preview",
         display_name="Gemini 3.1 Flash Lite Preview",
         description="Most cost-efficient; low latency, high volume",
@@ -43,7 +43,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.25,
         output_cost_per_mtok=1.50,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gemini-2.5-pro",
         display_name="Gemini 2.5 Pro",
         description="Complex reasoning with adaptive thinking",
@@ -54,7 +54,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.25,
         output_cost_per_mtok=10.00,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gemini-2.5-flash",
         display_name="Gemini 2.5 Flash",
         description="Balance of speed and intelligence with controllable thinking budgets",
@@ -65,7 +65,7 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.30,
         output_cost_per_mtok=2.50,
     ),
-    ModelInfo(
+    TextModelInfo(
         model_id="gemini-2.5-flash-lite",
         display_name="Gemini 2.5 Flash Lite",
         description="Massive scale, cost-optimized",
@@ -122,13 +122,13 @@ class GeminiProvider(Provider):
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read())
 
-            live_models: list[ModelInfo] = []
+            live_models: list[TextModelInfo] = []
             for m in data.get("models", []):
                 model_id = m.get("name", "").removeprefix("models/")
                 if not model_id or model_id.startswith("embedding"):
                     continue
                 live_models.append(
-                    ModelInfo(
+                    TextModelInfo(
                         model_id=model_id,
                         display_name=m.get("displayName", model_id),
                         description=m.get("description", ""),
