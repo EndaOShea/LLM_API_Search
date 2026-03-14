@@ -1,6 +1,7 @@
 """LLM API Search — discover models, providers, and get connection snippets."""
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
 from llm_api_search.selector import select_provider
@@ -8,7 +9,16 @@ from llm_api_search.selector import select_provider
 DESCRIPTION = "Discover LLM API providers, models, and get ready-to-use code snippets"
 MOUNT_PATH = "/llm-api-search"
 
-mcp = FastMCP("llm-api-search", stateless_http=True, json_response=True)
+# DNS rebinding protection is disabled because the server runs behind an nginx
+# reverse proxy which is the security boundary.
+mcp = FastMCP(
+    "llm-api-search",
+    stateless_http=True,
+    json_response=True,
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=False,
+    ),
+)
 
 
 @mcp.tool()
