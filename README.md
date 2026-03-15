@@ -2,7 +2,7 @@
 
 An MCP server and Python library that discovers the latest API versions, models, and pricing for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, and **Mercury (Inception Labs)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
-Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**.
+Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**. Also includes specialized models for **computer use, native audio (Live API), deep research, and robotics**.
 
 Works with any MCP-compatible client — **Claude Code**, **Gemini CLI**, **OpenAI Codex CLI**, and more.
 
@@ -160,8 +160,8 @@ Models are organized by type, each with type-specific fields and pricing:
 
 | Type | Subclass | Pricing | Example |
 |------|----------|---------|---------|
-| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 4.6 |
-| `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4 |
+| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 4.6, Gemini Robotics ER |
+| `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4, Nano Banana |
 | `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS |
 | `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
 | `embedding` | `EmbeddingModelInfo` | per 1M tokens (input) | text-embedding-3-large |

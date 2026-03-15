@@ -38,6 +38,7 @@ class TextModelInfo(ModelInfo):
     supports_vision: bool = False
     supports_tool_use: bool = False
     supports_image_generation: bool = False
+    supports_computer_use: bool = False
     input_cost_per_mtok: float | None = None
     output_cost_per_mtok: float | None = None
 

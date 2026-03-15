@@ -21,6 +21,7 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        supports_computer_use=True,
         input_cost_per_mtok=2.00,
         output_cost_per_mtok=12.00,
     ),
@@ -32,6 +33,7 @@ _STATIC_MODELS = [
         max_output_tokens=65_536,
         supports_vision=True,
         supports_tool_use=True,
+        supports_computer_use=True,
         input_cost_per_mtok=0.50,
         output_cost_per_mtok=3.00,
     ),
@@ -79,6 +81,55 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.10,
         output_cost_per_mtok=0.40,
     ),
+    # --- Computer use ---
+    TextModelInfo(
+        model_id="gemini-2.5-computer-use-preview-10-2025",
+        display_name="Gemini 2.5 Computer Use Preview",
+        description="Dedicated computer use model for GUI automation tasks",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_computer_use=True,
+        input_cost_per_mtok=1.25,
+        output_cost_per_mtok=10.00,
+    ),
+    # --- Robotics ---
+    TextModelInfo(
+        model_id="gemini-robotics-er-1.5-preview",
+        display_name="Gemini Robotics ER 1.5 Preview",
+        description="Vision-language model for robotics; spatial reasoning and action planning from visual data and natural language",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        input_cost_per_mtok=1.25,
+        output_cost_per_mtok=10.00,
+    ),
+    # --- Deep research ---
+    TextModelInfo(
+        model_id="deep-research-pro-preview-12-2025",
+        display_name="Deep Research Pro Preview",
+        description="Agentic deep research; searches the web and produces comprehensive reports",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=True,
+        input_cost_per_mtok=2.50,
+        output_cost_per_mtok=15.00,
+    ),
+    # --- Native audio (Live API) ---
+    TextModelInfo(
+        model_id="gemini-2.5-flash-native-audio-preview-12-2025",
+        display_name="Gemini 2.5 Flash Native Audio",
+        description="Real-time voice/video via Live API; low-latency bidirectional audio streaming",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        input_cost_per_mtok=0.30,
+        output_cost_per_mtok=2.50,
+    ),
     # --- Image generation (Imagen 4) ---
     ImageModelInfo(
         model_id="imagen-4.0-generate-001",
@@ -106,6 +157,34 @@ _STATIC_MODELS = [
         supported_qualities=["standard"],
         max_images_per_request=4,
         cost_per_image=0.06,
+    ),
+    # --- Image generation (Gemini native) ---
+    ImageModelInfo(
+        model_id="gemini-3.1-flash-image-preview",
+        display_name="Nano Banana 2",
+        description="Gemini 3.1 Flash native image generation (preview)",
+        supported_sizes=["1024x1024"],
+        supported_qualities=["standard"],
+        max_images_per_request=1,
+        cost_per_image=0.039,
+    ),
+    ImageModelInfo(
+        model_id="gemini-3-pro-image-preview",
+        display_name="Nano Banana Pro",
+        description="Gemini 3 Pro native image generation (preview)",
+        supported_sizes=["1024x1024"],
+        supported_qualities=["standard"],
+        max_images_per_request=1,
+        cost_per_image=0.06,
+    ),
+    ImageModelInfo(
+        model_id="gemini-2.5-flash-image",
+        display_name="Nano Banana",
+        description="Gemini 2.5 Flash native image generation",
+        supported_sizes=["1024x1024"],
+        supported_qualities=["standard"],
+        max_images_per_request=1,
+        cost_per_image=0.039,
     ),
     # --- Audio TTS ---
     AudioTTSModelInfo(
@@ -252,6 +331,8 @@ class GeminiProvider(Provider):
     def _model_class_for_id(model_id: str):
         if model_id.startswith("imagen-"):
             return ImageModelInfo
+        elif "image" in model_id and model_id.startswith("gemini-"):
+            return ImageModelInfo
         elif model_id.startswith("gemini-embedding") or model_id.startswith("text-embedding"):
             return EmbeddingModelInfo
         elif "tts" in model_id:
@@ -310,6 +391,8 @@ class GeminiProvider(Provider):
         model = model_id or "gemini-2.5-flash"
         mtype = self._get_model_type(model)
         if mtype == ModelType.IMAGE:
+            if model.startswith("gemini-"):
+                return self._gemini_image_snippet(model, language)
             return self._image_snippet(model, language)
         elif mtype == ModelType.AUDIO_TTS:
             return self._tts_snippet(model, language)
@@ -319,6 +402,12 @@ class GeminiProvider(Provider):
             return self._music_snippet(model, language)
         elif mtype == ModelType.VIDEO:
             return self._video_snippet(model, language)
+        if "native-audio" in model:
+            return self._live_audio_snippet(model, language)
+        if "deep-research" in model:
+            return self._deep_research_snippet(model, language)
+        if "robotics" in model:
+            return self._robotics_snippet(model, language)
         return self._text_snippet(model, language)
 
     def _text_snippet(self, model: str, language: str) -> str:
@@ -377,6 +466,344 @@ class GeminiProvider(Provider):
                 '    CURL* curl = curl_easy_init();\n\n'
                 '    json body = {\n'
                 '        {"contents", {{{"parts", {{{"text", "Hello!"}}}}}}}}\n'
+                '    };\n\n'
+                '    std::string url =\n'
+                '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
+                f'        "{model}:generateContent?key=" + std::string(api_key);\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << result["candidates"][0]["content"]["parts"][0]["text"]\n'
+                '              .get<std::string>() << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
+
+    def _live_audio_snippet(self, model: str, language: str) -> str:
+        snippets = {
+            "python": (
+                'import asyncio\n'
+                'from google import genai\n'
+                'from google.genai import types\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                'async def main():\n'
+                '    async with client.aio.live.connect(\n'
+                f'        model="{model}",\n'
+                '        config=types.LiveConnectConfig(\n'
+                '            response_modalities=["AUDIO"],\n'
+                '        ),\n'
+                '    ) as session:\n'
+                '        await session.send("Hello, how are you?", end_of_turn=True)\n\n'
+                '        async for response in session.receive():\n'
+                '            if response.data:\n'
+                '                # response.data contains raw audio bytes\n'
+                '                print(f"Received {len(response.data)} audio bytes")\n\n'
+                'asyncio.run(main())\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'const session = await ai.live.connect({\n'
+                f'  model: "{model}",\n'
+                '  config: { responseModalities: ["AUDIO"] },\n'
+                '});\n\n'
+                'session.send("Hello, how are you?", { endOfTurn: true });\n\n'
+                'for await (const response of session) {\n'
+                '  if (response.data) {\n'
+                '    console.log(`Received ${response.data.length} audio bytes`);\n'
+                '  }\n'
+                '}\n'
+                'session.close();\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'const session = await ai.live.connect({\n'
+                f'  model: "{model}",\n'
+                '  config: { responseModalities: ["AUDIO"] },\n'
+                '});\n\n'
+                'session.send("Hello, how are you?", { endOfTurn: true });\n\n'
+                'for await (const response of session) {\n'
+                '  if (response.data) {\n'
+                '    console.log(`Received ${response.data.length} audio bytes`);\n'
+                '  }\n'
+                '}\n'
+                'session.close();\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.LiveConnectConfig;\n'
+                'import com.google.genai.types.LiveSession;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'LiveSession session = client.live.connect(\n'
+                f'    "{model}",\n'
+                '    LiveConnectConfig.builder()\n'
+                '        .responseModalities(java.util.List.of("AUDIO"))\n'
+                '        .build()\n'
+                ');\n\n'
+                'session.send("Hello, how are you?");\n'
+                'System.out.println("Audio session established");\n'
+                'session.close();\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                '// The Live API uses WebSockets for real-time streaming.\n'
+                '// For C++ you need a WebSocket library (e.g., libwebsockets, Boost.Beast).\n'
+                '// Below is a simplified outline.\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n\n'
+                '    // WebSocket URL for the Live API\n'
+                '    std::string ws_url =\n'
+                '        "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage"\n'
+                f'        ".v1beta.GenerativeService.BidiGenerateContent?key=" +\n'
+                '        std::string(api_key);\n\n'
+                '    // Setup message to send after WebSocket connection\n'
+                '    json setup = {\n'
+                '        {"setup", {\n'
+                f'            {{"model", "models/{model}"}},\n'
+                '            {"generationConfig", {{"responseModalities", {"AUDIO"}}}}\n'
+                '        }}\n'
+                '    };\n\n'
+                '    std::cout << "Connect to: " << ws_url << std::endl;\n'
+                '    std::cout << "Send setup: " << setup.dump(2) << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
+
+    def _deep_research_snippet(self, model: str, language: str) -> str:
+        snippets = {
+            "python": (
+                'import time\n'
+                'from google import genai\n'
+                'from google.genai import types\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                'response = client.models.generate_content(\n'
+                f'    model="{model}",\n'
+                '    contents="Research the impact of quantum computing on cryptography",\n'
+                '    config=types.GenerateContentConfig(\n'
+                '        tools=[types.Tool(google_search=types.GoogleSearch())],\n'
+                '    ),\n'
+                ')\n\n'
+                '# Deep research may return a long-running operation\n'
+                'if hasattr(response, "operation") and response.operation:\n'
+                '    while not response.operation.done:\n'
+                '        time.sleep(10)\n'
+                '        response = client.operations.get(response.operation)\n\n'
+                'print(response.text)\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'let response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "Research the impact of quantum computing on cryptography",\n'
+                '  config: {\n'
+                '    tools: [{ googleSearch: {} }],\n'
+                '  },\n'
+                '});\n\n'
+                '// Deep research may return a long-running operation\n'
+                'if (response.operation && !response.operation.done) {\n'
+                '  while (!response.operation.done) {\n'
+                '    await new Promise(r => setTimeout(r, 10000));\n'
+                '    response = await ai.operations.get(response.operation);\n'
+                '  }\n'
+                '}\n\n'
+                'console.log(response.text);\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'let response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "Research the impact of quantum computing on cryptography",\n'
+                '  config: {\n'
+                '    tools: [{ googleSearch: {} }],\n'
+                '  },\n'
+                '});\n\n'
+                '// Deep research may return a long-running operation\n'
+                'if (response.operation && !response.operation.done) {\n'
+                '  while (!response.operation.done) {\n'
+                '    await new Promise(r => setTimeout(r, 10000));\n'
+                '    response = await ai.operations.get(response.operation);\n'
+                '  }\n'
+                '}\n\n'
+                'console.log(response.text);\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.GenerateContentConfig;\n'
+                'import com.google.genai.types.GenerateContentResponse;\n'
+                'import com.google.genai.types.Tool;\n'
+                'import com.google.genai.types.GoogleSearch;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'GenerateContentResponse response = client.models.generateContent(\n'
+                f'    "{model}",\n'
+                '    "Research the impact of quantum computing on cryptography",\n'
+                '    GenerateContentConfig.builder()\n'
+                '        .tools(java.util.List.of(\n'
+                '            Tool.builder().googleSearch(GoogleSearch.builder().build()).build()))\n'
+                '        .build()\n'
+                ');\n\n'
+                'System.out.println(response.text());\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                '        {"contents", {{{"parts", {{{"text",\n'
+                '            "Research the impact of quantum computing on cryptography"}}}}}}},\n'
+                '        {"tools", {{{"googleSearch", json::object()}}}}\n'
+                '    };\n\n'
+                '    std::string url =\n'
+                '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
+                f'        "{model}:generateContent?key=" + std::string(api_key);\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << result["candidates"][0]["content"]["parts"][0]["text"]\n'
+                '              .get<std::string>() << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
+
+    def _robotics_snippet(self, model: str, language: str) -> str:
+        snippets = {
+            "python": (
+                'from google import genai\n'
+                'from google.genai import types\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                '# Load a camera frame\n'
+                'with open("camera_frame.jpg", "rb") as f:\n'
+                '    image_data = f.read()\n\n'
+                'response = client.models.generate_content(\n'
+                f'    model="{model}",\n'
+                '    contents=[\n'
+                '        types.Part.from_bytes(data=image_data, mime_type="image/jpeg"),\n'
+                '        "Pick up the red block and place it on the blue plate.",\n'
+                '    ],\n'
+                ')\n'
+                'print(response.text)  # action plan / spatial reasoning output\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n'
+                'import { readFileSync } from "fs";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'const imageData = readFileSync("camera_frame.jpg");\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: [\n'
+                '    { inlineData: { data: imageData.toString("base64"), mimeType: "image/jpeg" } },\n'
+                '    { text: "Pick up the red block and place it on the blue plate." },\n'
+                '  ],\n'
+                '});\n'
+                'console.log(response.text);\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n'
+                'const { readFileSync } = require("fs");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'const imageData = readFileSync("camera_frame.jpg");\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: [\n'
+                '    { inlineData: { data: imageData.toString("base64"), mimeType: "image/jpeg" } },\n'
+                '    { text: "Pick up the red block and place it on the blue plate." },\n'
+                '  ],\n'
+                '});\n'
+                'console.log(response.text);\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.GenerateContentResponse;\n'
+                'import com.google.genai.types.Content;\n'
+                'import com.google.genai.types.Part;\n'
+                'import java.nio.file.Files;\n'
+                'import java.nio.file.Path;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'byte[] imageBytes = Files.readAllBytes(Path.of("camera_frame.jpg"));\n\n'
+                'GenerateContentResponse response = client.models.generateContent(\n'
+                f'    "{model}",\n'
+                '    Content.builder().parts(java.util.List.of(\n'
+                '        Part.builder().inlineData(imageBytes, "image/jpeg").build(),\n'
+                '        Part.builder().text(\n'
+                '            "Pick up the red block and place it on the blue plate.").build()\n'
+                '    )).build()\n'
+                ');\n'
+                'System.out.println(response.text());\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <fstream>\n'
+                '#include <sstream>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'std::string base64_encode(const std::string& data);\n'
+                '// (use a base64 library such as boost::beast::detail::base64)\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    // Read camera frame\n'
+                '    std::ifstream file("camera_frame.jpg", std::ios::binary);\n'
+                '    std::ostringstream oss;\n'
+                '    oss << file.rdbuf();\n'
+                '    std::string image_b64 = base64_encode(oss.str());\n\n'
+                '    json body = {\n'
+                '        {"contents", {{{"parts", {\n'
+                '            {{\"inlineData\", {{\"mimeType\", \"image/jpeg\"},\n'
+                '                              {\"data\", image_b64}}}},\n'
+                '            {{\"text\", \"Pick up the red block and place it on the blue plate.\"}}\n'
+                '        }}}}}\n'
                 '    };\n\n'
                 '    std::string url =\n'
                 '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
@@ -470,6 +897,102 @@ class GeminiProvider(Provider):
                 '    std::string url =\n'
                 '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
                 f'        "{model}:predict?key=" + std::string(api_key);\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << "Image generated successfully" << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
+
+    def _gemini_image_snippet(self, model: str, language: str) -> str:
+        snippets = {
+            "python": (
+                'from google import genai\n'
+                'from google.genai import types\n\n'
+                'client = genai.Client()  # uses GEMINI_API_KEY env var\n\n'
+                'response = client.models.generate_content(\n'
+                f'    model="{model}",\n'
+                '    contents="A white siamese cat",\n'
+                '    config=types.GenerateContentConfig(\n'
+                '        response_modalities=["IMAGE"],\n'
+                '    ),\n'
+                ')\n\n'
+                'image = response.candidates[0].content.parts[0].inline_data\n'
+                'with open("output.png", "wb") as f:\n'
+                '    f.write(image.data)\n'
+            ),
+            "typescript": (
+                'import { GoogleGenAI } from "@google/genai";\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "A white siamese cat",\n'
+                '  config: { responseModalities: ["IMAGE"] },\n'
+                '});\n\n'
+                'const imageData = response.candidates![0].content!.parts![0].inlineData!.data;\n'
+                'console.log("Image generated, length:", imageData.length);\n'
+            ),
+            "javascript": (
+                'const { GoogleGenAI } = require("@google/genai");\n\n'
+                'const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\n'
+                'const response = await ai.models.generateContent({\n'
+                f'  model: "{model}",\n'
+                '  contents: "A white siamese cat",\n'
+                '  config: { responseModalities: ["IMAGE"] },\n'
+                '});\n\n'
+                'const imageData = response.candidates[0].content.parts[0].inlineData.data;\n'
+                'console.log("Image generated, length:", imageData.length);\n'
+            ),
+            "java": (
+                'import com.google.genai.Client;\n'
+                'import com.google.genai.types.GenerateContentConfig;\n'
+                'import com.google.genai.types.GenerateContentResponse;\n\n'
+                '// Uses GEMINI_API_KEY env var\n'
+                'Client client = Client.builder().build();\n\n'
+                'GenerateContentResponse response = client.models.generateContent(\n'
+                f'    "{model}",\n'
+                '    "A white siamese cat",\n'
+                '    GenerateContentConfig.builder()\n'
+                '        .responseModalities(java.util.List.of("IMAGE"))\n'
+                '        .build()\n'
+                ');\n'
+                'System.out.println("Image generated successfully");\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <fstream>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("GEMINI_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                '        {"contents", {{{"parts", {{{"text", "A white siamese cat"}}}}}}},\n'
+                '        {"generationConfig", {{"responseModalities", {"IMAGE"}}}}\n'
+                '    };\n\n'
+                '    std::string url =\n'
+                '        "https://generativelanguage.googleapis.com/v1beta/models/"\n'
+                f'        "{model}:generateContent?key=" + std::string(api_key);\n\n'
                 '    struct curl_slist* headers = nullptr;\n'
                 '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
                 '    std::string response;\n'

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-An MCP server and Python library that discovers LLM API versions, models, and pricing for Anthropic, Google, OpenAI, and Inception Labs (Mercury), and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation.
+An MCP server and Python library that discovers LLM API versions, models, and pricing for Anthropic, Google, OpenAI, and Inception Labs (Mercury), and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
 
 Hosted at `https://llm-mcp.cora-branch.com/`. Deployed via Docker + nginx on VPS.
 
@@ -48,7 +48,7 @@ The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "
 
 ### Model type system
 
-`ModelInfo` is a base dataclass with subclasses for each model type: `TextModelInfo`, `ImageModelInfo`, `AudioTTSModelInfo`, `AudioTranscriptionModelInfo`, `EmbeddingModelInfo`, `MusicModelInfo`, `VideoModelInfo`. Each subclass has type-specific fields (e.g., `cost_per_image` for images, `cost_per_second` for video/music, `dimensions` for embeddings). The `ModelType` enum (`text`, `image`, `audio_tts`, `audio_transcription`, `embedding`, `music`, `video`) is set automatically via `field(default=..., init=False)` on each subclass.
+`ModelInfo` is a base dataclass with subclasses for each model type: `TextModelInfo`, `ImageModelInfo`, `AudioTTSModelInfo`, `AudioTranscriptionModelInfo`, `EmbeddingModelInfo`, `MusicModelInfo`, `VideoModelInfo`. Each subclass has type-specific fields (e.g., `cost_per_image` for images, `cost_per_second` for video/music, `dimensions` for embeddings). The `ModelType` enum (`text`, `image`, `audio_tts`, `audio_transcription`, `embedding`, `music`, `video`) is set automatically via `field(default=..., init=False)` on each subclass. `TextModelInfo` has boolean capability flags: `supports_vision`, `supports_tool_use`, `supports_image_generation`, `supports_computer_use`.
 
 ### Static model data
 
