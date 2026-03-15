@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
-from llm_api_search.providers.base import TextModelInfo
+from llm_api_search.providers.base import SUPPORTED_LANGUAGES, TextModelInfo
 from llm_api_search.selector import select_provider
 
 DESCRIPTION = "Discover LLM API providers, models, and get ready-to-use code snippets"
@@ -68,7 +68,7 @@ def llm_discover_provider(provider: str, live: bool = False) -> str:
 def llm_get_connection_snippet(
     provider: str,
     model_id: str | None = None,
-    language: str = "python",
+    language: str | None = None,
 ) -> str:
     """Get a ready-to-use code snippet for connecting to an LLM API.
 
@@ -76,21 +76,38 @@ def llm_get_connection_snippet(
         provider: Provider key — one of "anthropic", "google", or "openai".
         model_id: Optional specific model ID. Defaults to the provider's recommended model.
         language: Programming language for the snippet. One of "python", "typescript",
-                  "javascript", "java", or "cpp". Defaults to "python".
+                  "javascript", "java", or "cpp". If omitted, returns snippets for all
+                  supported languages. If the caller knows the user's project language,
+                  pass it here for a targeted response.
 
     Returns:
         A code snippet showing how to install the SDK and make a basic API call.
     """
-    sel = select_provider(provider, model_id=model_id, live=False, language=language)
-    install = sel.provider_info.sdk_install_for(language)
-    header = (
-        f"# Provider: {sel.provider_info.name}\n"
-        f"# Model:    {sel.model.model_id}\n"
-        f"# Language: {language}\n"
-        f"# Install:  {install}\n"
-        f"# Auth:     Set {sel.provider_info.auth_env_var} environment variable\n\n"
-    )
-    return header + sel.connection_snippet
+    if language is not None and language not in SUPPORTED_LANGUAGES:
+        supported = ", ".join(SUPPORTED_LANGUAGES)
+        return (
+            f"Language \"{language}\" is not currently supported.\n\n"
+            f"Supported languages: {supported}\n\n"
+            f"To request support for \"{language}\", please open an issue at:\n"
+            f"https://github.com/EndaOShea/LLM_API_Search/issues"
+        )
+
+    languages = (language,) if language else SUPPORTED_LANGUAGES
+
+    parts: list[str] = []
+    for lang in languages:
+        sel = select_provider(provider, model_id=model_id, live=False, language=lang)
+        install = sel.provider_info.sdk_install_for(lang)
+        header = (
+            f"# Provider: {sel.provider_info.name}\n"
+            f"# Model:    {sel.model.model_id}\n"
+            f"# Language: {lang}\n"
+            f"# Install:  {install}\n"
+            f"# Auth:     Set {sel.provider_info.auth_env_var} environment variable\n\n"
+        )
+        parts.append(header + sel.connection_snippet)
+
+    return "\n\n---\n\n".join(parts)
 
 
 @mcp.tool()

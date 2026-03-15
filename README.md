@@ -71,7 +71,7 @@ codex mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 | `llm_discover_all` | Discover all providers with models, auth, and SDK info |
 | `llm_discover_provider` | Discover a single provider's details |
 | `llm_list_models` | List models for a specific provider, with optional `model_type` filter |
-| `llm_get_connection_snippet` | Get a ready-to-use code snippet for any provider/model/language |
+| `llm_get_connection_snippet` | Get a ready-to-use code snippet — returns all 5 languages by default, or a single language if specified. Unsupported languages get a message with supported options and a link to request it. |
 | `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
 
 ### Deploy your own server

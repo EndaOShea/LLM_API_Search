@@ -79,5 +79,6 @@ Drop a Python file in `mcp_servers/` with a `mcp` (FastMCP instance), `MOUNT_PAT
 
 - All tests use `live=False` to avoid network calls — static data must be complete
 - Connection snippets must contain the model ID and language-appropriate syntax (e.g., `require()` for JS, `import` for TS)
+- The `llm_get_connection_snippet` MCP tool returns all 5 languages when no language is specified, a single snippet when a valid language is given, or a message with supported languages and a GitHub issue link for unsupported ones
 - Every static model must have non-None type-appropriate pricing (e.g., `input_cost_per_mtok`/`output_cost_per_mtok` for text, `cost_per_image` for image, `cost_per_second` for video/music, `cost_per_minute` for transcription)
 - Provider live API calls use `urllib.request` (stdlib only), not third-party HTTP libraries
