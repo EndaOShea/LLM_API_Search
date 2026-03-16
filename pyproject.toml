@@ -15,6 +15,7 @@ anthropic = ["anthropic"]
 google = ["google-genai"]
 openai = ["openai"]
 mcp = ["mcp[cli]"]
+test = ["pytest"]
 all = ["anthropic", "google-genai", "openai", "mcp[cli]"]
 
 [tool.setuptools.packages.find]
