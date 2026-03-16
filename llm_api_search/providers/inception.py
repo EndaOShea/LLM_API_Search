@@ -13,26 +13,56 @@ from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, Pr
 # NOTE: Pricing is in EUR, not USD.
 _STATIC_MODELS = [
     TextModelInfo(
-        model_id="mercury-2",
-        display_name="Mercury 2",
-        description="Fastest reasoning LLM — diffusion-based with adjustable reasoning effort",
+        model_id='mercury-2',
+        display_name='mercury-2',
+        description="Mercury is the first diffusion large language model (dLLM). Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance. Mercury's speed means that users can stay in the flow, enjoying rapid chat-based iteration and responsive completion suggestions. On Copilot Arena, Mercury ranks 1st in speed and ties for 2nd in quality.",
         context_window=128_000,
         max_output_tokens=50_000,
         supports_vision=False,
         supports_tool_use=True,
-        input_cost_per_mtok=0.25,   # EUR
-        output_cost_per_mtok=0.75,  # EUR
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.25,
+        output_cost_per_mtok=0.75,
     ),
     TextModelInfo(
-        model_id="mercury-edit",
-        display_name="Mercury Edit",
-        description="Code editing LLM for autocomplete (FIM), apply-edit, and next-edit",
+        model_id='mercury-coder',
+        display_name='mercury-coder',
+        description="Mercury Coder is the first diffusion large language model (dLLM). Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance. Mercury Coder's speed means that developers can stay in the flow while coding, enjoying rapid chat-based iteration and responsive code completion suggestions. On Copilot Arena, Mercury Coder ranks 1st in speed and ties for 2nd in quality.",
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='mercury',
+        display_name='mercury',
+        description="Mercury is the first diffusion large language model (dLLM). Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like GPT-4.1 Nano and Claude 3.5 Haiku while matching their performance. Mercury's speed enables developers to provide responsive user experiences, including with voice agents, search interfaces, and chatbots.",
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='mercury-edit',
+        display_name='mercury-edit',
+        description="Mercury Edit is the first diffusion large language model (dLLM). Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance. Mercury Edit's speed means that developers can stay in the flow while coding, enjoying rapid chat-based iteration and responsive code completion suggestions. On Copilot Arena, Mercury Edit ranks 1st in speed and ties for 2nd in quality.",
         context_window=32_000,
         max_output_tokens=8_192,
         supports_vision=False,
         supports_tool_use=False,
-        input_cost_per_mtok=0.25,   # EUR
-        output_cost_per_mtok=0.75,  # EUR
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.25,
+        output_cost_per_mtok=0.75,
     ),
 ]
 
