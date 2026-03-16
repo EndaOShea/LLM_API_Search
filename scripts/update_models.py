@@ -48,6 +48,11 @@ _PROVIDER_FILES = {
     "inception": PROJECT_ROOT / "llm_api_search" / "providers" / "inception.py",
 }
 
+# Models to exclude from updates — superseded or deprecated model IDs per provider.
+_EXCLUDED_MODELS: dict[str, set[str]] = {
+    "inception": {"mercury", "mercury-coder"},
+}
+
 # Regex that matches the entire `_STATIC_MODELS = [...]` block.
 _STATIC_BLOCK_RE = re.compile(
     r"^(_STATIC_MODELS\s*=\s*\[).*?(\n\])",
@@ -111,7 +116,10 @@ def update_provider(key: str) -> tuple[int, int]:
     static_map: dict[str, ModelInfo] = {m.model_id: m for m in static_info.models}
 
     live_info = provider.fetch_live_models()
-    live_map: dict[str, ModelInfo] = {m.model_id: m for m in live_info.models}
+    excluded = _EXCLUDED_MODELS.get(key, set())
+    live_map: dict[str, ModelInfo] = {
+        m.model_id: m for m in live_info.models if m.model_id not in excluded
+    }
 
     merged: list[ModelInfo] = []
     seen: set[str] = set()
