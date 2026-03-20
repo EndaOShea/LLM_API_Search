@@ -6,6 +6,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
+from llm_api_search.providers import filter_models, get_rate_limits
 from llm_api_search.providers.base import SUPPORTED_LANGUAGES, TextModelInfo
 from llm_api_search.selector import select_provider
 
@@ -31,12 +32,13 @@ def llm_list_providers() -> list[str]:
 
 
 @mcp.tool()
-def llm_discover_all(live: bool = False) -> str:
+def llm_discover_all(live: bool = False, include_all: bool = False) -> str:
     """Discover the latest API versions, models, and connection details for all LLM providers.
 
     Args:
         live: If True, fetch live model lists from provider APIs (requires
               API keys in environment). Defaults to False for static data.
+        include_all: If True, include dated snapshots and legacy models.
 
     Returns:
         A formatted summary of all providers with their models and connection info.
@@ -44,23 +46,28 @@ def llm_discover_all(live: bool = False) -> str:
     results = discover(live=live)
     parts = []
     for key, info in results.items():
+        if not include_all:
+            info = dataclasses.replace(info, models=filter_models(info.models, key))
         parts.append(info.summary())
         parts.append("")
     return "\n".join(parts)
 
 
 @mcp.tool()
-def llm_discover_provider(provider: str, live: bool = False) -> str:
+def llm_discover_provider(provider: str, live: bool = False, include_all: bool = False) -> str:
     """Discover API info for a single LLM provider.
 
     Args:
         provider: Provider key — one of "anthropic", "google", or "openai".
         live: If True, fetch live model lists (requires API key in environment).
+        include_all: If True, include dated snapshots and legacy models.
 
     Returns:
         A formatted summary with models, auth details, SDK install, and docs URL.
     """
     info = discover_provider(provider, live=live)
+    if not include_all:
+        info = dataclasses.replace(info, models=filter_models(info.models, provider))
     return info.summary()
 
 
@@ -115,6 +122,7 @@ def llm_list_models(
     provider: str,
     live: bool = False,
     model_type: str | None = None,
+    include_all: bool = False,
 ) -> list[dict]:
     """List available models for a specific LLM provider.
 
@@ -123,23 +131,28 @@ def llm_list_models(
         live: If True, fetch live model lists (requires API key in environment).
         model_type: Optional filter — one of "text", "image", "audio_tts",
                     "audio_transcription", "embedding". Returns all types if omitted.
+        include_all: If True, include dated snapshots and legacy models that are
+                     hidden by default. Defaults to False.
 
     Returns:
         A list of model details. Fields vary by model type.
     """
     info = discover_provider(provider, live=live)
     models = info.models
+    if not include_all:
+        models = filter_models(models, provider)
     if model_type:
         models = [m for m in models if m.model_type.value == model_type]
     return [dataclasses.asdict(m) for m in models]
 
 
 @mcp.tool()
-def llm_compare_providers(live: bool = False) -> str:
+def llm_compare_providers(live: bool = False, include_all: bool = False) -> str:
     """Compare all LLM providers side-by-side: pricing tiers, model counts, context windows, and SDK info.
 
     Args:
         live: If True, fetch live model lists (requires API keys in environment).
+        include_all: If True, include dated snapshots and legacy models.
 
     Returns:
         A formatted comparison table of all providers.
@@ -148,6 +161,8 @@ def llm_compare_providers(live: bool = False) -> str:
     lines = ["LLM Provider Comparison", "=" * 60, ""]
 
     for key, info in results.items():
+        if not include_all:
+            info = dataclasses.replace(info, models=filter_models(info.models, key))
         text_models = [m for m in info.models if isinstance(m, TextModelInfo)]
         max_ctx = max((m.context_window or 0) for m in text_models) if text_models else 0
         max_out = max((m.max_output_tokens or 0) for m in text_models) if text_models else 0
@@ -179,3 +194,27 @@ def llm_compare_providers(live: bool = False) -> str:
         lines.append("")
 
     return "\n".join(lines)
+
+
+@mcp.tool()
+def llm_get_rate_limits(
+    provider: str,
+    model: str | None = None,
+) -> dict:
+    """Get rate limits for an LLM provider, optionally for a specific model.
+
+    Args:
+        provider: Provider key — one of "anthropic", "google", "openai", or "inception".
+        model: Optional model ID.  If provided, returns limits for that model
+               (falls back to the base alias for dated snapshots).  If omitted,
+               returns limits for all models.
+
+    Returns:
+        A dict mapping model ID to its rate limits (requests_per_minute,
+        tokens_per_minute, etc.).  Fields that are None are omitted.
+    """
+    limits = get_rate_limits(provider, model_id=model)
+    return {
+        mid: {k: v for k, v in dataclasses.asdict(rl).items() if v is not None}
+        for mid, rl in limits.items()
+    }

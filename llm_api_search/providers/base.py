@@ -100,6 +100,20 @@ class VideoModelInfo(ModelInfo):
 
 
 @dataclass
+class RateLimit:
+    """Rate limits for a model."""
+
+    # Core (universal)
+    requests_per_minute: int | None = None
+    tokens_per_minute: int | None = None
+    # Optional
+    requests_per_day: int | None = None
+    tokens_per_day: int | None = None
+    images_per_minute: int | None = None
+    batch_queue_limit: int | None = None
+
+
+@dataclass
 class ProviderInfo:
     """Discovered information about an LLM provider."""
 
@@ -112,6 +126,7 @@ class ProviderInfo:
     sdk_installs: dict[str, str] = field(default_factory=dict)
     models: list[ModelInfo] = field(default_factory=list)
     documentation_url: str = ""
+    rate_limits_url: str = ""
 
     @property
     def sdk_package(self) -> str:
@@ -142,6 +157,8 @@ class ProviderInfo:
         for lang, install in self.sdk_installs.items():
             lines.append(f"  SDK ({lang:>10}): {install}")
         lines.append(f"  Docs:            {self.documentation_url}")
+        if self.rate_limits_url:
+            lines.append(f"  Rate Limits:     {self.rate_limits_url}")
 
         # Group models by type.
         from collections import defaultdict

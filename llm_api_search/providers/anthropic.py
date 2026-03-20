@@ -184,6 +184,7 @@ class AnthropicProvider(Provider):
             },
             models=list(_STATIC_MODELS),
             documentation_url="https://docs.anthropic.com/en/api",
+            rate_limits_url="https://docs.anthropic.com/en/api/rate-limits",
         )
 
     def fetch_live_models(self) -> ProviderInfo:

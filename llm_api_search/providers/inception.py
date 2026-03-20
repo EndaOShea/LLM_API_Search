@@ -64,6 +64,7 @@ class InceptionProvider(Provider):
             },
             models=list(_STATIC_MODELS),
             documentation_url="https://docs.inceptionlabs.ai",
+            rate_limits_url="https://docs.inceptionlabs.ai/get-started/rate-limits#rate-limits",
         )
 
     def fetch_live_models(self) -> ProviderInfo:
