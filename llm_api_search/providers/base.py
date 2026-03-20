@@ -106,6 +106,8 @@ class RateLimit:
     # Core (universal)
     requests_per_minute: int | None = None
     tokens_per_minute: int | None = None
+    input_tokens_per_minute: int | None = None
+    output_tokens_per_minute: int | None = None
     # Optional
     requests_per_day: int | None = None
     tokens_per_day: int | None = None

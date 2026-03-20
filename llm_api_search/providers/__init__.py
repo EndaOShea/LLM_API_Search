@@ -95,19 +95,47 @@ def filter_models(models: list[ModelInfo], provider: str) -> list[ModelInfo]:
 # Rate limit lookup
 # ---------------------------------------------------------------------------
 
+def _resolve_entry(
+    entry: dict[str, RateLimit],
+    tier: str | None,
+) -> RateLimit | dict[str, RateLimit] | None:
+    """Return either a single ``RateLimit`` or the full tier dict.
+
+    *entry* is a dict mapping tier names to ``RateLimit`` objects.
+    Tier names are provider-specific (e.g. Anthropic uses ``"tier-1"``
+    through ``"tier-4"``, Inception uses ``"free"``/``"paid"``/``"enterprise"``).
+
+    When *tier* is given, the matching ``RateLimit`` is returned, or
+    ``None`` if the model has no entry for that tier.
+    When *tier* is ``None``, the full tier dict is returned.
+    """
+    if tier is not None:
+        return entry.get(tier)
+    return entry
+
+
 def get_rate_limits(
-    provider: str, model_id: str | None = None,
-) -> dict[str, RateLimit]:
+    provider: str,
+    model_id: str | None = None,
+    tier: str | None = None,
+) -> dict[str, RateLimit | dict[str, RateLimit]]:
     """Look up rate limits for a provider, optionally narrowed to a model.
 
     Args:
         provider: Provider key (e.g. ``"openai"``).
         model_id: Optional model ID.  If the exact ID isn't found, falls back
                   to the base alias by stripping date suffixes.
+        tier: Optional tier name.  Tier names are provider-specific
+              (e.g. ``"tier-1"`` for Anthropic, ``"free"`` for OpenAI).
+              When given, each value in the returned dict is a single
+              ``RateLimit``.  When ``None``, the full tier dict is returned
+              per model.
 
     Returns:
-        A dict mapping model ID → ``RateLimit``.  If *model_id* is given,
-        the dict contains at most one entry.
+        A dict mapping model ID → ``RateLimit`` (when *tier* is given)
+        or model ID → ``{tier_name: RateLimit, …}`` (when *tier* is
+        ``None``).  If *model_id* is given, the dict contains at most
+        one entry.
 
     Raises:
         KeyError: If *provider* is unknown.
@@ -124,18 +152,25 @@ def get_rate_limits(
     limits = PROVIDER_RATE_LIMITS[provider_lower]
 
     if model_id is None:
-        return dict(limits)
+        result = {}
+        for mid, entry in limits.items():
+            resolved = _resolve_entry(entry, tier)
+            if resolved is not None:
+                result[mid] = resolved
+        return result
 
     # Exact match first.
     if model_id in limits:
-        return {model_id: limits[model_id]}
+        resolved = _resolve_entry(limits[model_id], tier)
+        return {model_id: resolved} if resolved is not None else {}
 
     # Fall back to base alias by stripping date suffix.
     date_match = _DATE_SUFFIX_RE.search(model_id)
     if date_match:
         base_id = model_id[: date_match.start()]
         if base_id in limits:
-            return {model_id: limits[base_id]}
+            resolved = _resolve_entry(limits[base_id], tier)
+            return {model_id: resolved} if resolved is not None else {}
 
     return {}
 

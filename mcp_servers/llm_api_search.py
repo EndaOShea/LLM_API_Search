@@ -196,10 +196,16 @@ def llm_compare_providers(live: bool = False, include_all: bool = False) -> str:
     return "\n".join(lines)
 
 
+def _rl_to_dict(rl) -> dict:
+    """Convert a RateLimit to a dict, omitting None fields."""
+    return {k: v for k, v in dataclasses.asdict(rl).items() if v is not None}
+
+
 @mcp.tool()
 def llm_get_rate_limits(
     provider: str,
     model: str | None = None,
+    tier: str | None = None,
 ) -> dict:
     """Get rate limits for an LLM provider, optionally for a specific model.
 
@@ -208,13 +214,25 @@ def llm_get_rate_limits(
         model: Optional model ID.  If provided, returns limits for that model
                (falls back to the base alias for dated snapshots).  If omitted,
                returns limits for all models.
+        tier: Optional tier name.  Tier names are provider-specific:
+              Anthropic uses "tier-1" through "tier-4" (no free tier).
+              OpenAI uses "free", "tier-1" through "tier-5".
+              Google uses "free", "paid".
+              Inception uses "free", "paid", "enterprise".
+              When omitted, returns all tiers per model.
 
     Returns:
         A dict mapping model ID to its rate limits (requests_per_minute,
-        tokens_per_minute, etc.).  Fields that are None are omitted.
+        input_tokens_per_minute, output_tokens_per_minute, etc.).
+        Fields that are None are omitted.
     """
-    limits = get_rate_limits(provider, model_id=model)
-    return {
-        mid: {k: v for k, v in dataclasses.asdict(rl).items() if v is not None}
-        for mid, rl in limits.items()
-    }
+    from llm_api_search.providers.base import RateLimit
+
+    limits = get_rate_limits(provider, model_id=model, tier=tier)
+    result = {}
+    for mid, entry in limits.items():
+        if isinstance(entry, RateLimit):
+            result[mid] = _rl_to_dict(entry)
+        else:
+            result[mid] = {t: _rl_to_dict(rl) for t, rl in entry.items()}
+    return result
