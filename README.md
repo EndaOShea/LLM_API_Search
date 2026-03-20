@@ -1,6 +1,6 @@
 # LLM API Search
 
-An MCP server and Python library that discovers the latest API versions, models, and pricing for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, and **Mercury (Inception Labs)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
+An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, and **Mercury (Inception Labs)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
 Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**. Also includes specialized models for **computer use, native audio (Live API), deep research, and robotics**.
 
@@ -72,7 +72,10 @@ codex mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 | `llm_discover_provider` | Discover a single provider's details |
 | `llm_list_models` | List models for a specific provider, with optional `model_type` filter |
 | `llm_get_connection_snippet` | Get a ready-to-use code snippet — returns all 5 languages by default, or a single language if specified. Unsupported languages get a message with supported options and a link to request it. |
+| `llm_get_rate_limits` | Get rate limits (RPM, TPM, etc.) for a provider or specific model |
 | `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
+
+Legacy models and dated snapshots are filtered out by default. Pass `include_all=True` to any tool to see everything.
 
 ### Deploy your own server
 
@@ -198,6 +201,25 @@ providers = discover(live=False)
 info = discover_provider("google", live=True)
 ```
 
+### Rate limits
+
+Per-model rate limits are available for all providers:
+
+```python
+from llm_api_search.providers import get_rate_limits
+
+# All rate limits for a provider
+limits = get_rate_limits("openai")
+for model_id, rl in limits.items():
+    print(f"{model_id}: {rl.requests_per_minute} RPM, {rl.tokens_per_minute} TPM")
+
+# Specific model
+limits = get_rate_limits("anthropic", "claude-sonnet-4-6")
+
+# Dated snapshots fall back to the base alias automatically
+limits = get_rate_limits("openai", "gpt-4o-2024-08-06")  # returns gpt-4o limits
+```
+
 ### API
 
 | Function | Description |
@@ -206,3 +228,4 @@ info = discover_provider("google", live=True)
 | `discover_provider(name, live=True)` | Discover a single provider |
 | `list_providers()` | List available provider keys |
 | `select_provider(provider_key, model_id, live, interactive, language)` | Select a provider/model and get a connection snippet |
+| `get_rate_limits(provider, model_id=None)` | Get rate limits for a provider or specific model |

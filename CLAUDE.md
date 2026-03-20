@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-An MCP server and Python library that discovers LLM API versions, models, and pricing for Anthropic, Google, OpenAI, and Inception Labs (Mercury), and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
+An MCP server and Python library that discovers LLM API versions, models, pricing, and rate limits for Anthropic, Google, OpenAI, and Inception Labs (Mercury), and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
 
 Hosted at `https://llm-mcp.cora-branch.com/`. Deployed via Docker + nginx on VPS.
 
@@ -58,6 +58,14 @@ Each provider file contains a `_STATIC_MODELS` list of model subclass instances 
 
 `mcp_server.py` auto-discovers all modules in `mcp_servers/` that export `mcp` (FastMCP instance), `MOUNT_PATH`, and `DESCRIPTION`. Each gets mounted as a sub-app on its own HTTP path. In stdio mode, only the first discovered server runs.
 
+### Model filtering
+
+MCP tools filter out dated snapshots and legacy models by default. `filter_models()` in `providers/__init__.py` uses two mechanisms: pattern-based date suffix matching (`-YYYY-MM-DD`, `-YYYYMMDD`, `-MM-YYYY`) to remove snapshots when a non-dated alias exists, and an explicit `LEGACY_MODELS` dict for superseded models (e.g., `gpt-4`, `gpt-4.1`, `claude-3-haiku-20240307`). All MCP tools accept `include_all=True` to bypass filtering.
+
+### Rate limits
+
+Per-model rate limit data lives in `providers/rate_limits/` with one module per provider. Each exports a `RATE_LIMITS` dict mapping model ID → `RateLimit` dataclass (fields: `requests_per_minute`, `tokens_per_minute`, `requests_per_day`, `tokens_per_day`, `images_per_minute`, `batch_queue_limit`). The `get_rate_limits(provider, model_id?)` function in `providers/__init__.py` handles lookup with date-suffix fallback for snapshots. The `llm_get_rate_limits` MCP tool exposes this.
+
 ### Discovery flow
 
 `discover()` uses `ThreadPoolExecutor` to query all providers in parallel. `discover_provider()` instantiates the provider class and calls either `fetch_live_models()` or `get_static_info()` based on the `live` flag. Live discovery requires provider API keys in the environment.
@@ -69,7 +77,9 @@ Each provider file contains a `_STATIC_MODELS` list of model subclass instances 
 3. Implement `get_connection_snippet()` for all 5 languages in `SUPPORTED_LANGUAGES`, dispatching by model type via `_get_model_type()` helper
 4. Register it in `providers/__init__.py` in the `PROVIDERS` dict
 5. Add its source path to `_PROVIDER_FILES` in `scripts/update_models.py`
-6. Tests in `test_discovery.py` iterate all providers automatically — new providers are covered
+6. Create `providers/rate_limits/newprovider.py` with a `RATE_LIMITS` dict and register it in `providers/rate_limits/__init__.py`
+7. Add any superseded models to `LEGACY_MODELS` in `providers/__init__.py`
+8. Tests in `test_discovery.py` iterate all providers automatically — new providers are covered
 
 ## Adding a New MCP Server
 
