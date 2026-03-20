@@ -203,21 +203,25 @@ info = discover_provider("google", live=True)
 
 ### Rate limits
 
-Per-model rate limits are available for all providers:
+Per-model rate limits are available for all providers, with provider-specific tiers:
 
 ```python
 from llm_api_search.providers import get_rate_limits
 
-# All rate limits for a provider
-limits = get_rate_limits("openai")
-for model_id, rl in limits.items():
-    print(f"{model_id}: {rl.requests_per_minute} RPM, {rl.tokens_per_minute} TPM")
+# All rate limits for a provider (returns all tiers per model)
+limits = get_rate_limits("google")
 
-# Specific model
-limits = get_rate_limits("anthropic", "claude-sonnet-4-6")
+# Specific tier — Anthropic: tier-1 to tier-4, Google: free/tier-1/tier-2/tier-3
+limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="tier-1")
+rl = limits["claude-sonnet-4-6"]
+print(f"{rl.requests_per_minute} RPM, {rl.input_tokens_per_minute} ITPM")
+
+# Google free vs paid
+free = get_rate_limits("google", "gemini-2.5-flash", tier="free")   # 5 RPM
+paid = get_rate_limits("google", "gemini-2.5-flash", tier="tier-1") # 1000 RPM
 
 # Dated snapshots fall back to the base alias automatically
-limits = get_rate_limits("openai", "gpt-4o-2024-08-06")  # returns gpt-4o limits
+limits = get_rate_limits("openai", "gpt-4o-2024-08-06", tier="tier-1")
 ```
 
 ### API

@@ -64,7 +64,7 @@ MCP tools filter out dated snapshots and legacy models by default. `filter_model
 
 ### Rate limits
 
-Per-model rate limit data lives in `providers/rate_limits/` with one module per provider. Each exports a `RATE_LIMITS` dict mapping model ID → `RateLimit` dataclass (fields: `requests_per_minute`, `tokens_per_minute`, `requests_per_day`, `tokens_per_day`, `images_per_minute`, `batch_queue_limit`). The `get_rate_limits(provider, model_id?)` function in `providers/__init__.py` handles lookup with date-suffix fallback for snapshots. The `llm_get_rate_limits` MCP tool exposes this.
+Per-model rate limit data lives in `providers/rate_limits/` with one module per provider. Each exports a `RATE_LIMITS` dict mapping model ID → `{tier_name: RateLimit, …}`. Tier names are provider-specific: Anthropic uses `"tier-1"` through `"tier-4"` (no free tier), Google uses `"free"`, `"tier-1"`, `"tier-2"`, `"tier-3"`, OpenAI uses `"tier-1"` (baseline only), and Inception uses `"free"`, `"paid"`, `"enterprise"`. The `RateLimit` dataclass has fields: `requests_per_minute`, `tokens_per_minute`, `input_tokens_per_minute`, `output_tokens_per_minute`, `requests_per_day`, `tokens_per_day`, `images_per_minute`, `batch_queue_limit`. Anthropic uses separate `input_tokens_per_minute`/`output_tokens_per_minute`; others use combined `tokens_per_minute`. The `get_rate_limits(provider, model_id?, tier?)` function in `providers/__init__.py` handles lookup with date-suffix fallback for snapshots and gracefully skips models that lack the requested tier. The `llm_get_rate_limits` MCP tool exposes this.
 
 ### Discovery flow
 
