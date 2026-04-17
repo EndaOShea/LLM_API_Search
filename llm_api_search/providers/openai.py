@@ -27,19 +27,6 @@ _STATIC_MODELS = [
         output_cost_per_mtok=60.0,
     ),
     TextModelInfo(
-        model_id='gpt-4-0125-preview',
-        display_name='gpt-4-0125-preview',
-        description='GPT-4 Turbo preview snapshot from January 2025',
-        context_window=128_000,
-        max_output_tokens=4_096,
-        supports_vision=False,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=10.0,
-        output_cost_per_mtok=30.0,
-    ),
-    TextModelInfo(
         model_id='gpt-4-0613',
         display_name='gpt-4-0613',
         description='GPT-4 snapshot from June 2023 with function calling',
@@ -51,19 +38,6 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=30.0,
         output_cost_per_mtok=60.0,
-    ),
-    TextModelInfo(
-        model_id='gpt-4-1106-preview',
-        display_name='gpt-4-1106-preview',
-        description='GPT-4 Turbo preview snapshot from November 2023',
-        context_window=128_000,
-        max_output_tokens=4_096,
-        supports_vision=False,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=10.0,
-        output_cost_per_mtok=30.0,
     ),
     TextModelInfo(
         model_id='gpt-4-turbo',
@@ -85,19 +59,6 @@ _STATIC_MODELS = [
         context_window=128_000,
         max_output_tokens=4_096,
         supports_vision=True,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=10.0,
-        output_cost_per_mtok=30.0,
-    ),
-    TextModelInfo(
-        model_id='gpt-4-turbo-preview',
-        display_name='gpt-4-turbo-preview',
-        description='GPT-4 Turbo preview alias (text-only)',
-        context_window=128_000,
-        max_output_tokens=4_096,
-        supports_vision=False,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
@@ -407,7 +368,7 @@ _STATIC_MODELS = [
         description='Instruction-steerable text-to-speech model',
         supported_voices=['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
-        cost_per_mchars=None,  # Uses per-token pricing instead
+        cost_per_mchars=None,  # TODO: add pricing
         input_cost_per_mtok=0.6,
         output_cost_per_mtok=12.0,
     ),
@@ -417,7 +378,7 @@ _STATIC_MODELS = [
         description='Instruction-steerable text-to-speech model',
         supported_voices=['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
-        cost_per_mchars=None,  # Uses per-token pricing instead
+        cost_per_mchars=None,  # TODO: add pricing
         input_cost_per_mtok=0.6,
         output_cost_per_mtok=12.0,
     ),
@@ -427,7 +388,7 @@ _STATIC_MODELS = [
         description='Instruction-steerable text-to-speech model snapshot from December 2025',
         supported_voices=['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
-        cost_per_mchars=None,  # Uses per-token pricing instead
+        cost_per_mchars=None,  # TODO: add pricing
         input_cost_per_mtok=0.6,
         output_cost_per_mtok=12.0,
     ),
@@ -877,6 +838,58 @@ _STATIC_MODELS = [
         output_cost_per_mtok=15.0,
     ),
     TextModelInfo(
+        model_id='gpt-5.4-mini',
+        display_name='gpt-5.4-mini',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.4-mini-2026-03-17',
+        display_name='gpt-5.4-mini-2026-03-17',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.4-nano',
+        display_name='gpt-5.4-nano',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.4-nano-2026-03-17',
+        display_name='gpt-5.4-nano-2026-03-17',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
         model_id='gpt-5.4-pro',
         display_name='gpt-5.4-pro',
         description='More compute for harder problems, supports reasoning effort levels',
@@ -1029,8 +1042,8 @@ _STATIC_MODELS = [
         model_id='text-embedding-ada-002',
         display_name='text-embedding-ada-002',
         description='Legacy embedding model',
-        dimensions=1536,
-        max_input_tokens=8191,
+        dimensions=1_536,
+        max_input_tokens=8_191,
         supports_multimodal=False,
         input_cost_per_mtok=0.1,
     ),
@@ -1041,8 +1054,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=15.0,
-        input_cost_per_mtok=None,  # Uses per-character pricing instead
-        output_cost_per_mtok=None,  # Uses per-character pricing instead
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     AudioTTSModelInfo(
         model_id='tts-1-1106',
@@ -1051,8 +1064,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=15.0,
-        input_cost_per_mtok=None,  # Uses per-character pricing instead
-        output_cost_per_mtok=None,  # Uses per-character pricing instead
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     AudioTTSModelInfo(
         model_id='tts-1-hd',
@@ -1061,8 +1074,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=30.0,
-        input_cost_per_mtok=None,  # Uses per-character pricing instead
-        output_cost_per_mtok=None,  # Uses per-character pricing instead
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     AudioTTSModelInfo(
         model_id='tts-1-hd-1106',
@@ -1071,8 +1084,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=30.0,
-        input_cost_per_mtok=None,  # Uses per-character pricing instead
-        output_cost_per_mtok=None,  # Uses per-character pricing instead
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     AudioTranscriptionModelInfo(
         model_id='whisper-1',
@@ -1081,6 +1094,45 @@ _STATIC_MODELS = [
         supported_input_formats=['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'],
         max_file_size_mb=25,
         cost_per_minute=0.006,
+    ),
+    TextModelInfo(
+        model_id='gpt-4-0125-preview',
+        display_name='gpt-4-0125-preview',
+        description='GPT-4 Turbo preview snapshot from January 2025',
+        context_window=128_000,
+        max_output_tokens=4_096,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=10.0,
+        output_cost_per_mtok=30.0,
+    ),
+    TextModelInfo(
+        model_id='gpt-4-1106-preview',
+        display_name='gpt-4-1106-preview',
+        description='GPT-4 Turbo preview snapshot from November 2023',
+        context_window=128_000,
+        max_output_tokens=4_096,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=10.0,
+        output_cost_per_mtok=30.0,
+    ),
+    TextModelInfo(
+        model_id='gpt-4-turbo-preview',
+        display_name='gpt-4-turbo-preview',
+        description='GPT-4 Turbo preview alias (text-only)',
+        context_window=128_000,
+        max_output_tokens=4_096,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=10.0,
+        output_cost_per_mtok=30.0,
     ),
     TextModelInfo(
         model_id='o3-pro',

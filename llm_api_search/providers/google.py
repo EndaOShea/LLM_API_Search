@@ -97,7 +97,7 @@ _STATIC_MODELS = [
         description='Gemini 2.5 Flash Preview TTS',
         supported_voices=['Zephyr', 'Puck', 'Charon', 'Kore', 'Fenrir', 'Leda', 'Orus', 'Aoede', 'Callirrhoe', 'Autonoe', 'Enceladus', 'Iapetus', 'Umbriel', 'Algieba', 'Despina', 'Erinome', 'Algenib', 'Rasalgethi', 'Laomedeia', 'Achernar', 'Alnilam', 'Schedar', 'Gacrux', 'Pulcherrima', 'Achird', 'Zubenelgenubi', 'Vindemiatrix', 'Sadachbia', 'Sadaltager', 'Sulafat'],
         supported_output_formats=['wav'],
-        cost_per_mchars=None,  # Uses token-based pricing instead
+        cost_per_mchars=None,  # TODO: add pricing
         input_cost_per_mtok=0.5,
         output_cost_per_mtok=10.0,
     ),
@@ -107,7 +107,7 @@ _STATIC_MODELS = [
         description='Gemini 2.5 Pro Preview TTS',
         supported_voices=['Zephyr', 'Puck', 'Charon', 'Kore', 'Fenrir', 'Leda', 'Orus', 'Aoede', 'Callirrhoe', 'Autonoe', 'Enceladus', 'Iapetus', 'Umbriel', 'Algieba', 'Despina', 'Erinome', 'Algenib', 'Rasalgethi', 'Laomedeia', 'Achernar', 'Alnilam', 'Schedar', 'Gacrux', 'Pulcherrima', 'Achird', 'Zubenelgenubi', 'Vindemiatrix', 'Sadachbia', 'Sadaltager', 'Sulafat'],
         supported_output_formats=['wav'],
-        cost_per_mchars=None,  # Uses token-based pricing instead
+        cost_per_mchars=None,  # TODO: add pricing
         input_cost_per_mtok=1.0,
         output_cost_per_mtok=20.0,
     ),
@@ -190,9 +190,35 @@ _STATIC_MODELS = [
         output_cost_per_mtok=0.0,
     ),
     TextModelInfo(
+        model_id='gemma-4-26b-a4b-it',
+        display_name='Gemma 4 26B A4B IT',
+        description='Gemma 4 26B A4B IT',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gemma-4-31b-it',
+        display_name='Gemma 4 31B IT',
+        description='Gemma 4 31B IT',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
         model_id='gemini-flash-latest',
         display_name='Gemini Flash Latest',
-        description='Latest release of Gemini Flash (alias for current stable Flash model)',
+        description='Latest release of Gemini Flash',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -205,7 +231,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-flash-lite-latest',
         display_name='Gemini Flash-Lite Latest',
-        description='Latest release of Gemini Flash-Lite (alias for current stable Flash-Lite model)',
+        description='Latest release of Gemini Flash-Lite',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -218,7 +244,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-pro-latest',
         display_name='Gemini Pro Latest',
-        description='Latest release of Gemini Pro (alias for current stable Pro model)',
+        description='Latest release of Gemini Pro',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -251,22 +277,9 @@ _STATIC_MODELS = [
         cost_per_image=0.039,
     ),
     TextModelInfo(
-        model_id='gemini-2.5-flash-lite-preview-09-2025',
-        display_name='Gemini 2.5 Flash-Lite Preview Sep 2025',
-        description='Preview release (September 25th, 2025) of Gemini 2.5 Flash-Lite',
-        context_window=1_000_000,
-        max_output_tokens=65_536,
-        supports_vision=True,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=0.1,
-        output_cost_per_mtok=0.4,
-    ),
-    TextModelInfo(
         model_id='gemini-3-pro-preview',
         display_name='Gemini 3 Pro Preview',
-        description='Preview of Gemini 3 Pro, next-generation large multimodal model',
+        description='Gemini 3 Pro Preview',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -340,7 +353,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='nano-banana-pro-preview',
         display_name='Nano Banana Pro',
-        description='Gemini 3 Pro Image Preview (text interface for native image generation)',
+        description='Gemini 3 Pro Image Preview',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -358,6 +371,18 @@ _STATIC_MODELS = [
         supported_qualities=['standard'],
         max_images_per_request=1,
         cost_per_image=0.039,
+    ),
+    MusicModelInfo(
+        model_id='lyria-3-clip-preview',
+        display_name='Lyria 3 Clip Preview',
+        description='Lyria 3 30s model Preview',
+        cost_per_second=None,  # TODO: add pricing
+    ),
+    MusicModelInfo(
+        model_id='lyria-3-pro-preview',
+        display_name='Lyria 3 Pro Preview',
+        description='Lyria 3 Pro Preview',
+        cost_per_second=None,  # TODO: add pricing
     ),
     TextModelInfo(
         model_id='gemini-robotics-er-1.5-preview',
@@ -467,15 +492,15 @@ _STATIC_MODELS = [
     VideoModelInfo(
         model_id='veo-3.0-generate-001',
         display_name='Veo 3',
-        description='Vertex served Veo 3 model with synchronized speech and sound effects',
+        description='Veo 3',
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
-        cost_per_second=0.50,
+        cost_per_second=0.5,
     ),
     VideoModelInfo(
         model_id='veo-3.0-fast-generate-001',
         display_name='Veo 3 fast',
-        description='Vertex served Veo 3 fast model with synchronized audio',
+        description='Veo 3 fast',
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.25,
@@ -483,23 +508,31 @@ _STATIC_MODELS = [
     VideoModelInfo(
         model_id='veo-3.1-generate-preview',
         display_name='Veo 3.1',
-        description='Vertex served Veo 3.1 preview with synchronized audio',
+        description='Veo 3.1',
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
-        cost_per_second=0.50,
+        cost_per_second=0.5,
     ),
     VideoModelInfo(
         model_id='veo-3.1-fast-generate-preview',
         display_name='Veo 3.1 fast',
-        description='Vertex served Veo 3.1 fast preview with synchronized audio',
+        description='Veo 3.1 fast',
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.25,
     ),
+    VideoModelInfo(
+        model_id='veo-3.1-lite-generate-preview',
+        display_name='Veo 3.1 lite',
+        description='Veo 3.1 lite',
+        supported_resolutions=[],
+        supports_audio=False,
+        cost_per_second=None,  # TODO: add pricing
+    ),
     TextModelInfo(
         model_id='gemini-2.5-flash-native-audio-latest',
         display_name='Gemini 2.5 Flash Native Audio Latest',
-        description='Latest release of Gemini 2.5 Flash Native Audio (alias for current stable native audio model)',
+        description='Latest release of Gemini 2.5 Flash Native Audio',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -512,7 +545,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-2.5-flash-native-audio-preview-09-2025',
         display_name='Gemini 2.5 Flash Native Audio Preview 09-2025',
-        description='Gemini 2.5 Flash Native Audio Preview released September 2025',
+        description='Gemini 2.5 Flash Native Audio Preview 09-2025',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -534,6 +567,32 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=0.3,
         output_cost_per_mtok=2.5,
+    ),
+    TextModelInfo(
+        model_id='gemini-3.1-flash-live-preview',
+        display_name='Gemini 3.1 Flash Live Preview',
+        description='Gemini 3.1 Flash Live Preview',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gemini-2.5-flash-lite-preview-09-2025',
+        display_name='Gemini 2.5 Flash-Lite Preview Sep 2025',
+        description='Preview release (September 25th, 2025) of Gemini 2.5 Flash-Lite',
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.1,
+        output_cost_per_mtok=0.4,
     ),
     EmbeddingModelInfo(
         model_id='multimodalembedding',
