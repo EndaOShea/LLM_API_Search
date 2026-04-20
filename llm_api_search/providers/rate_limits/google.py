@@ -105,6 +105,18 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-2": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
         "tier-3": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
     },
+    "gemma-4-26b-a4b-it": {
+        "free": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+        "tier-1": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+        "tier-2": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+        "tier-3": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+    },
+    "gemma-4-31b-it": {
+        "free": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+        "tier-1": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+        "tier-2": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+        "tier-3": RateLimit(requests_per_minute=30, tokens_per_minute=15_000, requests_per_day=14_400),
+    },
     # --- Image models ---
     "imagen-4.0-generate-001": {
         "free": RateLimit(requests_per_day=25),

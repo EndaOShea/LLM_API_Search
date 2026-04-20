@@ -24,4 +24,38 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
             output_tokens_per_minute=1_000_000,
         ),
     },
+    "mercury-edit-2": {
+        "free": RateLimit(
+            requests_per_minute=100,
+            input_tokens_per_minute=100_000,
+            output_tokens_per_minute=10_000,
+        ),
+        "paid": RateLimit(
+            requests_per_minute=1_000,
+            input_tokens_per_minute=1_000_000,
+            output_tokens_per_minute=100_000,
+        ),
+        "enterprise": RateLimit(
+            requests_per_minute=10_000,
+            input_tokens_per_minute=10_000_000,
+            output_tokens_per_minute=1_000_000,
+        ),
+    },
+    "mercury-edit": {
+        "free": RateLimit(
+            requests_per_minute=100,
+            input_tokens_per_minute=100_000,
+            output_tokens_per_minute=10_000,
+        ),
+        "paid": RateLimit(
+            requests_per_minute=1_000,
+            input_tokens_per_minute=1_000_000,
+            output_tokens_per_minute=100_000,
+        ),
+        "enterprise": RateLimit(
+            requests_per_minute=10_000,
+            input_tokens_per_minute=10_000_000,
+            output_tokens_per_minute=1_000_000,
+        ),
+    },
 }
