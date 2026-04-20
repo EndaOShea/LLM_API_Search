@@ -115,3 +115,47 @@ def test_rate_limit_has_at_least_one_field():
         for model_id, entry in limits.items():
             for tier_name, rl in entry.items():
                 _assert_rate_limit_valid(rl, f"{provider}/{model_id}/{tier_name}")
+
+
+# Pre-existing rate-limit gaps — models that landed in _STATIC_MODELS before
+# this coverage test existed. New additions should NOT be added here; instead,
+# fill in real rate limits in the appropriate providers/rate_limits/ module.
+_RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
+    "google": {
+        "gemma-3n-e4b-it",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-pro-latest",
+        "aqa",
+    },
+}
+
+
+def test_all_nonpreview_text_models_have_rate_limits():
+    """Every MCP-visible, non-preview text model must have a rate-limit entry.
+
+    Without this, ``update_models.py`` can silently grow ``_STATIC_MODELS``
+    past what ``providers/rate_limits/`` covers, and ``llm_get_rate_limits``
+    starts returning empty results for new models.
+    """
+    from llm_api_search.providers import PROVIDERS, filter_models
+    from llm_api_search.providers.base import TextModelInfo
+
+    for key in PROVIDERS:
+        provider = PROVIDERS[key]()
+        info = provider.get_static_info()
+        filtered = filter_models(info.models, key)
+        exempt = _RATE_LIMIT_COVERAGE_EXEMPT.get(key, set())
+
+        for m in filtered:
+            if not isinstance(m, TextModelInfo):
+                continue
+            if "preview" in m.model_id:
+                continue
+            if m.model_id in exempt:
+                continue
+            rates = get_rate_limits(key, model_id=m.model_id)
+            assert rates, (
+                f"{key}/{m.model_id}: no rate limit entry — add one to "
+                f"providers/rate_limits/{key}.py"
+            )

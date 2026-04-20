@@ -71,6 +71,12 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "gpt-5-nano": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=50_000),
     },
+    "gpt-5.4-mini": {
+        "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=50_000),
+    },
+    "gpt-5.4-nano": {
+        "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=50_000),
+    },
     # --- GPT-5 pro (heavy): 500 RPM, 30K TPM, 10K RPD ---
     "gpt-5-pro": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=30_000, requests_per_day=10_000),

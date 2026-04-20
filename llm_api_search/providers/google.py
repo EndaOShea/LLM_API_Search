@@ -384,6 +384,16 @@ _STATIC_MODELS = [
         description='Lyria 3 Pro Preview',
         cost_per_second=None,  # TODO: add pricing
     ),
+    AudioTTSModelInfo(
+        model_id='gemini-3.1-flash-tts-preview',
+        display_name='Gemini 3.1 Flash TTS Preview',
+        description='Gemini 3.1 Flash TTS Preview',
+        supported_voices=[],
+        supported_output_formats=[],
+        cost_per_mchars=None,  # TODO: add pricing
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
     TextModelInfo(
         model_id='gemini-robotics-er-1.5-preview',
         display_name='Gemini Robotics-ER 1.5 Preview',
@@ -396,6 +406,19 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=1.25,
         output_cost_per_mtok=10.0,
+    ),
+    TextModelInfo(
+        model_id='gemini-robotics-er-1.6-preview',
+        display_name='Gemini Robotics-ER 1.6 Preview',
+        description='Gemini Robotics-ER 1.6 Preview',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     TextModelInfo(
         model_id='gemini-2.5-computer-use-preview-10-2025',
