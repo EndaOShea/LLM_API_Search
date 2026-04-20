@@ -199,8 +199,8 @@ _STATIC_MODELS = [
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.0,
+        output_cost_per_mtok=0.0,
     ),
     TextModelInfo(
         model_id='gemma-4-31b-it',
@@ -212,8 +212,8 @@ _STATIC_MODELS = [
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.0,
+        output_cost_per_mtok=0.0,
     ),
     TextModelInfo(
         model_id='gemini-flash-latest',
