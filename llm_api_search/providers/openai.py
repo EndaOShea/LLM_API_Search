@@ -848,7 +848,7 @@ _STATIC_MODELS = [
         supports_image_generation=False,
         supports_computer_use=False,
         input_cost_per_mtok=0.75,
-        output_cost_per_mtok=4.50,
+        output_cost_per_mtok=4.5,
     ),
     TextModelInfo(
         model_id='gpt-5.4-mini-2026-03-17',
@@ -861,7 +861,7 @@ _STATIC_MODELS = [
         supports_image_generation=False,
         supports_computer_use=False,
         input_cost_per_mtok=0.75,
-        output_cost_per_mtok=4.50,
+        output_cost_per_mtok=4.5,
     ),
     TextModelInfo(
         model_id='gpt-5.4-nano',
@@ -873,7 +873,7 @@ _STATIC_MODELS = [
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.20,
+        input_cost_per_mtok=0.2,
         output_cost_per_mtok=1.25,
     ),
     TextModelInfo(
@@ -886,7 +886,7 @@ _STATIC_MODELS = [
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.20,
+        input_cost_per_mtok=0.2,
         output_cost_per_mtok=1.25,
     ),
     TextModelInfo(
