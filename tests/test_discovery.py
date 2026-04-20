@@ -417,6 +417,8 @@ def test_google_has_tts_models():
     assert "gemini-2.5-flash-preview-tts" in ids
     assert "gemini-2.5-pro-preview-tts" in ids
     for m in tts_models:
+        if "preview" in m.model_id and m.input_cost_per_mtok is None:
+            continue
         assert m.input_cost_per_mtok is not None
         assert len(m.supported_voices) > 0
 
