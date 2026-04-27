@@ -64,6 +64,9 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "gpt-5.4": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=20_000),
     },
+    "gpt-5.5": {
+        "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=20_000),
+    },
     # --- GPT-5 mini/nano: 500 RPM, 500K TPM, 50K RPD ---
     "gpt-5-mini": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=50_000),
@@ -85,6 +88,9 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=30_000, requests_per_day=10_000),
     },
     "gpt-5.4-pro": {
+        "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=30_000, requests_per_day=10_000),
+    },
+    "gpt-5.5-pro": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=30_000, requests_per_day=10_000),
     },
     # --- Codex (all generations): 500 RPM, 200K TPM, 20K RPD ---
@@ -124,6 +130,9 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-1": RateLimit(requests_per_minute=50, requests_per_day=1_000),
     },
     "gpt-image-1.5": {
+        "tier-1": RateLimit(requests_per_minute=50, requests_per_day=1_000),
+    },
+    "gpt-image-2": {
         "tier-1": RateLimit(requests_per_minute=50, requests_per_day=1_000),
     },
     # --- TTS: 500 RPM, 20K RPD ---
