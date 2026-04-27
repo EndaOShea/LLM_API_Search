@@ -434,6 +434,32 @@ _STATIC_MODELS = [
         output_cost_per_mtok=10.0,
     ),
     TextModelInfo(
+        model_id='deep-research-max-preview-04-2026',
+        display_name='Deep Research Max Preview (Apr-21-2026)',
+        description='Preview release (April 21st, 2026) of Deep Research Max',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='deep-research-preview-04-2026',
+        display_name='Deep Research Preview (Apr-21-2026)',
+        description='Preview release (April 21th, 2026) of Deep Research',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
         model_id='deep-research-pro-preview-12-2025',
         display_name='Deep Research Pro Preview (Dec-12-2025)',
         description='Preview release (December 12th, 2025) of Deep Research Pro',
@@ -463,6 +489,15 @@ _STATIC_MODELS = [
         max_input_tokens=8_192,
         supports_multimodal=True,
         input_cost_per_mtok=0.2,
+    ),
+    EmbeddingModelInfo(
+        model_id='gemini-embedding-2',
+        display_name='Gemini Embedding 2',
+        description='Obtain a distributed representation of multimodal content.',
+        dimensions=None,
+        max_input_tokens=None,
+        supports_multimodal=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
     ),
     TextModelInfo(
         model_id='aqa',

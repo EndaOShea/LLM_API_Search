@@ -915,6 +915,58 @@ _STATIC_MODELS = [
         input_cost_per_mtok=30.0,
         output_cost_per_mtok=180.0,
     ),
+    TextModelInfo(
+        model_id='gpt-5.5',
+        display_name='gpt-5.5',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.5-2026-04-23',
+        display_name='gpt-5.5-2026-04-23',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.5-pro',
+        display_name='gpt-5.5-pro',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.5-pro-2026-04-23',
+        display_name='gpt-5.5-pro-2026-04-23',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
     ImageModelInfo(
         model_id='gpt-image-1',
         display_name='gpt-image-1',
@@ -941,6 +993,24 @@ _STATIC_MODELS = [
         supported_qualities=['low', 'medium', 'high', 'auto'],
         max_images_per_request=1,
         cost_per_image=0.034,
+    ),
+    ImageModelInfo(
+        model_id='gpt-image-2',
+        display_name='gpt-image-2',
+        description='',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=None,  # TODO: add pricing
+    ),
+    ImageModelInfo(
+        model_id='gpt-image-2-2026-04-21',
+        display_name='gpt-image-2-2026-04-21',
+        description='',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=None,  # TODO: add pricing
     ),
     TextModelInfo(
         model_id='o3',
