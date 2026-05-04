@@ -944,7 +944,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gpt-5.5-pro',
         display_name='gpt-5.5-pro',
-        description="Higher-accuracy GPT-5.5 variant for the hardest questions and demanding professional, legal, education, data science, and research work",
+        description='Higher-accuracy GPT-5.5 variant for the hardest questions and demanding professional, legal, education, data science, and research work',
         context_window=1_000_000,
         max_output_tokens=128_000,
         supports_vision=True,

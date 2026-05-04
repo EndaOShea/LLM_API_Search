@@ -493,7 +493,7 @@ _STATIC_MODELS = [
     EmbeddingModelInfo(
         model_id='gemini-embedding-2',
         display_name='Gemini Embedding 2',
-        description='Multimodal embedding model mapping text, images, video, audio, and PDFs into a unified embedding space.',
+        description='Obtain a distributed representation of multimodal content.',
         dimensions=3_072,
         max_input_tokens=8_192,
         supports_multimodal=True,
