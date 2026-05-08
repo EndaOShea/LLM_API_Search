@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Fetch live model data from each provider and update _STATIC_MODELS.
 
-Preserves pricing for models that already have it set.  New models are
-added with pricing=None so a human can fill them in via the resulting PR.
+Preserves pricing, display_name, and description for models that already
+exist in the static block — only new models pick these up from the live
+API.  New models are added with pricing=None so a human can fill them in
+via the resulting PR.
 
 Usage:
     python scripts/update_models.py           # update all providers
@@ -132,10 +134,21 @@ def update_provider(key: str) -> tuple[int, int]:
         if model_cls is ModelInfo:
             model_cls = TextModelInfo
 
+        # Preserve existing display_name/description for known models so manual
+        # curation (e.g. richer descriptions than the live API returns) is not
+        # silently reverted on the weekly auto-update pass.  Live values are
+        # only used when the model is new.
+        if static_m:
+            display_name = static_m.display_name or live_m.display_name or model_id
+            description = static_m.description or live_m.description or ""
+        else:
+            display_name = live_m.display_name or model_id
+            description = live_m.description or ""
+
         kwargs: dict = {
             "model_id": model_id,
-            "display_name": live_m.display_name or (static_m.display_name if static_m else model_id),
-            "description": live_m.description or (static_m.description if static_m else ""),
+            "display_name": display_name,
+            "description": description,
         }
 
         if static_m:
