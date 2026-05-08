@@ -128,6 +128,13 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
         "gemini-pro-latest",
         "aqa",
     },
+    # DeepSeek publishes no numeric rate limits — the docs state limits are
+    # adjusted dynamically based on server load (HTTP 429 on overflow).  This
+    # is a publisher policy, not a coverage gap from the auto-update flow.
+    "deepseek": {
+        "deepseek-v4-flash",
+        "deepseek-v4-pro",
+    },
 }
 
 

@@ -30,7 +30,7 @@ def test_discover_provider_static():
 
 def test_discover_all_static():
     results = discover(live=False)
-    assert set(results.keys()) == {"anthropic", "google", "openai", "inception"}
+    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek"}
     for key, info in results.items():
         assert isinstance(info, ProviderInfo)
         assert len(info.models) > 0
