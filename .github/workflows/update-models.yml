@@ -32,6 +32,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           INCEPTION_API_KEY: ${{ secrets.INCEPTION_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: python scripts/update_models.py
 
       - name: Check for changes
@@ -59,7 +60,7 @@ jobs:
             Automated weekly update of static model data.
 
             **What changed:**
-            - Fetched live model lists from Anthropic, OpenAI, Google, and Inception Labs APIs
+            - Fetched live model lists from Anthropic, OpenAI, Google, Inception Labs, and DeepSeek APIs
             - New models added with `pricing=None` — please fill in before merging
 
             **Review checklist:**
