@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-An MCP server and Python library that discovers LLM API versions, models, pricing, and rate limits for Anthropic, Google, OpenAI, and Inception Labs (Mercury), and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
+An MCP server and Python library that discovers LLM API versions, models, pricing, and rate limits for Anthropic, Google, OpenAI, Inception Labs (Mercury), and DeepSeek, and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
 
 Hosted at `https://llm-mcp.cora-branch.com/`. Deployed via Docker + nginx on VPS.
 
@@ -26,7 +26,7 @@ python mcp_server.py                    # stdio mode (single server)
 python mcp_server.py --http --port 8080 # HTTP mode (composite server)
 
 # Update static model data from live APIs (requires API keys)
-ANTHROPIC_API_KEY=... OPENAI_API_KEY=... GEMINI_API_KEY=... python scripts/update_models.py
+ANTHROPIC_API_KEY=... OPENAI_API_KEY=... GEMINI_API_KEY=... DEEPSEEK_API_KEY=... python scripts/update_models.py
 python scripts/update_models.py openai  # single provider
 ```
 
@@ -44,7 +44,7 @@ Each provider in `llm_api_search/providers/` extends `Provider` (ABC in `base.py
 - `fetch_live_models()` — calls the provider's API, falls back to static on failure
 - `get_connection_snippet(model_id, language)` — returns code snippets for 5 languages
 
-The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "google", "openai", "inception") to provider classes. The Google provider key is `"google"`, not `"gemini"`. The Inception Labs provider key is `"inception"`.
+The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "google", "openai", "inception", "deepseek") to provider classes. The Google provider key is `"google"`, not `"gemini"`. The Inception Labs provider key is `"inception"`. DeepSeek's API is OpenAI-compatible, so its connection snippets use the `openai` SDK with `base_url="https://api.deepseek.com"`.
 
 ### Model type system
 
@@ -64,7 +64,7 @@ MCP tools filter out dated snapshots and legacy models by default. `filter_model
 
 ### Rate limits
 
-Per-model rate limit data lives in `providers/rate_limits/` with one module per provider. Each exports a `RATE_LIMITS` dict mapping model ID → `{tier_name: RateLimit, …}`. Tier names are provider-specific: Anthropic uses `"tier-1"` through `"tier-4"` (no free tier), Google uses `"free"`, `"tier-1"`, `"tier-2"`, `"tier-3"`, OpenAI uses `"tier-1"` (baseline only), and Inception uses `"free"`, `"paid"`, `"enterprise"`. The `RateLimit` dataclass has fields: `requests_per_minute`, `tokens_per_minute`, `input_tokens_per_minute`, `output_tokens_per_minute`, `requests_per_day`, `tokens_per_day`, `images_per_minute`, `batch_queue_limit`. Anthropic uses separate `input_tokens_per_minute`/`output_tokens_per_minute`; others use combined `tokens_per_minute`. The `get_rate_limits(provider, model_id?, tier?)` function in `providers/__init__.py` handles lookup with date-suffix fallback for snapshots and gracefully skips models that lack the requested tier. The `llm_get_rate_limits` MCP tool exposes this.
+Per-model rate limit data lives in `providers/rate_limits/` with one module per provider. Each exports a `RATE_LIMITS` dict mapping model ID → `{tier_name: RateLimit, …}`. Tier names are provider-specific: Anthropic uses `"tier-1"` through `"tier-4"` (no free tier), Google uses `"free"`, `"tier-1"`, `"tier-2"`, `"tier-3"`, OpenAI uses `"tier-1"` (baseline only), and Inception uses `"free"`, `"paid"`, `"enterprise"`. DeepSeek publishes no numeric rate limits (limits are dynamic by server load), so its `RATE_LIMITS` dict is empty by design — DeepSeek model IDs are listed in `_RATE_LIMIT_COVERAGE_EXEMPT` in `tests/test_rate_limits.py`. The `RateLimit` dataclass has fields: `requests_per_minute`, `tokens_per_minute`, `input_tokens_per_minute`, `output_tokens_per_minute`, `requests_per_day`, `tokens_per_day`, `images_per_minute`, `batch_queue_limit`. Anthropic uses separate `input_tokens_per_minute`/`output_tokens_per_minute`; others use combined `tokens_per_minute`. The `get_rate_limits(provider, model_id?, tier?)` function in `providers/__init__.py` handles lookup with date-suffix fallback for snapshots and gracefully skips models that lack the requested tier. The `llm_get_rate_limits` MCP tool exposes this.
 
 ### Discovery flow
 

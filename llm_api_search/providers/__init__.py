@@ -11,12 +11,14 @@ from llm_api_search.providers.anthropic import AnthropicProvider
 from llm_api_search.providers.google import GeminiProvider
 from llm_api_search.providers.openai import OpenAIProvider
 from llm_api_search.providers.inception import InceptionProvider
+from llm_api_search.providers.deepseek import DeepSeekProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
     "google": GeminiProvider,
     "openai": OpenAIProvider,
     "inception": InceptionProvider,
+    "deepseek": DeepSeekProvider,
 }
 
 # ---------------------------------------------------------------------------
@@ -65,6 +67,12 @@ LEGACY_MODELS: dict[str, set[str]] = {
     },
     "inception": {
         "mercury", "mercury-coder",
+    },
+    "deepseek": {
+        # Deprecated 2026-07-24; not shipped in static data, but listed
+        # here so the filter is consistent if they ever resurface from
+        # a live discovery call.
+        "deepseek-chat", "deepseek-reasoner",
     },
 }
 
@@ -192,6 +200,7 @@ __all__ = [
     "GeminiProvider",
     "OpenAIProvider",
     "InceptionProvider",
+    "DeepSeekProvider",
     "PROVIDERS",
     "LEGACY_MODELS",
     "filter_models",

@@ -48,11 +48,13 @@ _PROVIDER_FILES = {
     "google": PROJECT_ROOT / "llm_api_search" / "providers" / "google.py",
     "openai": PROJECT_ROOT / "llm_api_search" / "providers" / "openai.py",
     "inception": PROJECT_ROOT / "llm_api_search" / "providers" / "inception.py",
+    "deepseek": PROJECT_ROOT / "llm_api_search" / "providers" / "deepseek.py",
 }
 
 # Models to exclude from updates — superseded or deprecated model IDs per provider.
 _EXCLUDED_MODELS: dict[str, set[str]] = {
     "inception": {"mercury", "mercury-coder"},
+    "deepseek": {"deepseek-chat", "deepseek-reasoner"},
 }
 
 # Regex that matches the entire `_STATIC_MODELS = [...]` block.
