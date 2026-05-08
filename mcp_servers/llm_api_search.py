@@ -27,7 +27,7 @@ mcp = FastMCP(
 
 @mcp.tool()
 def llm_list_providers() -> list[str]:
-    """List all supported LLM API providers (e.g. anthropic, google, openai)."""
+    """List all supported LLM API providers (e.g. anthropic, google, openai, inception, deepseek)."""
     return list_providers()
 
 
@@ -58,7 +58,7 @@ def llm_discover_provider(provider: str, live: bool = False, include_all: bool =
     """Discover API info for a single LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", or "openai".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
         live: If True, fetch live model lists (requires API key in environment).
         include_all: If True, include dated snapshots and legacy models.
 
@@ -80,7 +80,7 @@ def llm_get_connection_snippet(
     """Get a ready-to-use code snippet for connecting to an LLM API.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", or "openai".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
         model_id: Optional specific model ID. Defaults to the provider's recommended model.
         language: Programming language for the snippet. One of "python", "typescript",
                   "javascript", "java", or "cpp". If omitted, returns snippets for all
@@ -127,7 +127,7 @@ def llm_list_models(
     """List available models for a specific LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", "openai", or "inception".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
         live: If True, fetch live model lists (requires API key in environment).
         model_type: Optional filter — one of "text", "image", "audio_tts",
                     "audio_transcription", "embedding". Returns all types if omitted.
@@ -210,15 +210,17 @@ def llm_get_rate_limits(
     """Get rate limits for an LLM provider, optionally for a specific model.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", "openai", or "inception".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
         model: Optional model ID.  If provided, returns limits for that model
                (falls back to the base alias for dated snapshots).  If omitted,
                returns limits for all models.
         tier: Optional tier name.  Tier names are provider-specific:
               Anthropic uses "tier-1" through "tier-4" (no free tier).
-              OpenAI uses "free", "tier-1" through "tier-5".
-              Google uses "free", "paid".
+              Google uses "free", "tier-1" through "tier-3".
+              OpenAI uses "tier-1" (baseline only).
               Inception uses "free", "paid", "enterprise".
+              DeepSeek publishes no numeric rate limits (limits are dynamic
+              by server load), so this tool returns no data for DeepSeek models.
               When omitted, returns all tiers per model.
 
     Returns:
