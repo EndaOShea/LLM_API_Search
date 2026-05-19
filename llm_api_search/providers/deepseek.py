@@ -30,13 +30,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='deepseek-v4-pro',
         display_name='DeepSeek V4 Pro',
-        description=(
-            'DeepSeek\'s flagship reasoning model with configurable thinking '
-            'mode and reasoning effort. 1M token context, up to 384K output. '
-            'Supports tool calls, JSON output, chat prefix completion, and '
-            'FIM completion. Currently at a 75% promotional discount through '
-            '2026-05-31; pricing here reflects the regular post-promo rate.'
-        ),
+        description="DeepSeek's flagship reasoning model with configurable thinking mode and reasoning effort. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion. Currently at a 75% promotional discount through 2026-05-31; pricing here reflects the regular post-promo rate.",
         context_window=1_000_000,
         max_output_tokens=384_000,
         supports_vision=False,
@@ -49,11 +43,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='deepseek-v4-flash',
         display_name='DeepSeek V4 Flash',
-        description=(
-            'Fast, low-cost DeepSeek model with configurable thinking mode. '
-            '1M token context, up to 384K output. Supports tool calls, JSON '
-            'output, chat prefix completion, and FIM completion.'
-        ),
+        description='Fast, low-cost DeepSeek model with configurable thinking mode. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion.',
         context_window=1_000_000,
         max_output_tokens=384_000,
         supports_vision=False,

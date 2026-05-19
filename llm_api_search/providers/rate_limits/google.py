@@ -56,6 +56,12 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-2": RateLimit(requests_per_minute=10_000, tokens_per_minute=10_000_000, requests_per_day=350_000),
         "tier-3": RateLimit(requests_per_minute=30_000, tokens_per_minute=30_000_000),
     },
+    "gemini-3.1-flash-lite": {
+        "free": RateLimit(requests_per_minute=15, tokens_per_minute=250_000, requests_per_day=500),
+        "tier-1": RateLimit(requests_per_minute=4_000, tokens_per_minute=4_000_000, requests_per_day=150_000),
+        "tier-2": RateLimit(requests_per_minute=10_000, tokens_per_minute=10_000_000, requests_per_day=350_000),
+        "tier-3": RateLimit(requests_per_minute=30_000, tokens_per_minute=30_000_000),
+    },
     # --- Experimental (no tier changes) ---
     "gemini-2.0-flash-exp": {
         "tier-1": RateLimit(requests_per_minute=10, tokens_per_minute=250_000, requests_per_day=500),
