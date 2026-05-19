@@ -64,6 +64,8 @@ LEGACY_MODELS: dict[str, set[str]] = {
         "gemini-2.0-flash-lite-001",
         # Specialized/niche
         "aqa",
+        # Replaced by GA gemini-3.1-flash-lite; shuts down 2026-05-25
+        "gemini-3.1-flash-lite-preview",
     },
     "inception": {
         "mercury", "mercury-coder",

@@ -266,15 +266,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-3.1-flash-lite',
         display_name='Gemini 3.1 Flash Lite',
-        description='Gemini 3.1 Flash Lite',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='Most cost-efficient Gemini, optimized for high-volume agentic tasks, translation, and simple data processing.',
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.25,
+        output_cost_per_mtok=1.5,
     ),
     ImageModelInfo(
         model_id='gemini-3-pro-image-preview',
