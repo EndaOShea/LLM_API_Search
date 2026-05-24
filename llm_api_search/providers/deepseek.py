@@ -8,9 +8,9 @@ Pricing notes:
 - Input pricing recorded here is the *cache miss* rate. DeepSeek charges
   significantly less on cache hits ($0.0028/Mtok flash, $0.0145/Mtok pro)
   but most callers should plan for the cache-miss case.
-- V4-Pro currently runs at a 75% promotional discount through 2026-05-31.
-  We record the regular post-promo price ($1.74 in / $3.48 out) so the
-  numbers don't silently shift when the promo ends.
+- V4-Pro's discounted rate ($0.435 in / $0.87 out) — originally a 75% promo
+  scheduled to expire 2026-05-31 — has been made permanent and is the rate
+  recorded here.
 - ``deepseek-chat`` and ``deepseek-reasoner`` are scheduled for deprecation
   on 2026-07-24 and are intentionally not listed.
 """
@@ -30,15 +30,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='deepseek-v4-pro',
         display_name='DeepSeek V4 Pro',
-        description="DeepSeek's flagship reasoning model with configurable thinking mode and reasoning effort. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion. Currently at a 75% promotional discount through 2026-05-31; pricing here reflects the regular post-promo rate.",
+        description="DeepSeek's flagship reasoning model with configurable thinking mode and reasoning effort. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion.",
         context_window=1_000_000,
         max_output_tokens=384_000,
         supports_vision=False,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=1.74,
-        output_cost_per_mtok=3.48,
+        input_cost_per_mtok=0.435,
+        output_cost_per_mtok=0.87,
     ),
     TextModelInfo(
         model_id='deepseek-v4-flash',
