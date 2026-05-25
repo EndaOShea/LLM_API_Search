@@ -18,6 +18,11 @@ Browse what's available:
 curl https://llm-mcp.cora-branch.com/
 ```
 
+The hosted server also exposes two operational endpoints:
+
+- `https://llm-mcp.cora-branch.com/health` — readiness check (200 if all providers' static catalogs parse, 503 otherwise)
+- `https://llm-mcp.cora-branch.com/stats` — anonymous request counts (total, today, last 7 days, broken down by path)
+
 Then connect from your preferred tool:
 
 **Claude Code:**

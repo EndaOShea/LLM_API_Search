@@ -58,6 +58,19 @@ Each provider file contains a `_STATIC_MODELS` list of model subclass instances 
 
 `mcp_server.py` auto-discovers all modules in `mcp_servers/` that export `mcp` (FastMCP instance), `MOUNT_PATH`, and `DESCRIPTION`. Each gets mounted as a sub-app on its own HTTP path. In stdio mode, only the first discovered server runs.
 
+In HTTP mode, the outer Starlette app also serves three non-MCP routes:
+- `/` — index page listing registered MCP servers and connect commands.
+- `/health` — `check_health()` in `mcp_server.py` returns 200 + JSON if every provider's `get_static_info()` succeeds and yields a non-empty model list; 503 otherwise. The deploy workflow polls this to gate the rebuild as healthy.
+- `/stats` — request counts (total, today, last_7d, by_path) computed by `summarize_usage()` from the JSONL log.
+
+### Usage tracking
+
+`UsageLoggingMiddleware` in `usage_middleware.py` is registered on the Starlette app and appends one JSONL record `{ts, path}` per MCP request (paths ending in `/mcp` only — index/health/stats are excluded). No client identification. The log file lives at `/var/log/llm-mcp/usage.jsonl` inside the container; `docker-compose.yml` bind-mounts `./logs:/var/log/llm-mcp` so the data persists across rebuilds. On the VPS the host path is `/home/root/apps/LLM_API_Search/logs/`.
+
+### Deployment
+
+Production runs at `https://llm-mcp.cora-branch.com/` on a VPS with the repo at `/home/root/apps/LLM_API_Search`. The `.github/workflows/deploy.yml` action fires on `workflow_run` after CI succeeds on `main` (gated by `github.event.workflow_run.conclusion == 'success'`), SSHes in via secrets, runs `git reset --hard origin/main && docker compose up -d --build && docker image prune -f`, then polls `/health` for up to 30s. Required GH secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_REPO_PATH`. Manual re-runs available via `workflow_dispatch`.
+
 ### Model filtering
 
 MCP tools filter out dated snapshots and legacy models by default. `filter_models()` in `providers/__init__.py` uses two mechanisms: pattern-based date suffix matching (`-YYYY-MM-DD`, `-YYYYMMDD`, `-MM-YYYY`) to remove snapshots when a non-dated alias exists, and an explicit `LEGACY_MODELS` dict for superseded models (e.g., `gpt-4`, `gpt-4.1`, `claude-3-haiku-20240307`). All MCP tools accept `include_all=True` to bypass filtering.
