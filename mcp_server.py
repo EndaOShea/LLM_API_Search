@@ -21,6 +21,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse
 from starlette.routing import Mount, Route
 
+from usage_middleware import UsageLoggingMiddleware, summarize_usage
+
 
 def discover_servers():
     """Auto-discover all MCP server modules in the mcp_servers package."""
@@ -123,9 +125,13 @@ def build_app(host: str, port: int):
             status_code=200 if ok else 503,
         )
 
+    async def stats(request: Request):
+        return JSONResponse(summarize_usage())
+
     all_routes: list[Route | Mount] = [
         Route("/", index),
         Route("/health", health),
+        Route("/stats", stats),
     ] + mounts
 
     @asynccontextmanager
@@ -135,7 +141,9 @@ def build_app(host: str, port: int):
                 await stack.enter_async_context(sm.run())
             yield
 
-    return Starlette(routes=all_routes, lifespan=lifespan)
+    app = Starlette(routes=all_routes, lifespan=lifespan)
+    app.add_middleware(UsageLoggingMiddleware)
+    return app
 
 
 if __name__ == "__main__":

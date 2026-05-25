@@ -100,19 +100,6 @@ Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, an
 
 A GitHub Actions workflow runs weekly to fetch the latest model lists from each provider's API and open a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
 
-```bash
-# Run manually
-ANTHROPIC_API_KEY=... OPENAI_API_KEY=... GEMINI_API_KEY=... python scripts/update_models.py
-```
-
-To enable the weekly workflow, add these **repository secrets** in GitHub (`Settings → Secrets → Actions`):
-
-- `ANTHROPIC_API_KEY`
-- `OPENAI_API_KEY`
-- `GEMINI_API_KEY`
-- `INCEPTION_API_KEY`
-- `DEEPSEEK_API_KEY`
-
 ## Python library
 
 The MCP tools are backed by a Python library you can also use directly.
