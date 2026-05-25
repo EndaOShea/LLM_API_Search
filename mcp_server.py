@@ -41,6 +41,34 @@ def discover_servers():
     return servers
 
 
+def check_health(servers: dict) -> tuple[bool, dict]:
+    """Determine whether the service is healthy.
+
+    Verifies MCP servers are registered and every provider's static catalog
+    is parseable. No network calls — deploy health stays decoupled from
+    upstream provider API availability.
+    """
+    from llm_api_search.providers import PROVIDERS
+
+    if not servers:
+        return False, {"reason": "no MCP servers registered"}
+
+    provider_status: dict[str, dict] = {}
+    for name, cls in PROVIDERS.items():
+        try:
+            info = cls().get_static_info()
+        except Exception as e:
+            return False, {"reason": f"provider {name} failed get_static_info: {e}"}
+        if not info.models:
+            return False, {"reason": f"provider {name} has no models"}
+        provider_status[name] = {"models": len(info.models)}
+
+    return True, {
+        "servers": list(servers.keys()),
+        "providers": provider_status,
+    }
+
+
 def build_app(host: str, port: int):
     """Build a Starlette app that mounts all discovered MCP servers."""
     servers = discover_servers()
@@ -88,7 +116,17 @@ def build_app(host: str, port: int):
 
         return PlainTextResponse("\n".join(lines))
 
-    all_routes: list[Route | Mount] = [Route("/", index)] + mounts
+    async def health(request: Request):
+        ok, details = check_health(servers)
+        return JSONResponse(
+            {"status": "ok" if ok else "unhealthy", **details},
+            status_code=200 if ok else 503,
+        )
+
+    all_routes: list[Route | Mount] = [
+        Route("/", index),
+        Route("/health", health),
+    ] + mounts
 
     @asynccontextmanager
     async def lifespan(app):

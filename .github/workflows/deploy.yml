@@ -1,0 +1,52 @@
+name: Deploy
+
+# Fire only after CI succeeds on main. Manual re-runs allowed via workflow_dispatch.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Skip if CI failed; always run for manual dispatch.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd ${{ secrets.VPS_REPO_PATH }}
+            git fetch --prune origin main
+            git reset --hard origin/main
+            docker compose up -d --build
+            docker image prune -f
+
+      - name: Health check
+        run: |
+          set -e
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            response=$(curl -fsS --max-time 5 https://llm-mcp.cora-branch.com/health || echo "FAIL")
+            if echo "$response" | grep -q '"status":"ok"'; then
+              echo "Healthy: $response"
+              exit 0
+            fi
+            echo "Attempt $i: not ready yet ($response), sleeping 3s..."
+            sleep 3
+          done
+          echo "Health check failed after 30s"
+          exit 1
