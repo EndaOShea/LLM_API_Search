@@ -16,6 +16,7 @@ Requires API keys in the environment:
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 import textwrap
@@ -185,9 +186,51 @@ def update_provider(key: str) -> tuple[int, int]:
     return new_count, len(merged)
 
 
+_NOTES_FILE = PROJECT_ROOT / "model_update_notes.md"
+
+
+def _emit_discovery_notes(unrecognized: dict[str, set[str]]) -> None:
+    """Surface live model IDs that aren't curated and aren't known aliases.
+
+    These are providers (e.g. DeepSeek) whose live API lists a model the static
+    data doesn't recognize and the update can't auto-add — a human must review
+    and add it manually. Output goes to stdout, the GitHub Actions step summary
+    (if running in CI), and ``model_update_notes.md`` for the PR body.
+    """
+    hits = {k: sorted(v) for k, v in unrecognized.items() if v}
+    if not hits:
+        # Clear any stale file so a later run's PR body doesn't show old hits.
+        _NOTES_FILE.write_text("")
+        return
+
+    lines = ["### ⚠️ Unrecognized upstream models", ""]
+    lines.append(
+        "These IDs are served by the provider's live API but are neither "
+        "curated in `_STATIC_MODELS` nor a known alias. They could not be "
+        "auto-added — review and add them manually if they're real new models:"
+    )
+    lines.append("")
+    for key, ids in hits.items():
+        lines.append(f"- **{key}**: " + ", ".join(f"`{m}`" for m in ids))
+    note = "\n".join(lines) + "\n"
+
+    print("\n" + note)
+    _NOTES_FILE.write_text(note)
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as fh:
+            fh.write(note)
+    # A GitHub Actions annotation so the signal is visible on the run even when
+    # there's no provider diff (hence no auto-update PR) to carry the note.
+    if os.environ.get("GITHUB_ACTIONS"):
+        flat = "; ".join(f"{k}: {', '.join(v)}" for k, v in hits.items())
+        print(f"::warning title=Unrecognized upstream models::{flat}")
+
+
 def main() -> None:
     targets = sys.argv[1:] if len(sys.argv) > 1 else list(_PROVIDER_FILES.keys())
 
+    unrecognized: dict[str, set[str]] = {}
     for key in targets:
         if key not in _PROVIDER_FILES:
             print(f"Unknown provider: {key}")
@@ -199,6 +242,13 @@ def main() -> None:
             print(f"  {total} models total ({new} NEW — check pricing!)")
         else:
             print(f"  {total} models total (no new models)")
+
+        # Discovery signal for providers that keep fetch_live_models curated
+        # (DeepSeek): genuinely-new live IDs never reach the merge above, so
+        # flag them separately. unrecognized_live_model_ids never raises.
+        unrecognized[key] = PROVIDERS[key]().unrecognized_live_model_ids()
+
+    _emit_discovery_notes(unrecognized)
 
     print("\nDone. Run `pytest tests/` to verify.")
 

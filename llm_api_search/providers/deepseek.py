@@ -26,6 +26,25 @@ from llm_api_search.providers.base import (
     ModelInfo, TextModelInfo, Provider, ProviderInfo,
 )
 
+# Generic IDs DeepSeek's /models endpoint returns that map to curated versioned
+# entries (e.g. deepseek-v4-*) and are intentionally NOT listed as separate
+# models. They are excluded from the new-model discovery signal so routine
+# updates don't flag them. These mirror _EXCLUDED_MODELS["deepseek"] in
+# scripts/update_models.py (which drops them from the merge); kept separate
+# because "don't merge" and "don't flag as new" are distinct concerns.
+_KNOWN_LIVE_ALIASES = frozenset({"deepseek-chat", "deepseek-reasoner"})
+
+
+def _classify_unrecognized(
+    live_ids: set[str], static_ids: set[str], aliases: set[str]
+) -> set[str]:
+    """Return live IDs that are neither curated nor known aliases.
+
+    Pure (no network) so the classification can be unit-tested directly.
+    """
+    return set(live_ids) - set(static_ids) - set(aliases)
+
+
 _STATIC_MODELS = [
     TextModelInfo(
         model_id='deepseek-v4-pro',
@@ -115,6 +134,36 @@ class DeepSeekProvider(Provider):
             pass
 
         return info
+
+    def unrecognized_live_model_ids(self) -> set[str]:
+        """Live IDs DeepSeek serves that we neither curate nor alias.
+
+        ``fetch_live_models`` deliberately stays curated-only for runtime
+        safety, so this is the update-time channel that flags a genuinely-new
+        DeepSeek model for manual review. Returns an empty set if no API key is
+        set or any API call fails.
+        """
+        info = self.get_static_info()
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            return set()
+
+        try:
+            req = urllib.request.Request(
+                f"{info.api_base_url}/models",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read())
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
+            return set()
+
+        live_ids = {m.get("id", "") for m in data.get("data", [])} - {""}
+        static_ids = {m.model_id for m in _STATIC_MODELS}
+        return _classify_unrecognized(live_ids, static_ids, _KNOWN_LIVE_ALIASES)
 
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
