@@ -44,6 +44,8 @@ Each provider in `llm_api_search/providers/` extends `Provider` (ABC in `base.py
 - `fetch_live_models()` — calls the provider's API, falls back to static on failure
 - `get_connection_snippet(model_id, language)` — returns code snippets for 5 languages
 
+`Provider` also has an optional `unrecognized_live_model_ids()` method (base default returns an empty set) — see the new-model discovery signal under "Static model data".
+
 The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "google", "openai", "inception", "deepseek") to provider classes. The Google provider key is `"google"`, not `"gemini"`. The Inception Labs provider key is `"inception"`. DeepSeek's API is OpenAI-compatible, so its connection snippets use the `openai` SDK with `base_url="https://api.deepseek.com"`.
 
 ### Model type system
@@ -53,6 +55,10 @@ The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "
 ### Static model data
 
 Each provider file contains a `_STATIC_MODELS` list of model subclass instances at the top. Text models must come first (the selector defaults to `models[0]`). The `scripts/update_models.py` script rewrites this block by regex-replacing it with live API data while preserving existing pricing. New models get `pricing=None` and need manual review.
+
+### New-model discovery signal
+
+Most providers' `fetch_live_models()` returns *every* live ID, so the weekly update auto-adds anything new (with `pricing=None`). DeepSeek is the exception: its `fetch_live_models()` deliberately intersects live IDs with `_STATIC_MODELS` to keep runtime discovery curated-only (its `/models` returns generic aliases `deepseek-chat`/`deepseek-reasoner`, not the curated versioned IDs). That makes a genuinely-new DeepSeek model invisible to the auto-add path. To close that gap, `Provider.unrecognized_live_model_ids()` (base default empty; overridden in `deepseek.py`) returns live IDs that are neither curated nor a known alias (`_KNOWN_LIVE_ALIASES`). It is **report-only** — `fetch_live_models()` is unchanged, so runtime stays curated-only. `update_models.py` calls it per provider and surfaces any hits to stdout, `$GITHUB_STEP_SUMMARY`, a `::warning::` annotation, and `model_update_notes.md` (gitignored); the `update-models.yml` workflow folds that note into the auto-update PR body. A human then adds the model manually.
 
 ### Composite MCP server
 
@@ -93,6 +99,7 @@ Per-model rate limit data lives in `providers/rate_limits/` with one module per 
 6. Create `providers/rate_limits/newprovider.py` with a `RATE_LIMITS` dict and register it in `providers/rate_limits/__init__.py`
 7. Add any superseded models to `LEGACY_MODELS` in `providers/__init__.py`
 8. Tests in `test_discovery.py` iterate all providers automatically — new providers are covered
+9. If the provider's `fetch_live_models()` is curated (won't auto-surface new live IDs, like DeepSeek), also override `unrecognized_live_model_ids()` so new models still get flagged — see "New-model discovery signal"
 
 ## Adding a New MCP Server
 
