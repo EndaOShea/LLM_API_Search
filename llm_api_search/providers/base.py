@@ -236,6 +236,19 @@ class Provider(ABC):
         """
         ...
 
+    def unrecognized_live_model_ids(self) -> set[str]:
+        """Update-time discovery signal: live model IDs the provider neither
+        curates nor treats as a known alias.
+
+        Most providers surface new models automatically because
+        ``fetch_live_models`` returns every live ID, so the weekly update adds
+        them. Providers that deliberately keep ``fetch_live_models`` curated
+        (e.g. DeepSeek) override this so genuinely-new IDs still get flagged for
+        manual review. Default is empty; must never raise (return ``set()`` on
+        any API failure or missing key).
+        """
+        return set()
+
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:

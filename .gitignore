@@ -7,3 +7,8 @@ build/
 .env
 docs/superpowers/
 logs/
+
+# Transient discovery notes emitted by scripts/update_models.py (read into the
+# weekly auto-update PR body by the workflow; never committed).
+model_update_notes.md
+.venv_test/
