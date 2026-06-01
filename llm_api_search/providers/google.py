@@ -283,7 +283,7 @@ _STATIC_MODELS = [
         supported_sizes=['1024x1024'],
         supported_qualities=['standard'],
         max_images_per_request=1,
-        cost_per_image=0.06,
+        cost_per_image=0.134,  # 1K standard tier; 2K $0.134, 4K $0.24
     ),
     ImageModelInfo(
         model_id='gemini-3-pro-image',
@@ -314,7 +314,7 @@ _STATIC_MODELS = [
         supported_sizes=['1024x1024'],
         supported_qualities=['standard'],
         max_images_per_request=1,
-        cost_per_image=0.039,
+        cost_per_image=0.067,  # 1K standard tier; 0.5K $0.045, 2K $0.101, 4K $0.151
     ),
     ImageModelInfo(
         model_id='gemini-3.1-flash-image',
