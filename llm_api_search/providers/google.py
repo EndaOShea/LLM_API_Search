@@ -289,10 +289,10 @@ _STATIC_MODELS = [
         model_id='gemini-3-pro-image',
         display_name='Nano Banana Pro',
         description='Gemini 3 Pro Image',
-        supported_sizes=[],
-        supported_qualities=[],
-        max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        supported_sizes=['1024x1024'],
+        supported_qualities=['standard'],
+        max_images_per_request=1,
+        cost_per_image=0.134,  # 1K standard tier; 2K $0.134, 4K $0.24
     ),
     TextModelInfo(
         model_id='nano-banana-pro-preview',
@@ -320,10 +320,10 @@ _STATIC_MODELS = [
         model_id='gemini-3.1-flash-image',
         display_name='Nano Banana 2',
         description='Gemini 3.1 Flash Image.',
-        supported_sizes=[],
-        supported_qualities=[],
-        max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        supported_sizes=['1024x1024'],
+        supported_qualities=['standard'],
+        max_images_per_request=1,
+        cost_per_image=0.067,  # 1K standard tier; 0.5K $0.045, 2K $0.101, 4K $0.151
     ),
     TextModelInfo(
         model_id='gemini-3.5-flash',
