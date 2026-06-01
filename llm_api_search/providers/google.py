@@ -283,7 +283,16 @@ _STATIC_MODELS = [
         supported_sizes=['1024x1024'],
         supported_qualities=['standard'],
         max_images_per_request=1,
-        cost_per_image=0.06,
+        cost_per_image=0.134,  # 1K standard tier; 2K $0.134, 4K $0.24
+    ),
+    ImageModelInfo(
+        model_id='gemini-3-pro-image',
+        display_name='Nano Banana Pro',
+        description='Gemini 3 Pro Image',
+        supported_sizes=['1024x1024'],
+        supported_qualities=['standard'],
+        max_images_per_request=1,
+        cost_per_image=0.134,  # 1K standard tier; 2K $0.134, 4K $0.24
     ),
     TextModelInfo(
         model_id='nano-banana-pro-preview',
@@ -305,7 +314,16 @@ _STATIC_MODELS = [
         supported_sizes=['1024x1024'],
         supported_qualities=['standard'],
         max_images_per_request=1,
-        cost_per_image=0.039,
+        cost_per_image=0.067,  # 1K standard tier; 0.5K $0.045, 2K $0.101, 4K $0.151
+    ),
+    ImageModelInfo(
+        model_id='gemini-3.1-flash-image',
+        display_name='Nano Banana 2',
+        description='Gemini 3.1 Flash Image.',
+        supported_sizes=['1024x1024'],
+        supported_qualities=['standard'],
+        max_images_per_request=1,
+        cost_per_image=0.067,  # 1K standard tier; 0.5K $0.045, 2K $0.101, 4K $0.151
     ),
     TextModelInfo(
         model_id='gemini-3.5-flash',
@@ -392,7 +410,7 @@ _STATIC_MODELS = [
         supports_image_generation=False,
         supports_computer_use=False,
         input_cost_per_mtok=1.5,
-        output_cost_per_mtok=9.0,  # includes thinking tokens; context-caching reads $0.15/Mtok (no schema field)
+        output_cost_per_mtok=9.0,
     ),
     TextModelInfo(
         model_id='deep-research-max-preview-04-2026',
