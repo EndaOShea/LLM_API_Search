@@ -79,3 +79,32 @@ def test_openai_chat_latest_is_not_thinking():
 def test_openai_gpt4o_is_not_thinking():
     tc = get_thinking_config("openai", "gpt-4o")["gpt-4o"]
     assert tc.supported is False
+
+
+def test_google_25_flash_token_budget():
+    tc = get_thinking_config("google", "gemini-2.5-flash")["gemini-2.5-flash"]
+    assert tc.supported is True
+    assert tc.mode is ThinkingMode.TOKEN_BUDGET
+    assert tc.parameter == "thinkingBudget"
+    assert tc.max_budget == 24576
+    assert tc.supports_dynamic is True
+    assert tc.can_disable is True
+
+
+def test_google_25_pro_cannot_disable():
+    tc = get_thinking_config("google", "gemini-2.5-pro")["gemini-2.5-pro"]
+    assert tc.can_disable is False
+    assert tc.min_budget == 128
+    assert tc.max_budget == 32768
+
+
+def test_google_3_pro_effort_levels():
+    tc = get_thinking_config("google", "gemini-3-pro-preview")["gemini-3-pro-preview"]
+    assert tc.mode is ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "thinkingLevel"
+    assert tc.default_level == "high"
+
+
+def test_google_gemma_is_not_thinking():
+    tc = get_thinking_config("google", "gemma-3-27b-it")["gemma-3-27b-it"]
+    assert tc.supported is False
