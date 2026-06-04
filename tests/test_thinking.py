@@ -59,3 +59,23 @@ def test_anthropic_sonnet_46_has_no_xhigh():
     tc = get_thinking_config("anthropic", "claude-sonnet-4-6")["claude-sonnet-4-6"]
     assert "xhigh" not in tc.levels
     assert "max" in tc.levels
+
+
+def test_openai_gpt5_effort():
+    tc = get_thinking_config("openai", "gpt-5.5")["gpt-5.5"]
+    assert tc.supported is True
+    assert tc.mode is ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "reasoning.effort"
+    assert "medium" in tc.levels
+    assert tc.default_level == "medium"
+
+
+def test_openai_chat_latest_is_not_thinking():
+    tc = get_thinking_config("openai", "gpt-5.1-chat-latest")["gpt-5.1-chat-latest"]
+    assert tc.supported is False
+    assert tc.mode is ThinkingMode.NONE
+
+
+def test_openai_gpt4o_is_not_thinking():
+    tc = get_thinking_config("openai", "gpt-4o")["gpt-4o"]
+    assert tc.supported is False
