@@ -117,3 +117,12 @@ def test_deepseek_effort_and_toggle():
     assert tc.parameter == "reasoning_effort"
     assert tc.levels == ["high", "max"]
     assert tc.can_disable is True
+
+
+def test_inception_mercury_effort():
+    tc = get_thinking_config("inception", "mercury-2")["mercury-2"]
+    assert tc.supported is True
+    assert tc.mode is ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "reasoning_effort"
+    assert tc.levels == ["instant", "low", "medium", "high"]
+    assert tc.default_level == "medium"
