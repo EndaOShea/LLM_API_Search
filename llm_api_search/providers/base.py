@@ -115,6 +115,36 @@ class RateLimit:
     batch_queue_limit: int | None = None
 
 
+class ThinkingMode(str, Enum):
+    """How a model's reasoning depth is controlled."""
+
+    EFFORT_LEVELS = "effort_levels"   # named levels (Anthropic, OpenAI, Gemini 3, DeepSeek, Mercury)
+    TOKEN_BUDGET = "token_budget"     # numeric budget (Gemini 2.5; Anthropic legacy)
+    TOGGLE = "toggle"                 # pure on/off (unused; taxonomy completeness)
+    NONE = "none"                     # model does not think (default for non-capable models)
+
+
+@dataclass
+class ThinkingConfig:
+    """Thinking / reasoning-control configuration for a single model.
+
+    A missing registry entry resolves to the default instance, which means
+    "this model is not thinking-capable" (supported=False, mode=NONE).
+    """
+
+    supported: bool = False
+    mode: ThinkingMode = ThinkingMode.NONE
+    parameter: str | None = None                      # verbatim knob, e.g. "output_config.effort"
+    levels: list[str] = field(default_factory=list)   # ordered low->high; only natively-distinct levels
+    default_level: str | None = None
+    min_budget: int | None = None                     # token_budget mode
+    max_budget: int | None = None
+    default_budget: int | None = None                 # None = dynamic / unset
+    supports_dynamic: bool = False                    # e.g. Gemini thinkingBudget=-1
+    can_disable: bool = False
+    notes: str = ""
+
+
 @dataclass
 class ProviderInfo:
     """Discovered information about an LLM provider."""
