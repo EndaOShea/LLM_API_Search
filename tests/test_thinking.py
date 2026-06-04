@@ -22,3 +22,26 @@ def test_thinking_config_effort_levels():
     )
     assert tc.mode is ThinkingMode.EFFORT_LEVELS
     assert tc.default_level in tc.levels
+
+
+import pytest
+from llm_api_search.providers import get_thinking_config
+
+
+def test_get_thinking_config_unknown_provider_raises():
+    with pytest.raises(KeyError):
+        get_thinking_config("nope")
+
+
+def test_get_thinking_config_miss_returns_default_none():
+    # A model with no entry must resolve to the default (supported=False, NONE),
+    # never {} or KeyError.
+    result = get_thinking_config("anthropic", "gpt-4o")
+    assert "gpt-4o" in result
+    assert result["gpt-4o"].supported is False
+    assert result["gpt-4o"].mode is ThinkingMode.NONE
+
+
+def test_get_thinking_config_all_for_provider_is_dict():
+    result = get_thinking_config("anthropic")
+    assert isinstance(result, dict)

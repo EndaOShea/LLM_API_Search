@@ -5,7 +5,7 @@ import re
 from llm_api_search.providers.base import (
     Provider, ModelInfo, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
     AudioTranscriptionModelInfo, EmbeddingModelInfo, MusicModelInfo, VideoModelInfo, ModelType,
-    ProviderInfo, RateLimit, SUPPORTED_LANGUAGES,
+    ProviderInfo, RateLimit, SUPPORTED_LANGUAGES, ThinkingConfig, ThinkingMode,
 )
 from llm_api_search.providers.anthropic import AnthropicProvider
 from llm_api_search.providers.google import GeminiProvider
@@ -185,6 +185,61 @@ def get_rate_limits(
     return {}
 
 
+# ---------------------------------------------------------------------------
+# Thinking config lookup
+# ---------------------------------------------------------------------------
+
+def get_thinking_config(
+    provider: str,
+    model_id: str | None = None,
+) -> dict[str, "ThinkingConfig"]:
+    """Look up thinking configuration for a provider, optionally for one model.
+
+    A per-model miss returns the default ``ThinkingConfig()`` (supported=False,
+    mode=NONE) — meaning "not thinking-capable" — rather than an empty dict, so
+    callers always get a definitive answer.
+
+    Args:
+        provider: Provider key (e.g. ``"openai"``).
+        model_id: Optional model ID. Exact match first, then base alias after
+                  stripping a date suffix. On miss, returns the default config.
+
+    Returns:
+        When *model_id* is given: ``{model_id: ThinkingConfig}`` (always one entry).
+        When omitted: the full stored per-model dict for the provider
+        (capable models only).
+
+    Raises:
+        KeyError: If *provider* is unknown.
+    """
+    from llm_api_search.providers.base import ThinkingConfig
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+
+    provider_lower = provider.lower()
+    if provider_lower not in PROVIDER_THINKING_CONFIGS:
+        raise KeyError(
+            f"Unknown provider {provider!r}. "
+            f"Available: {', '.join(PROVIDER_THINKING_CONFIGS)}"
+        )
+
+    configs = PROVIDER_THINKING_CONFIGS[provider_lower]
+
+    if model_id is None:
+        return dict(configs)
+
+    if model_id in configs:
+        return {model_id: configs[model_id]}
+
+    date_match = _DATE_SUFFIX_RE.search(model_id)
+    if date_match:
+        base_id = model_id[: date_match.start()]
+        if base_id in configs:
+            return {model_id: configs[base_id]}
+
+    # Miss → definitive "not thinking-capable".
+    return {model_id: ThinkingConfig()}
+
+
 __all__ = [
     "Provider",
     "ModelInfo",
@@ -208,4 +263,7 @@ __all__ = [
     "filter_models",
     "RateLimit",
     "get_rate_limits",
+    "ThinkingConfig",
+    "ThinkingMode",
+    "get_thinking_config",
 ]
