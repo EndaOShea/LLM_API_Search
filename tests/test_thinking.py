@@ -188,3 +188,23 @@ def test_mcp_thinking_tool_non_thinking_model():
     result = llm_get_thinking_config("openai", "gpt-4o")
     assert result["gpt-4o"]["supported"] is False
     assert result["gpt-4o"]["mode"] == "none"
+
+
+def test_mcp_thinking_tool_keeps_can_disable_false_for_capable_models():
+    # "thinking cannot be turned off" is a meaningful fact for always-on
+    # models, so can_disable=False must survive serialization when supported.
+    from mcp_servers.llm_api_search import llm_get_thinking_config
+    for provider, mid in [("google", "gemini-3-pro-preview"), ("openai", "o3")]:
+        entry = llm_get_thinking_config(provider, mid)[mid]
+        assert entry["supported"] is True
+        assert entry["can_disable"] is False
+
+
+def test_no_orphan_thinking_config_keys():
+    # Every key in the registry must be a real static model id (catches typos
+    # and renames that would otherwise sit dead with no failure).
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+    for provider, configs in PROVIDER_THINKING_CONFIGS.items():
+        static_ids = {m.model_id for m in PROVIDERS[provider]().get_static_info().models}
+        for mid in configs:
+            assert mid in static_ids, f"{provider}/{mid}: not a known static model id"

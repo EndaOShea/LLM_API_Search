@@ -202,12 +202,24 @@ def _rl_to_dict(rl) -> dict:
 
 
 def _tc_to_dict(tc) -> dict:
-    """Convert a ThinkingConfig to a dict, omitting None/empty/default-False fields."""
+    """Convert a ThinkingConfig to a dict, omitting None/empty fields.
+
+    For non-capable models (the default config) the False booleans
+    ``supports_dynamic``/``can_disable`` are also dropped to keep the output
+    lean. For *capable* models they are kept, because ``can_disable=False``
+    ("thinking cannot be turned off", e.g. gemini-3-pro-preview, o3) is a
+    meaningful fact that callers need.
+    """
     out = {}
     for k, v in dataclasses.asdict(tc).items():
         if v is None or v == [] or v == "":
             continue
-        if isinstance(v, bool) and v is False and k in ("supports_dynamic", "can_disable"):
+        if (
+            isinstance(v, bool)
+            and v is False
+            and k in ("supports_dynamic", "can_disable")
+            and not tc.supported
+        ):
             continue
         out[k] = v.value if hasattr(v, "value") else v
     return out
