@@ -212,7 +212,6 @@ def get_thinking_config(
     Raises:
         KeyError: If *provider* is unknown.
     """
-    from llm_api_search.providers.base import ThinkingConfig
     from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
 
     provider_lower = provider.lower()

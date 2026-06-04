@@ -1,5 +1,8 @@
 """Tests for per-model thinking configuration."""
 
+import pytest
+
+from llm_api_search.providers import get_thinking_config
 from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
 
 
@@ -22,10 +25,6 @@ def test_thinking_config_effort_levels():
     )
     assert tc.mode is ThinkingMode.EFFORT_LEVELS
     assert tc.default_level in tc.levels
-
-
-import pytest
-from llm_api_search.providers import get_thinking_config
 
 
 def test_get_thinking_config_unknown_provider_raises():
