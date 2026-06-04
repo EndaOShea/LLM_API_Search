@@ -108,3 +108,12 @@ def test_google_3_pro_effort_levels():
 def test_google_gemma_is_not_thinking():
     tc = get_thinking_config("google", "gemma-3-27b-it")["gemma-3-27b-it"]
     assert tc.supported is False
+
+
+def test_deepseek_effort_and_toggle():
+    tc = get_thinking_config("deepseek", "deepseek-v4-pro")["deepseek-v4-pro"]
+    assert tc.supported is True
+    assert tc.mode is ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "reasoning_effort"
+    assert tc.levels == ["high", "max"]
+    assert tc.can_disable is True
