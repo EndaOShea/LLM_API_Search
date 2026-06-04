@@ -2,8 +2,8 @@
 
 import pytest
 
-from llm_api_search.providers import get_thinking_config
-from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
+from llm_api_search.providers import PROVIDERS, get_thinking_config
+from llm_api_search.providers.base import TextModelInfo, ThinkingConfig, ThinkingMode
 
 
 def test_thinking_config_defaults_to_unsupported_none():
@@ -126,3 +126,47 @@ def test_inception_mercury_effort():
     assert tc.parameter == "reasoning_effort"
     assert tc.levels == ["instant", "low", "medium", "high"]
     assert tc.default_level == "medium"
+
+
+# Models a human has confirmed are reasoning-capable. If one of these ever
+# resolves to supported=False, its config was dropped/renamed — fail loudly.
+_KNOWN_THINKING = {
+    "anthropic": ["claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-4-6"],
+    "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "o3", "o4-mini"],
+    "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash"],
+    "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
+    "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
+}
+
+
+def test_every_text_model_resolves_to_a_config():
+    """Default-NONE contract: every text model gets a definitive ThinkingConfig."""
+    for key, cls in PROVIDERS.items():
+        info = cls().get_static_info()
+        for m in info.models:
+            if not isinstance(m, TextModelInfo):
+                continue
+            result = get_thinking_config(key, m.model_id)
+            assert m.model_id in result, f"{key}/{m.model_id}: no config returned"
+            assert isinstance(result[m.model_id], ThinkingConfig)
+
+
+def test_known_thinking_models_are_supported():
+    for provider, ids in _KNOWN_THINKING.items():
+        for mid in ids:
+            tc = get_thinking_config(provider, mid)[mid]
+            assert tc.supported is True, f"{provider}/{mid}: expected supported=True"
+            assert tc.mode is not ThinkingMode.NONE
+
+
+def test_stored_configs_have_valid_fields():
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+    for provider, configs in PROVIDER_THINKING_CONFIGS.items():
+        for mid, tc in configs.items():
+            if tc.mode is ThinkingMode.EFFORT_LEVELS:
+                assert tc.levels, f"{provider}/{mid}: effort mode needs levels"
+                assert tc.default_level in tc.levels, (
+                    f"{provider}/{mid}: default_level {tc.default_level!r} not in levels"
+                )
+            elif tc.mode is ThinkingMode.TOKEN_BUDGET:
+                assert tc.max_budget is not None, f"{provider}/{mid}: budget mode needs max_budget"
