@@ -85,6 +85,10 @@ MCP tools filter out dated snapshots and legacy models by default. `filter_model
 
 Per-model rate limit data lives in `providers/rate_limits/` with one module per provider. Each exports a `RATE_LIMITS` dict mapping model ID → `{tier_name: RateLimit, …}`. Tier names are provider-specific: Anthropic uses `"tier-1"` through `"tier-4"` (no free tier), Google uses `"free"`, `"tier-1"`, `"tier-2"`, `"tier-3"`, OpenAI uses `"tier-1"` (baseline only), and Inception uses `"free"`, `"paid"`, `"enterprise"`. DeepSeek publishes no numeric rate limits (limits are dynamic by server load), so its `RATE_LIMITS` dict is empty by design — DeepSeek model IDs are listed in `_RATE_LIMIT_COVERAGE_EXEMPT` in `tests/test_rate_limits.py`. The `RateLimit` dataclass has fields: `requests_per_minute`, `tokens_per_minute`, `input_tokens_per_minute`, `output_tokens_per_minute`, `requests_per_day`, `tokens_per_day`, `images_per_minute`, `batch_queue_limit`. Anthropic uses separate `input_tokens_per_minute`/`output_tokens_per_minute`; others use combined `tokens_per_minute`. The `get_rate_limits(provider, model_id?, tier?)` function in `providers/__init__.py` handles lookup with date-suffix fallback for snapshots and gracefully skips models that lack the requested tier. The `llm_get_rate_limits` MCP tool exposes this.
 
+### Thinking configuration
+
+Per-model reasoning/thinking control lives in `providers/thinking/`, one module per provider, each exporting a `THINKING_CONFIGS` dict mapping model ID → `ThinkingConfig`. Only thinking-capable models are listed; a lookup miss returns a default `ThinkingConfig(supported=False, mode=ThinkingMode.NONE)` meaning "not thinking-capable", so the tool always gives a definitive answer (no need to hand-author entries for the ~70 non-reasoning text models like Gemma, audio, or `gpt-4o`). The `ThinkingMode` enum is `effort_levels` (named levels — Anthropic `output_config.effort`, OpenAI `reasoning.effort`, Gemini 3 `thinkingLevel`, DeepSeek/Mercury `reasoning_effort`), `token_budget` (Gemini 2.5 `thinkingBudget`; Anthropic legacy), `toggle` (unused), or `none`. `ThinkingConfig` carries `parameter` (the verbatim knob), `levels`/`default_level` (effort modes), `min_budget`/`max_budget`/`supports_dynamic` (budget modes), `can_disable`, and `notes`. The `get_thinking_config(provider, model_id?)` function in `providers/__init__.py` handles lookup with the same date-suffix fallback as rate limits; the `llm_get_thinking_config` MCP tool exposes it. Coverage is enforced by `tests/test_thinking.py`: every text model must resolve to a config, and a curated `_KNOWN_THINKING` allowlist of reasoning models must stay `supported=True` (the forcing function — a renamed/dropped reasoning model silently defaults to NONE and fails the test).
+
 ### Discovery flow
 
 `discover()` uses `ThreadPoolExecutor` to query all providers in parallel. `discover_provider()` instantiates the provider class and calls either `fetch_live_models()` or `get_static_info()` based on the `live` flag. Live discovery requires provider API keys in the environment.
@@ -97,9 +101,10 @@ Per-model rate limit data lives in `providers/rate_limits/` with one module per 
 4. Register it in `providers/__init__.py` in the `PROVIDERS` dict
 5. Add its source path to `_PROVIDER_FILES` in `scripts/update_models.py`
 6. Create `providers/rate_limits/newprovider.py` with a `RATE_LIMITS` dict and register it in `providers/rate_limits/__init__.py`
-7. Add any superseded models to `LEGACY_MODELS` in `providers/__init__.py`
-8. Tests in `test_discovery.py` iterate all providers automatically — new providers are covered
-9. If the provider's `fetch_live_models()` is curated (won't auto-surface new live IDs, like DeepSeek), also override `unrecognized_live_model_ids()` so new models still get flagged — see "New-model discovery signal"
+7. Create `providers/thinking/newprovider.py` with a `THINKING_CONFIGS` dict (thinking-capable models only) and register it in `providers/thinking/__init__.py`; add any reasoning models to `_KNOWN_THINKING` in `tests/test_thinking.py`
+8. Add any superseded models to `LEGACY_MODELS` in `providers/__init__.py`
+9. Tests in `test_discovery.py` iterate all providers automatically — new providers are covered
+10. If the provider's `fetch_live_models()` is curated (won't auto-surface new live IDs, like DeepSeek), also override `unrecognized_live_model_ids()` so new models still get flagged — see "New-model discovery signal"
 
 ## Adding a New MCP Server
 
