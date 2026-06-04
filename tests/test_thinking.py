@@ -44,3 +44,18 @@ def test_get_thinking_config_miss_returns_default_none():
 def test_get_thinking_config_all_for_provider_is_dict():
     result = get_thinking_config("anthropic")
     assert isinstance(result, dict)
+
+
+def test_anthropic_opus_48_effort_levels():
+    tc = get_thinking_config("anthropic", "claude-opus-4-8")["claude-opus-4-8"]
+    assert tc.supported is True
+    assert tc.mode is ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "output_config.effort"
+    assert tc.levels == ["low", "medium", "high", "xhigh", "max"]
+    assert tc.default_level == "high"
+
+
+def test_anthropic_sonnet_46_has_no_xhigh():
+    tc = get_thinking_config("anthropic", "claude-sonnet-4-6")["claude-sonnet-4-6"]
+    assert "xhigh" not in tc.levels
+    assert "max" in tc.levels
