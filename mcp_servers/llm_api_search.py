@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
-from llm_api_search.providers import filter_models, get_rate_limits
+from llm_api_search.providers import filter_models, get_rate_limits, get_thinking_config
 from llm_api_search.providers.base import SUPPORTED_LANGUAGES, TextModelInfo
 from llm_api_search.selector import select_provider
 
@@ -201,6 +201,18 @@ def _rl_to_dict(rl) -> dict:
     return {k: v for k, v in dataclasses.asdict(rl).items() if v is not None}
 
 
+def _tc_to_dict(tc) -> dict:
+    """Convert a ThinkingConfig to a dict, omitting None/empty/default-False fields."""
+    out = {}
+    for k, v in dataclasses.asdict(tc).items():
+        if v is None or v == [] or v == "":
+            continue
+        if isinstance(v, bool) and v is False and k in ("supports_dynamic", "can_disable"):
+            continue
+        out[k] = v.value if hasattr(v, "value") else v
+    return out
+
+
 @mcp.tool()
 def llm_get_rate_limits(
     provider: str,
@@ -238,3 +250,29 @@ def llm_get_rate_limits(
         else:
             result[mid] = {t: _rl_to_dict(rl) for t, rl in entry.items()}
     return result
+
+
+@mcp.tool()
+def llm_get_thinking_config(provider: str, model: str | None = None) -> dict:
+    """Get thinking / reasoning-control configuration for an LLM provider.
+
+    Tells you whether a model supports extended thinking, the parameter that
+    enables it, and valid values:
+      - Anthropic: output_config.effort (low/medium/high/xhigh/max), adaptive thinking.
+      - OpenAI: reasoning.effort (minimal/low/medium/high, model-dependent).
+      - Google: thinkingLevel (Gemini 3) or thinkingBudget tokens (Gemini 2.5).
+      - DeepSeek: reasoning_effort (high/max) + thinking enable/disable toggle.
+      - Inception/Mercury: reasoning_effort (instant/low/medium/high).
+
+    Args:
+        provider: One of "anthropic", "google", "openai", "inception", "deepseek".
+        model: Optional model ID. A model with no thinking support returns
+               {"supported": false, "mode": "none"}.
+
+    Returns:
+        A dict mapping model ID to its thinking config (supported, mode,
+        parameter, levels, default_level, budget ranges, can_disable, notes).
+        Fields that are None/empty are omitted.
+    """
+    configs = get_thinking_config(provider, model_id=model)
+    return {mid: _tc_to_dict(tc) for mid, tc in configs.items()}

@@ -170,3 +170,21 @@ def test_stored_configs_have_valid_fields():
                 )
             elif tc.mode is ThinkingMode.TOKEN_BUDGET:
                 assert tc.max_budget is not None, f"{provider}/{mid}: budget mode needs max_budget"
+
+
+def test_mcp_thinking_tool_serializes_and_omits_empty():
+    from mcp_servers.llm_api_search import llm_get_thinking_config
+    result = llm_get_thinking_config("anthropic", "claude-opus-4-8")
+    entry = result["claude-opus-4-8"]
+    assert entry["supported"] is True
+    assert entry["mode"] == "effort_levels"
+    assert entry["levels"] == ["low", "medium", "high", "xhigh", "max"]
+    # None / empty fields are omitted
+    assert "min_budget" not in entry
+
+
+def test_mcp_thinking_tool_non_thinking_model():
+    from mcp_servers.llm_api_search import llm_get_thinking_config
+    result = llm_get_thinking_config("openai", "gpt-4o")
+    assert result["gpt-4o"]["supported"] is False
+    assert result["gpt-4o"]["mode"] == "none"
