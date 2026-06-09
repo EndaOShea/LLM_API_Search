@@ -64,9 +64,52 @@ _STATIC_BLOCK_RE = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 
+# Pull the model_id off a field-assignment line at the start of a model entry.
+_MODEL_ID_RE = re.compile(r"""^\s*model_id\s*=\s*['"]([^'"]+)['"]""")
+# Pull a trailing inline comment off a `field=value,  # comment` line. Anchored
+# to end-of-line so a `#` inside a string value (before the closing quote+comma)
+# is not mistaken for a comment.
+_TRAILING_COMMENT_RE = re.compile(r"^\s*(\w+)\s*=.*?,\s*(#.*?)\s*$")
 
-def _serialize_model(m: ModelInfo, indent: str = "    ") -> str:
-    """Render a ModelInfo subclass as a Python constructor call."""
+
+def _extract_trailing_comments(block_text: str) -> dict[str, dict[str, str]]:
+    """Map ``{model_id: {field_name: '# comment'}}`` from an existing block.
+
+    Lets hand-authored inline notes (e.g. the Google pricing-tier breakdowns)
+    survive the rewrite, which otherwise regenerates every line from dataclass
+    values and drops comments. Keyed by (model_id, field) — not line position —
+    so a comment follows its model even if the live API reorders the list.
+    Auto-generated ``# TODO: add pricing`` notes are skipped; they're reproduced
+    for any None-priced field anyway.
+    """
+    comments: dict[str, dict[str, str]] = {}
+    current: str | None = None
+    for line in block_text.splitlines():
+        id_match = _MODEL_ID_RE.match(line)
+        if id_match:
+            current = id_match.group(1)
+        if current is None:
+            continue
+        cm = _TRAILING_COMMENT_RE.match(line)
+        if cm:
+            field_name, comment = cm.group(1), cm.group(2).rstrip()
+            if comment.startswith("# TODO: add pricing"):
+                continue
+            comments.setdefault(current, {})[field_name] = comment
+    return comments
+
+
+def _serialize_model(
+    m: ModelInfo,
+    comments: dict[str, str] | None = None,
+    indent: str = "    ",
+) -> str:
+    """Render a ModelInfo subclass as a Python constructor call.
+
+    ``comments`` maps field name → preserved trailing comment for this model,
+    re-attached to the regenerated field line.
+    """
+    comments = comments or {}
     cls_name = type(m).__name__
     all_pricing = set()
     for pfields in _PRICING_FIELDS.values():
@@ -77,32 +120,36 @@ def _serialize_model(m: ModelInfo, indent: str = "    ") -> str:
         if f.name == "model_type":
             continue  # set automatically by subclass
         val = getattr(m, f.name)
-        if f.name in all_pricing:
-            if val is None:
-                lines.append(f"{indent}    {f.name}=None,  # TODO: add pricing")
-            elif isinstance(val, float):
-                lines.append(f"{indent}    {f.name}={val},")
-            else:
-                lines.append(f"{indent}    {f.name}={val!r},")
-        elif isinstance(val, str):
-            lines.append(f"{indent}    {f.name}={val!r},")
+        if f.name in all_pricing and val is None:
+            # Generated TODO takes priority — never overlay a stale comment.
+            lines.append(f"{indent}    {f.name}=None,  # TODO: add pricing")
+            continue
+        if f.name in all_pricing and isinstance(val, float):
+            line = f"{indent}    {f.name}={val},"
         elif isinstance(val, bool):
-            lines.append(f"{indent}    {f.name}={val},")
+            line = f"{indent}    {f.name}={val},"
         elif isinstance(val, int):
-            lines.append(f"{indent}    {f.name}={val:_},")
-        elif isinstance(val, list):
-            lines.append(f"{indent}    {f.name}={val!r},")
+            line = f"{indent}    {f.name}={val:_},"
         else:
-            lines.append(f"{indent}    {f.name}={val!r},")
+            # strings, lists, and any other value all round-trip via repr.
+            line = f"{indent}    {f.name}={val!r},"
+        comment = comments.get(f.name)
+        if comment:
+            line = f"{line}  {comment}"
+        lines.append(line)
     lines.append(f"{indent}),")
     return "\n".join(lines)
 
 
-def _serialize_models_block(models: list[ModelInfo]) -> str:
+def _serialize_models_block(
+    models: list[ModelInfo],
+    comments: dict[str, dict[str, str]] | None = None,
+) -> str:
     """Render the full _STATIC_MODELS = [...] block."""
+    comments = comments or {}
     parts = ["_STATIC_MODELS = ["]
     for m in models:
-        parts.append(_serialize_model(m))
+        parts.append(_serialize_model(m, comments.get(m.model_id)))
     parts.append("]")
     return "\n".join(parts)
 
@@ -173,13 +220,13 @@ def update_provider(key: str) -> tuple[int, int]:
     new_count = sum(1 for m in merged if m.model_id not in static_map)
 
     source = source_path.read_text()
-    new_block = _serialize_models_block(merged)
-
     match = _STATIC_BLOCK_RE.search(source)
     if not match:
         print(f"  WARNING: Could not find _STATIC_MODELS block in {source_path.name}")
         return 0, len(merged)
 
+    comments = _extract_trailing_comments(match.group(0))
+    new_block = _serialize_models_block(merged, comments)
     updated = source[:match.start()] + new_block + source[match.end():]
     source_path.write_text(updated)
 
