@@ -11,6 +11,14 @@ _ADAPTIVE_NOTE = (
 )
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    "claude-fable-5": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="high", can_disable=True,
+        notes=_ADAPTIVE_NOTE + "Adaptive is the only mode; manual budget_tokens is rejected (400). "
+                               "display defaults to 'omitted'.",
+    ),
     "claude-opus-4-8": ThinkingConfig(
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,
         parameter="output_config.effort",

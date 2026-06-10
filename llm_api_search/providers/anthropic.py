@@ -12,6 +12,19 @@ from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, Pr
 # Known models — kept as a fallback when the live API is unavailable.
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='claude-fable-5',
+        display_name='Claude Fable 5',
+        description='Most capable widely released model for demanding reasoning and long-horizon agentic work',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=10.0,
+        output_cost_per_mtok=50.0,
+    ),
+    TextModelInfo(
         model_id='claude-opus-4-8',
         display_name='Claude Opus 4.8',
         description='Most capable model with enhanced coding, vision, and computer use',
