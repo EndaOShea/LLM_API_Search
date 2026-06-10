@@ -15,11 +15,25 @@ jobs:
   deploy:
     # Skip if CI failed; always run for manual dispatch.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # The VPS only accepts SSH over Tailscale (public SSH is firewalled off), so
+    # this cloud runner joins the tailnet as an ephemeral `tag:ci` node (see the
+    # Tailscale step below) to reach it. No self-hosted runner needed.
     runs-on: ubuntu-latest
     concurrency:
       group: deploy-prod
       cancel-in-progress: false
     steps:
+      - name: Connect to Tailscale
+        # Pinned to v4.1.2 by commit SHA (supply-chain hardening — a floating tag
+        # could silently change). Joins the tailnet as an ephemeral node tagged
+        # tag:ci, which the ACL scopes to vps-server:22 only. The node is removed
+        # automatically when the job ends.
+        uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.0
         with:
