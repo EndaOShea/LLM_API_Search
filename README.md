@@ -84,18 +84,22 @@ Legacy models and dated snapshots are filtered out by default. Pass `include_all
 
 ### Deploy your own server
 
+The server has **no built-in authentication or TLS**, so don't expose it directly to the internet. Bind it to localhost and put a reverse proxy in front that terminates TLS (and adds auth / rate-limiting if you need it). Note: if you set provider API keys for live discovery, an open endpoint lets anyone trigger calls that spend them.
+
 ```bash
 git clone https://github.com/EndaOShea/LLM_API_Search.git
 cd LLM_API_Search
 
-# Docker
+# Docker — bound to localhost; front it with a reverse proxy (TLS) for public access
 docker build -t llm-api-search .
-docker run -d -p 8080:8080 --name llm-api-search llm-api-search
+docker run -d -p 127.0.0.1:8080:8080 --name llm-api-search llm-api-search
 
 # Or directly
 pip install -e ".[mcp]"
-python mcp_server.py --http --port 8080
+python mcp_server.py --http --host 127.0.0.1 --port 8080
 ```
+
+The hosted instance follows this pattern: the container binds `127.0.0.1` and the host nginx reverse proxy terminates TLS and forwards to it — nothing binds `0.0.0.0`.
 
 ### Adding more MCP servers
 
