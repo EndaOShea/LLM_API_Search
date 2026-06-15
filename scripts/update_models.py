@@ -154,30 +154,35 @@ def _serialize_models_block(
     return "\n".join(parts)
 
 
-def update_provider(key: str) -> tuple[int, int]:
-    """Fetch live models for a provider and update its source file."""
-    source_path = _PROVIDER_FILES[key]
-    provider_cls = PROVIDERS[key]
-    provider = provider_cls()
+def _merge_models(
+    static_models: list[ModelInfo],
+    live_models: list[ModelInfo],
+    excluded: set[str],
+) -> list[ModelInfo]:
+    """Merge live model data into the curated static list, deterministically.
 
-    static_info = provider.get_static_info()
+    Ordering is driven by the curated ``_STATIC_MODELS`` list, never by the
+    live API's response order:
+
+    * Existing curated models keep their position (so the selector default,
+      ``models[0]``, and the "text models first" invariant are stable).
+    * A curated model missing from the live response stays in its slot.
+    * Genuinely-new live models are appended at the end (with ``pricing=None``
+      so a human fills it in via the PR).
+
+    Pricing, display_name, and description curation is preserved for known
+    models — live values are only used for new ones.
+    """
     pricing_map: dict[str, dict[str, float | None]] = {}
-    for m in static_info.models:
+    for m in static_models:
         pfields = _PRICING_FIELDS.get(type(m), ())
         pricing_map[m.model_id] = {f: getattr(m, f) for f in pfields}
-    static_map: dict[str, ModelInfo] = {m.model_id: m for m in static_info.models}
-
-    live_info = provider.fetch_live_models()
-    excluded = _EXCLUDED_MODELS.get(key, set())
+    static_map: dict[str, ModelInfo] = {m.model_id: m for m in static_models}
     live_map: dict[str, ModelInfo] = {
-        m.model_id: m for m in live_info.models if m.model_id not in excluded
+        m.model_id: m for m in live_models if m.model_id not in excluded
     }
 
-    merged: list[ModelInfo] = []
-    seen: set[str] = set()
-
-    for model_id, live_m in live_map.items():
-        seen.add(model_id)
+    def _rebuild(model_id: str, live_m: ModelInfo) -> ModelInfo:
         static_m = static_map.get(model_id)
 
         model_cls = type(static_m) if static_m else type(live_m)
@@ -211,11 +216,37 @@ def update_provider(key: str) -> tuple[int, int]:
         if model_id in pricing_map:
             kwargs.update(pricing_map[model_id])
 
-        merged.append(model_cls(**kwargs))
+        return model_cls(**kwargs)
 
+    merged: list[ModelInfo] = []
+
+    # 1. Curated models in their existing order; refresh from live where present,
+    #    otherwise keep the curated entry untouched.
     for model_id, static_m in static_map.items():
-        if model_id not in seen:
-            merged.append(static_m)
+        live_m = live_map.get(model_id)
+        merged.append(_rebuild(model_id, live_m) if live_m is not None else static_m)
+
+    # 2. Genuinely-new live models, appended at the end in live order.
+    for model_id, live_m in live_map.items():
+        if model_id not in static_map:
+            merged.append(_rebuild(model_id, live_m))
+
+    return merged
+
+
+def update_provider(key: str) -> tuple[int, int]:
+    """Fetch live models for a provider and update its source file."""
+    source_path = _PROVIDER_FILES[key]
+    provider_cls = PROVIDERS[key]
+    provider = provider_cls()
+
+    static_info = provider.get_static_info()
+    static_map: dict[str, ModelInfo] = {m.model_id: m for m in static_info.models}
+
+    live_info = provider.fetch_live_models()
+    excluded = _EXCLUDED_MODELS.get(key, set())
+
+    merged = _merge_models(static_info.models, live_info.models, excluded)
 
     new_count = sum(1 for m in merged if m.model_id not in static_map)
 
