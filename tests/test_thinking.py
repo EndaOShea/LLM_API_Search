@@ -131,15 +131,23 @@ def test_inception_mercury_effort():
 def test_zai_thinking_config():
     from llm_api_search.providers import get_thinking_config
     from llm_api_search.providers.base import ThinkingMode
+    # glm-5.2 is the only GLM with graded reasoning_effort (z.ai docs: 5.2+).
     tc = get_thinking_config("zai", "glm-5.2")["glm-5.2"]
     assert tc.supported is True
     assert tc.mode == ThinkingMode.EFFORT_LEVELS
     assert tc.parameter == "reasoning_effort"
+    assert tc.levels == ["high", "max"]
     assert tc.default_level == "max"
     assert tc.can_disable is True
-    # A non-flagship reasoning model shares the same default.
-    assert get_thinking_config("zai", "glm-4.6")["glm-4.6"].default_level == "max"
-    # Non-reasoning model resolves to the unsupported default.
+    # Older thinking-capable GLMs expose only the on/off `thinking` toggle
+    # (z.ai docs: `thinking` param is GLM-4.5+, reasoning_effort is 5.2+).
+    tc46 = get_thinking_config("zai", "glm-4.6")["glm-4.6"]
+    assert tc46.supported is True
+    assert tc46.mode == ThinkingMode.TOGGLE
+    assert tc46.parameter == "thinking"
+    assert tc46.can_disable is True
+    assert tc46.default_level is None
+    # Non-thinking model resolves to the unsupported default.
     assert get_thinking_config("zai", "glm-4.5-flash")["glm-4.5-flash"].supported is False
 
 
