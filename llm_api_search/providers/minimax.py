@@ -31,7 +31,7 @@ _STATIC_MODELS = [
         supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
-        supports_computer_use=False,
+        supports_computer_use=False,  # M3 "operates a desktop computer" per MiniMax's blog + OpenRoom demo, but there is no documented computer-use API tool and the official model page omits it — keep False until MiniMax documents an API capability.
         input_cost_per_mtok=0.3,
         output_cost_per_mtok=1.2,
     ),
