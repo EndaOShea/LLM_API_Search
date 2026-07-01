@@ -78,6 +78,7 @@ codex mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 | `llm_list_models` | List models for a specific provider, with optional `model_type` filter |
 | `llm_get_connection_snippet` | Get a ready-to-use code snippet — returns all 5 languages by default, or a single language if specified. Unsupported languages get a message with supported options and a link to request it. |
 | `llm_get_rate_limits` | Get rate limits (RPM, TPM, etc.) for a provider or specific model |
+| `llm_get_thinking_config` | Get reasoning/thinking control (effort levels, token budget, or on/off toggle) for a provider or specific model |
 | `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
 
 Legacy models and dated snapshots are filtered out by default. Pass `include_all=True` to any tool to see everything.
@@ -163,12 +164,12 @@ Models are organized by type, each with type-specific fields and pricing:
 | Type | Subclass | Pricing | Example |
 |------|----------|---------|---------|
 | `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 4.6, Gemini Robotics ER |
-| `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4, Nano Banana |
-| `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS |
+| `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4, Nano Banana, image-01 |
+| `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS, speech-2.8-hd |
 | `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
 | `embedding` | `EmbeddingModelInfo` | per 1M tokens (input) | text-embedding-3-large |
-| `music` | `MusicModelInfo` | per second | Lyria 2 |
-| `video` | `VideoModelInfo` | per second or per video | Veo 3.1, CogVideoX-3 |
+| `music` | `MusicModelInfo` | per second | Lyria 2, Music-2.6 |
+| `video` | `VideoModelInfo` | per second or per video | Veo 3.1, CogVideoX-3, Hailuo 2.3 |
 
 Filter by type using the MCP tool or programmatically:
 
@@ -210,7 +211,7 @@ from llm_api_search.providers import get_rate_limits
 # All rate limits for a provider (returns all tiers per model)
 limits = get_rate_limits("google")
 
-# Specific tier — Anthropic: tier-1 to tier-4, Google: free/tier-1/tier-2/tier-3, DeepSeek/Z.ai: none published
+# Specific tier — Anthropic: tier-1 to tier-4, Google: free/tier-1/tier-2/tier-3, MiniMax: default, DeepSeek/Z.ai: none published
 limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="tier-1")
 rl = limits["claude-sonnet-4-6"]
 print(f"{rl.requests_per_minute} RPM, {rl.input_tokens_per_minute} ITPM")
