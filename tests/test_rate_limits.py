@@ -135,6 +135,19 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
         "deepseek-v4-flash",
         "deepseek-v4-pro",
     },
+    # Z.ai does not publish per-model tier rate limits (RPM/TPM).  The rate-
+    # limit reference page describes general service limits only.  This is a
+    # publisher policy, not a coverage gap.
+    "zai": {
+        "glm-5.2",
+        "glm-5.1",
+        "glm-5",
+        "glm-4.6",
+        "glm-4.5-air",
+        "glm-4.5-flash",
+        "glm-5v-turbo",
+        "glm-4.6v-flash",
+    },
 }
 
 
@@ -166,3 +179,9 @@ def test_all_nonpreview_text_models_have_rate_limits():
                 f"{key}/{m.model_id}: no rate limit entry — add one to "
                 f"providers/rate_limits/{key}.py"
             )
+
+
+def test_zai_rate_limits_registered_empty():
+    from llm_api_search.providers.rate_limits import PROVIDER_RATE_LIMITS
+    assert "zai" in PROVIDER_RATE_LIMITS
+    assert PROVIDER_RATE_LIMITS["zai"] == {}

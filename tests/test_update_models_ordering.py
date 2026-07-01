@@ -74,3 +74,24 @@ def test_curated_pricing_preserved_when_live_reorders():
     assert by_id["a"].input_cost_per_mtok == 0.25
     assert by_id["a"].output_cost_per_mtok == 0.75
     assert by_id["b"].input_cost_per_mtok == 1.0
+
+
+def test_zai_registered_in_update_files():
+    from scripts.update_models import _PROVIDER_FILES
+    assert "zai" in _PROVIDER_FILES
+    assert _PROVIDER_FILES["zai"].name == "zai.py"
+
+
+def test_zai_merge_preserves_order_and_types():
+    # Re-merging the curated models against themselves must be a no-op that
+    # keeps glm-5.2 first and preserves image/video subtypes + pricing.
+    from scripts.update_models import _merge_models
+    from llm_api_search.providers.zai import _STATIC_MODELS
+    from llm_api_search.providers.base import ImageModelInfo, VideoModelInfo
+    merged = _merge_models(list(_STATIC_MODELS), list(_STATIC_MODELS), set())
+    assert [m.model_id for m in merged] == [m.model_id for m in _STATIC_MODELS]
+    by_id = {m.model_id: m for m in merged}
+    assert isinstance(by_id["cogview-4"], ImageModelInfo)
+    assert by_id["cogview-4"].cost_per_image == 0.01
+    assert isinstance(by_id["cogvideox-3"], VideoModelInfo)
+    assert by_id["cogvideox-3"].cost_per_video == 0.20

@@ -50,6 +50,7 @@ _PROVIDER_FILES = {
     "openai": PROJECT_ROOT / "llm_api_search" / "providers" / "openai.py",
     "inception": PROJECT_ROOT / "llm_api_search" / "providers" / "inception.py",
     "deepseek": PROJECT_ROOT / "llm_api_search" / "providers" / "deepseek.py",
+    "zai": PROJECT_ROOT / "llm_api_search" / "providers" / "zai.py",
 }
 
 # Models to exclude from updates — superseded or deprecated model IDs per provider.
@@ -121,9 +122,16 @@ def _serialize_model(
             continue  # set automatically by subclass
         val = getattr(m, f.name)
         if f.name in all_pricing and val is None:
-            # Generated TODO takes priority — never overlay a stale comment.
-            lines.append(f"{indent}    {f.name}=None,  # TODO: add pricing")
-            continue
+            # A video model priced per-video legitimately has cost_per_second
+            # unset — that is not missing pricing, so don't stamp a TODO on it.
+            priced_per_video = (
+                isinstance(m, VideoModelInfo) and m.cost_per_video is not None
+            )
+            if not priced_per_video:
+                # Generated TODO takes priority — never overlay a stale comment.
+                lines.append(f"{indent}    {f.name}=None,  # TODO: add pricing")
+                continue
+            # else: fall through to emit a plain `cost_per_second=None,` line
         if f.name in all_pricing and isinstance(val, float):
             line = f"{indent}    {f.name}={val},"
         elif isinstance(val, bool):

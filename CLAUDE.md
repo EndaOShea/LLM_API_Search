@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-An MCP server and Python library that discovers LLM API versions, models, pricing, and rate limits for Anthropic, Google, OpenAI, Inception Labs (Mercury), and DeepSeek, and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
+An MCP server and Python library that discovers LLM API versions, models, pricing, and rate limits for Anthropic, Google, OpenAI, Inception Labs (Mercury), DeepSeek, and Z.ai (GLM), and generates connection snippets in Python, TypeScript, JavaScript, Java, and C++. Covers all model types: text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation. Also includes specialized Google models for computer use, native audio (Live API), deep research, and robotics.
 
 Hosted at `https://llm-mcp.cora-branch.com/`. Deployed via Docker + nginx on VPS.
 
@@ -46,11 +46,11 @@ Each provider in `llm_api_search/providers/` extends `Provider` (ABC in `base.py
 
 `Provider` also has an optional `unrecognized_live_model_ids()` method (base default returns an empty set) — see the new-model discovery signal under "Static model data".
 
-The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "google", "openai", "inception", "deepseek") to provider classes. The Google provider key is `"google"`, not `"gemini"`. The Inception Labs provider key is `"inception"`. DeepSeek's API is OpenAI-compatible, so its connection snippets use the `openai` SDK with `base_url="https://api.deepseek.com"`.
+The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "google", "openai", "inception", "deepseek", "zai") to provider classes. The Google provider key is `"google"`, not `"gemini"`. The Inception Labs provider key is `"inception"`. The Z.ai (GLM) provider key is `"zai"`; its API is OpenAI-compatible, so its connection snippets use the `openai` SDK with `base_url="https://api.z.ai/api/paas/v4"`. DeepSeek's API is OpenAI-compatible, so its connection snippets use the `openai` SDK with `base_url="https://api.deepseek.com"`.
 
 ### Model type system
 
-`ModelInfo` is a base dataclass with subclasses for each model type: `TextModelInfo`, `ImageModelInfo`, `AudioTTSModelInfo`, `AudioTranscriptionModelInfo`, `EmbeddingModelInfo`, `MusicModelInfo`, `VideoModelInfo`. Each subclass has type-specific fields (e.g., `cost_per_image` for images, `cost_per_second` for video/music, `dimensions` for embeddings). The `ModelType` enum (`text`, `image`, `audio_tts`, `audio_transcription`, `embedding`, `music`, `video`) is set automatically via `field(default=..., init=False)` on each subclass. `TextModelInfo` has boolean capability flags: `supports_vision`, `supports_tool_use`, `supports_image_generation`, `supports_computer_use`.
+`ModelInfo` is a base dataclass with subclasses for each model type: `TextModelInfo`, `ImageModelInfo`, `AudioTTSModelInfo`, `AudioTranscriptionModelInfo`, `EmbeddingModelInfo`, `MusicModelInfo`, `VideoModelInfo`. Each subclass has type-specific fields (e.g., `cost_per_image` for images, `dimensions` for embeddings). `VideoModelInfo` carries `cost_per_second` (e.g. Google Veo) or `cost_per_video` (e.g. Z.ai CogVideoX-3, which bills per generated clip); the pricing-completeness test accepts either. The `ModelType` enum (`text`, `image`, `audio_tts`, `audio_transcription`, `embedding`, `music`, `video`) is set automatically via `field(default=..., init=False)` on each subclass. `TextModelInfo` has boolean capability flags: `supports_vision`, `supports_tool_use`, `supports_image_generation`, `supports_computer_use`.
 
 ### Static model data
 

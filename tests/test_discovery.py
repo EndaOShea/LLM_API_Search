@@ -30,7 +30,7 @@ def test_discover_provider_static():
 
 def test_discover_all_static():
     results = discover(live=False)
-    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek"}
+    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek", "zai"}
     for key, info in results.items():
         assert isinstance(info, ProviderInfo)
         assert len(info.models) > 0
@@ -242,8 +242,22 @@ def test_model_pricing_fields():
                 assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
                 assert m.cost_per_second >= 0
             elif isinstance(m, VideoModelInfo):
-                assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
-                assert m.cost_per_second >= 0
+                has_sec = m.cost_per_second is not None
+                has_vid = m.cost_per_video is not None
+                assert has_sec or has_vid, f"{key}/{m.model_id}: missing video pricing"
+                if has_sec:
+                    assert m.cost_per_second >= 0
+                if has_vid:
+                    assert m.cost_per_video >= 0
+
+
+def test_video_model_cost_per_video_formats():
+    from llm_api_search.providers.base import VideoModelInfo, _format_model_cost
+    m = VideoModelInfo(model_id="x", display_name="X", cost_per_video=0.20)
+    assert _format_model_cost(m) == " | $0.20/video"
+    # cost_per_second still works for models priced that way
+    m2 = VideoModelInfo(model_id="y", display_name="Y", cost_per_second=0.35)
+    assert _format_model_cost(m2) == " | $0.35/sec"
 
 
 # --- ModelType enum and subclass tests ---
@@ -577,3 +591,71 @@ def test_google_has_opensource_embeddings():
     ids = [m.model_id for m in emb_models]
     assert "multilingual-e5-small" in ids
     assert "multilingual-e5-large" in ids
+
+
+def test_zai_static_info():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import (
+        TextModelInfo, ImageModelInfo, VideoModelInfo,
+    )
+    info = PROVIDERS["zai"]().get_static_info()
+    assert info.name == "Z.ai (GLM)"
+    assert info.api_base_url == "https://api.z.ai/api/paas/v4"
+    assert info.auth_env_var == "ZAI_API_KEY"
+    # Text-first, glm-5.2 default.
+    assert isinstance(info.models[0], TextModelInfo)
+    assert info.models[0].model_id == "glm-5.2"
+    ids = {m.model_id for m in info.models}
+    assert {"glm-5.2", "glm-5v-turbo", "cogview-4", "cogvideox-3"} <= ids
+    # Vision flag on the vision models.
+    vision = {m.model_id for m in info.models
+              if isinstance(m, TextModelInfo) and m.supports_vision}
+    assert vision == {"glm-5v-turbo", "glm-4.6v-flash"}
+    # Correct subtypes for image/video.
+    by_id = {m.model_id: m for m in info.models}
+    assert isinstance(by_id["cogview-4"], ImageModelInfo)
+    assert by_id["cogview-4"].cost_per_image == 0.01
+    assert isinstance(by_id["cogvideox-3"], VideoModelInfo)
+    assert by_id["cogvideox-3"].cost_per_video == 0.20
+
+
+def test_zai_image_snippet_all_languages():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import SUPPORTED_LANGUAGES
+    p = PROVIDERS["zai"]()
+    for lang in SUPPORTED_LANGUAGES:
+        snip = p.get_connection_snippet("cogview-4", lang)
+        assert "cogview-4" in snip, f"{lang}: model id missing"
+        assert "image" in snip.lower(), f"{lang}: no image reference"
+        assert len(snip) > 20
+
+
+def test_zai_video_snippet_all_languages():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import SUPPORTED_LANGUAGES
+    p = PROVIDERS["zai"]()
+    for lang in SUPPORTED_LANGUAGES:
+        snip = p.get_connection_snippet("cogvideox-3", lang)
+        assert "cogvideox-3" in snip, f"{lang}: model id missing"
+        assert "videos/generations" in snip, f"{lang}: no video endpoint"
+        assert len(snip) > 20
+
+
+def test_zai_video_snippet_no_python_syntax_in_ts():
+    from llm_api_search.providers import PROVIDERS
+    p = PROVIDERS["zai"]()
+    ts = p.get_connection_snippet("cogvideox-3", "typescript")
+    assert "print(" not in ts
+
+
+def test_zai_legacy_models_registered():
+    from llm_api_search.providers import LEGACY_MODELS, filter_models
+    from llm_api_search.providers.base import TextModelInfo
+    assert LEGACY_MODELS["zai"] == {"glm-4.7", "glm-4.5", "glm-4.5v", "glm-4.6v"}
+    # A legacy id present in a list is filtered out by default.
+    models = [
+        TextModelInfo(model_id="glm-5.2", display_name="GLM-5.2"),
+        TextModelInfo(model_id="glm-4.5", display_name="GLM-4.5"),
+    ]
+    kept = {m.model_id for m in filter_models(models, "zai")}
+    assert kept == {"glm-5.2"}

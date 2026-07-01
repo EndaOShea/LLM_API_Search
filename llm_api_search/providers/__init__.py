@@ -12,6 +12,7 @@ from llm_api_search.providers.google import GeminiProvider
 from llm_api_search.providers.openai import OpenAIProvider
 from llm_api_search.providers.inception import InceptionProvider
 from llm_api_search.providers.deepseek import DeepSeekProvider
+from llm_api_search.providers.zai import ZaiProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
@@ -19,6 +20,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "openai": OpenAIProvider,
     "inception": InceptionProvider,
     "deepseek": DeepSeekProvider,
+    "zai": ZaiProvider,
 }
 
 # ---------------------------------------------------------------------------
@@ -75,6 +77,11 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # here so the filter is consistent if they ever resurface from
         # a live discovery call.
         "deepseek-chat", "deepseek-reasoner",
+    },
+    "zai": {
+        # Superseded GLM generations (kept out of default listings; the
+        # curated set carries glm-5.x + glm-4.6/4.5-air/4.5-flash).
+        "glm-4.7", "glm-4.5", "glm-4.5v", "glm-4.6v",
     },
 }
 
@@ -257,6 +264,7 @@ __all__ = [
     "OpenAIProvider",
     "InceptionProvider",
     "DeepSeekProvider",
+    "ZaiProvider",
     "PROVIDERS",
     "LEGACY_MODELS",
     "filter_models",

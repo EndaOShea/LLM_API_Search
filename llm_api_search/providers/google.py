@@ -525,6 +525,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=False,
         cost_per_second=0.35,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3.0-generate-001',
@@ -533,6 +534,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.5,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3.0-fast-generate-001',
@@ -541,6 +543,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.25,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3.1-generate-preview',
@@ -549,6 +552,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.5,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3.1-fast-generate-preview',
@@ -557,6 +561,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.25,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3.1-lite-generate-preview',
@@ -565,6 +570,7 @@ _STATIC_MODELS = [
         supported_resolutions=[],
         supports_audio=False,
         cost_per_second=None,  # TODO: add pricing
+        cost_per_video=None,
     ),
     TextModelInfo(
         model_id='gemini-2.5-flash-native-audio-latest',
@@ -749,6 +755,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p', '4k'],
         supports_audio=True,
         cost_per_second=0.4,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3.1-fast',
@@ -757,6 +764,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p', '4k'],
         supports_audio=True,
         cost_per_second=0.15,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3',
@@ -765,6 +773,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.4,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-3-fast',
@@ -773,6 +782,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p', '1080p'],
         supports_audio=True,
         cost_per_second=0.15,
+        cost_per_video=None,
     ),
     VideoModelInfo(
         model_id='veo-2',
@@ -781,6 +791,7 @@ _STATIC_MODELS = [
         supported_resolutions=['720p'],
         supports_audio=False,
         cost_per_second=0.5,
+        cost_per_video=None,
     ),
 ]
 
