@@ -33,6 +33,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           INCEPTION_API_KEY: ${{ secrets.INCEPTION_API_KEY }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
         run: python scripts/update_models.py
 
       - name: Check for changes
