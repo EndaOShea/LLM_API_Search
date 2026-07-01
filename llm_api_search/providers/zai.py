@@ -25,7 +25,6 @@ _BASE_URL = "https://api.z.ai/api/paas/v4"
 _DEFAULT_MODEL = "glm-5.2"
 
 _STATIC_MODELS = [
-    # --- Text / chat (text models must come first; models[0] is the default) ---
     TextModelInfo(
         model_id='glm-5.2',
         display_name='GLM-5.2',
@@ -36,8 +35,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=1.40,
-        output_cost_per_mtok=4.40,
+        input_cost_per_mtok=1.4,
+        output_cost_per_mtok=4.4,
     ),
     TextModelInfo(
         model_id='glm-5.1',
@@ -49,8 +48,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=1.40,
-        output_cost_per_mtok=4.40,
+        input_cost_per_mtok=1.4,
+        output_cost_per_mtok=4.4,
     ),
     TextModelInfo(
         model_id='glm-5',
@@ -62,8 +61,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=1.00,
-        output_cost_per_mtok=3.20,
+        input_cost_per_mtok=1.0,
+        output_cost_per_mtok=3.2,
     ),
     TextModelInfo(
         model_id='glm-4.6',
@@ -75,8 +74,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.60,
-        output_cost_per_mtok=2.20,
+        input_cost_per_mtok=0.6,
+        output_cost_per_mtok=2.2,
     ),
     TextModelInfo(
         model_id='glm-4.5-air',
@@ -88,8 +87,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.20,
-        output_cost_per_mtok=1.10,
+        input_cost_per_mtok=0.2,
+        output_cost_per_mtok=1.1,
     ),
     TextModelInfo(
         model_id='glm-4.5-flash',
@@ -104,7 +103,6 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.0,
         output_cost_per_mtok=0.0,
     ),
-    # --- Vision (text models with image input) ---
     TextModelInfo(
         model_id='glm-5v-turbo',
         display_name='GLM-5V-Turbo',
@@ -115,8 +113,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=1.20,
-        output_cost_per_mtok=4.00,
+        input_cost_per_mtok=1.2,
+        output_cost_per_mtok=4.0,
     ),
     TextModelInfo(
         model_id='glm-4.6v-flash',
@@ -131,22 +129,23 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.0,
         output_cost_per_mtok=0.0,
     ),
-    # --- Image generation ---
     ImageModelInfo(
         model_id='cogview-4',
         display_name='CogView-4',
         description='CogView-4 image generation (pinned snapshot cogview-4-250304). Generates images across a range of resolutions; per-image billing.',
         supported_sizes=['1024x1024', '1728x2304', '2048x2048'],
+        supported_qualities=[],
+        max_images_per_request=None,
         cost_per_image=0.01,
     ),
-    # --- Video generation ---
     VideoModelInfo(
         model_id='cogvideox-3',
         display_name='CogVideoX-3',
         description='CogVideoX-3 video generation. Async task API (submit, then poll by id). Text/image/start-end-frame inputs, up to 4K, optional audio. Per-video billing.',
         supported_resolutions=['1920x1080', '3840x2160'],
         supports_audio=True,
-        cost_per_video=0.20,
+        cost_per_second=None,
+        cost_per_video=0.2,
     ),
 ]
 
