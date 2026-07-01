@@ -12,6 +12,7 @@ from llm_api_search.providers.google import GeminiProvider
 from llm_api_search.providers.openai import OpenAIProvider
 from llm_api_search.providers.inception import InceptionProvider
 from llm_api_search.providers.deepseek import DeepSeekProvider
+from llm_api_search.providers.zai import ZaiProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
@@ -19,6 +20,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "openai": OpenAIProvider,
     "inception": InceptionProvider,
     "deepseek": DeepSeekProvider,
+    "zai": ZaiProvider,
 }
 
 # ---------------------------------------------------------------------------
@@ -257,6 +259,7 @@ __all__ = [
     "OpenAIProvider",
     "InceptionProvider",
     "DeepSeekProvider",
+    "ZaiProvider",
     "PROVIDERS",
     "LEGACY_MODELS",
     "filter_models",

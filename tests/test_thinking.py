@@ -136,6 +136,7 @@ _KNOWN_THINKING = {
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
     "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
+    "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air"],
 }
 
 

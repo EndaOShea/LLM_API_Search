@@ -30,7 +30,7 @@ def test_discover_provider_static():
 
 def test_discover_all_static():
     results = discover(live=False)
-    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek"}
+    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek", "zai"}
     for key, info in results.items():
         assert isinstance(info, ProviderInfo)
         assert len(info.models) > 0
@@ -591,3 +591,29 @@ def test_google_has_opensource_embeddings():
     ids = [m.model_id for m in emb_models]
     assert "multilingual-e5-small" in ids
     assert "multilingual-e5-large" in ids
+
+
+def test_zai_static_info():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import (
+        TextModelInfo, ImageModelInfo, VideoModelInfo,
+    )
+    info = PROVIDERS["zai"]().get_static_info()
+    assert info.name == "Z.ai (GLM)"
+    assert info.api_base_url == "https://api.z.ai/api/paas/v4"
+    assert info.auth_env_var == "ZAI_API_KEY"
+    # Text-first, glm-5.2 default.
+    assert isinstance(info.models[0], TextModelInfo)
+    assert info.models[0].model_id == "glm-5.2"
+    ids = {m.model_id for m in info.models}
+    assert {"glm-5.2", "glm-5v-turbo", "cogview-4", "cogvideox-3"} <= ids
+    # Vision flag on the vision models.
+    vision = {m.model_id for m in info.models
+              if isinstance(m, TextModelInfo) and m.supports_vision}
+    assert vision == {"glm-5v-turbo", "glm-4.6v-flash"}
+    # Correct subtypes for image/video.
+    by_id = {m.model_id: m for m in info.models}
+    assert isinstance(by_id["cogview-4"], ImageModelInfo)
+    assert by_id["cogview-4"].cost_per_image == 0.01
+    assert isinstance(by_id["cogvideox-3"], VideoModelInfo)
+    assert by_id["cogvideox-3"].cost_per_video == 0.20

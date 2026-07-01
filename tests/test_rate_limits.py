@@ -135,6 +135,19 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
         "deepseek-v4-flash",
         "deepseek-v4-pro",
     },
+    # Z.ai does not publish per-model tier rate limits (RPM/TPM).  The rate-
+    # limit reference page describes general service limits only.  This is a
+    # publisher policy, not a coverage gap.
+    "zai": {
+        "glm-5.2",
+        "glm-5.1",
+        "glm-5",
+        "glm-4.6",
+        "glm-4.5-air",
+        "glm-4.5-flash",
+        "glm-5v-turbo",
+        "glm-4.6v-flash",
+    },
 }
 
 

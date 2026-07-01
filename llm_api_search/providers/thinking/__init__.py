@@ -6,6 +6,7 @@ from llm_api_search.providers.thinking.openai import THINKING_CONFIGS as _OPENAI
 from llm_api_search.providers.thinking.google import THINKING_CONFIGS as _GOOGLE
 from llm_api_search.providers.thinking.deepseek import THINKING_CONFIGS as _DEEPSEEK
 from llm_api_search.providers.thinking.inception import THINKING_CONFIGS as _INCEPTION
+from llm_api_search.providers.thinking.zai import THINKING_CONFIGS as _ZAI
 
 PROVIDER_THINKING_CONFIGS: dict[str, dict[str, ThinkingConfig]] = {
     "anthropic": _ANTHROPIC,
@@ -13,4 +14,5 @@ PROVIDER_THINKING_CONFIGS: dict[str, dict[str, ThinkingConfig]] = {
     "openai": _OPENAI,
     "inception": _INCEPTION,
     "deepseek": _DEEPSEEK,
+    "zai": _ZAI,
 }
