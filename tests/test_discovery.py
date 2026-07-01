@@ -617,3 +617,32 @@ def test_zai_static_info():
     assert by_id["cogview-4"].cost_per_image == 0.01
     assert isinstance(by_id["cogvideox-3"], VideoModelInfo)
     assert by_id["cogvideox-3"].cost_per_video == 0.20
+
+
+def test_zai_image_snippet_all_languages():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import SUPPORTED_LANGUAGES
+    p = PROVIDERS["zai"]()
+    for lang in SUPPORTED_LANGUAGES:
+        snip = p.get_connection_snippet("cogview-4", lang)
+        assert "cogview-4" in snip, f"{lang}: model id missing"
+        assert "image" in snip.lower(), f"{lang}: no image reference"
+        assert len(snip) > 20
+
+
+def test_zai_video_snippet_all_languages():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import SUPPORTED_LANGUAGES
+    p = PROVIDERS["zai"]()
+    for lang in SUPPORTED_LANGUAGES:
+        snip = p.get_connection_snippet("cogvideox-3", lang)
+        assert "cogvideox-3" in snip, f"{lang}: model id missing"
+        assert "videos/generations" in snip, f"{lang}: no video endpoint"
+        assert len(snip) > 20
+
+
+def test_zai_video_snippet_no_python_syntax_in_ts():
+    from llm_api_search.providers import PROVIDERS
+    p = PROVIDERS["zai"]()
+    ts = p.get_connection_snippet("cogvideox-3", "typescript")
+    assert "print(" not in ts
