@@ -128,6 +128,21 @@ def test_inception_mercury_effort():
     assert tc.default_level == "medium"
 
 
+def test_zai_thinking_config():
+    from llm_api_search.providers import get_thinking_config
+    from llm_api_search.providers.base import ThinkingMode
+    tc = get_thinking_config("zai", "glm-5.2")["glm-5.2"]
+    assert tc.supported is True
+    assert tc.mode == ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "reasoning_effort"
+    assert tc.default_level == "max"
+    assert tc.can_disable is True
+    # A non-flagship reasoning model shares the same default.
+    assert get_thinking_config("zai", "glm-4.6")["glm-4.6"].default_level == "max"
+    # Non-reasoning model resolves to the unsupported default.
+    assert get_thinking_config("zai", "glm-4.5-flash")["glm-4.5-flash"].supported is False
+
+
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
@@ -136,7 +151,7 @@ _KNOWN_THINKING = {
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
     "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
-    "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air"],
+    "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air", "glm-5v-turbo"],
 }
 
 

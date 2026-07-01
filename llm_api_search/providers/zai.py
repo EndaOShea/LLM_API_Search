@@ -17,7 +17,7 @@ import urllib.request
 import urllib.error
 
 from llm_api_search.providers.base import (
-    ModelInfo, TextModelInfo, ImageModelInfo, VideoModelInfo,
+    TextModelInfo, ImageModelInfo, VideoModelInfo,
     ModelType, Provider, ProviderInfo,
 )
 

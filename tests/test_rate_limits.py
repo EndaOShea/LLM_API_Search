@@ -179,3 +179,9 @@ def test_all_nonpreview_text_models_have_rate_limits():
                 f"{key}/{m.model_id}: no rate limit entry — add one to "
                 f"providers/rate_limits/{key}.py"
             )
+
+
+def test_zai_rate_limits_registered_empty():
+    from llm_api_search.providers.rate_limits import PROVIDER_RATE_LIMITS
+    assert "zai" in PROVIDER_RATE_LIMITS
+    assert PROVIDER_RATE_LIMITS["zai"] == {}
