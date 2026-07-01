@@ -40,7 +40,7 @@ _PRICING_FIELDS = {
     AudioTranscriptionModelInfo: ("cost_per_minute",),
     EmbeddingModelInfo: ("input_cost_per_mtok",),
     MusicModelInfo: ("cost_per_second",),
-    VideoModelInfo: ("cost_per_second",),
+    VideoModelInfo: ("cost_per_second", "cost_per_video"),
 }
 
 # Map provider key → source file path.
@@ -123,16 +123,20 @@ def _serialize_model(
             continue  # set automatically by subclass
         val = getattr(m, f.name)
         if f.name in all_pricing and val is None:
-            # A video model priced per-video legitimately has cost_per_second
-            # unset — that is not missing pricing, so don't stamp a TODO on it.
-            priced_per_video = (
-                isinstance(m, VideoModelInfo) and m.cost_per_video is not None
+            # A None pricing field is only a real gap when the model has NO
+            # type-appropriate pricing at all. Models legitimately priced via
+            # one mechanism leave the others None (per-video video models leave
+            # cost_per_second None; char-billed TTS models leave
+            # input/output_cost_per_mtok None) — don't stamp a false TODO there.
+            type_pricing_fields = _PRICING_FIELDS.get(type(m), ())
+            has_any_pricing = any(
+                getattr(m, pf) is not None for pf in type_pricing_fields
             )
-            if not priced_per_video:
+            if not has_any_pricing:
                 # Generated TODO takes priority — never overlay a stale comment.
                 lines.append(f"{indent}    {f.name}=None,  # TODO: add pricing")
                 continue
-            # else: fall through to emit a plain `cost_per_second=None,` line
+            # else: model is priced via another field — emit a plain `field=None,` line
         if f.name in all_pricing and isinstance(val, float):
             line = f"{indent}    {f.name}={val},"
         elif isinstance(val, bool):

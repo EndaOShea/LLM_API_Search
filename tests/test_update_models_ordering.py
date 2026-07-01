@@ -120,3 +120,27 @@ def test_minimax_merge_preserves_order_and_types():
     assert by_id["MiniMax-Hailuo-2.3"].cost_per_video == 0.28
     assert isinstance(by_id["speech-2.8-hd"], AudioTTSModelInfo)
     assert isinstance(by_id["Music-2.6"], MusicModelInfo)
+
+
+def test_serialize_model_no_false_todo_on_char_billed_tts():
+    from llm_api_search.providers.base import AudioTTSModelInfo
+    m = AudioTTSModelInfo(model_id="speech-x", display_name="speech-x", cost_per_mchars=100.0)
+    out = update_models._serialize_model(m)
+    assert "# TODO: add pricing" not in out
+    assert "cost_per_mchars=100.0" in out
+    assert "input_cost_per_mtok=None," in out  # plain None, no TODO
+
+
+def test_serialize_model_stamps_todo_when_fully_unpriced():
+    from llm_api_search.providers.base import TextModelInfo
+    m = TextModelInfo(model_id="t", display_name="t")  # both token costs None
+    out = update_models._serialize_model(m)
+    assert out.count("# TODO: add pricing") == 2
+
+
+def test_serialize_model_no_false_todo_on_per_video_pricing():
+    from llm_api_search.providers.base import VideoModelInfo
+    m = VideoModelInfo(model_id="v", display_name="v", cost_per_video=0.2)
+    out = update_models._serialize_model(m)
+    assert "# TODO: add pricing" not in out
+    assert "cost_per_second=None," in out

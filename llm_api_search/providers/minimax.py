@@ -95,8 +95,8 @@ _STATIC_MODELS = [
         supported_voices=['male-qn-qingse', 'female-shaonv', 'audiobook_male_1', 'audiobook_female_1', 'presenter_male'],
         supported_output_formats=['mp3', 'pcm', 'flac', 'wav'],
         cost_per_mchars=100.0,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=None,
+        output_cost_per_mtok=None,
     ),
     AudioTTSModelInfo(
         model_id='speech-2.8-turbo',
@@ -105,8 +105,8 @@ _STATIC_MODELS = [
         supported_voices=['male-qn-qingse', 'female-shaonv', 'audiobook_male_1', 'audiobook_female_1', 'presenter_male'],
         supported_output_formats=['mp3', 'pcm', 'flac', 'wav'],
         cost_per_mchars=60.0,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=None,
+        output_cost_per_mtok=None,
     ),
     MusicModelInfo(
         model_id='Music-2.6',
