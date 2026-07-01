@@ -81,3 +81,18 @@ def test_rate_limits_cover_every_static_model():
     assert m3.tokens_per_minute == 10_000_000
     assert RATE_LIMITS["MiniMax-M2.7"]["default"].requests_per_minute == 500
     assert RATE_LIMITS["MiniMax-Hailuo-2.3"]["default"].requests_per_minute == 5
+
+
+def test_thinking_configs_are_toggle_for_text_models():
+    from llm_api_search.providers.thinking.minimax import THINKING_CONFIGS
+    from llm_api_search.providers.base import ThinkingMode
+    for mid in ("MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"):
+        tc = THINKING_CONFIGS[mid]
+        assert tc.supported is True
+        assert tc.mode is ThinkingMode.TOGGLE
+        assert tc.parameter == "thinking"
+        assert tc.can_disable is True
+        assert tc.default_level is None
+    # Keys must be real static model ids (guards typos).
+    static_ids = {m.model_id for m in _STATIC_MODELS}
+    assert set(THINKING_CONFIGS) <= static_ids
