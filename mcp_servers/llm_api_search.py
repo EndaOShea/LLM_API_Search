@@ -27,7 +27,7 @@ mcp = FastMCP(
 
 @mcp.tool()
 def llm_list_providers() -> list[str]:
-    """List all supported LLM API providers (e.g. anthropic, google, openai, inception, deepseek)."""
+    """List all supported LLM API providers (e.g. anthropic, google, openai, inception, deepseek, zai, minimax)."""
     return list_providers()
 
 
@@ -58,7 +58,7 @@ def llm_discover_provider(provider: str, live: bool = False, include_all: bool =
     """Discover API info for a single LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", "deepseek", "zai", or "minimax".
         live: If True, fetch live model lists (requires API key in environment).
         include_all: If True, include dated snapshots and legacy models.
 
@@ -80,7 +80,7 @@ def llm_get_connection_snippet(
     """Get a ready-to-use code snippet for connecting to an LLM API.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", "deepseek", "zai", or "minimax".
         model_id: Optional specific model ID. Defaults to the provider's recommended model.
         language: Programming language for the snippet. One of "python", "typescript",
                   "javascript", "java", or "cpp". If omitted, returns snippets for all
@@ -127,7 +127,7 @@ def llm_list_models(
     """List available models for a specific LLM provider.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", "deepseek", "zai", or "minimax".
         live: If True, fetch live model lists (requires API key in environment).
         model_type: Optional filter — one of "text", "image", "audio_tts",
                     "audio_transcription", "embedding". Returns all types if omitted.
@@ -234,7 +234,7 @@ def llm_get_rate_limits(
     """Get rate limits for an LLM provider, optionally for a specific model.
 
     Args:
-        provider: Provider key — one of "anthropic", "google", "openai", "inception", or "deepseek".
+        provider: Provider key — one of "anthropic", "google", "openai", "inception", "deepseek", "zai", or "minimax".
         model: Optional model ID.  If provided, returns limits for that model
                (falls back to the base alias for dated snapshots).  If omitted,
                returns limits for all models.
@@ -277,7 +277,7 @@ def llm_get_thinking_config(provider: str, model: str | None = None) -> dict:
       - Inception/Mercury: reasoning_effort (instant/low/medium/high).
 
     Args:
-        provider: One of "anthropic", "google", "openai", "inception", "deepseek".
+        provider: One of "anthropic", "google", "openai", "inception", "deepseek", "zai", "minimax".
         model: Optional model ID. A model with no thinking support returns
                {"supported": false, "mode": "none"}.
 
