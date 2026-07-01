@@ -25,55 +25,46 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='MiniMax-M3',
         display_name='MiniMax-M3',
-        description="MiniMax's flagship multimodal coding/agentic model. 1M token "
-                    "context, function calling, and adaptive thinking "
-                    "(thinking={type:'adaptive'|'disabled'}). Standard tier: "
-                    "$0.30/$1.20 per 1M tok at <=512k context, $0.60/$2.40 above "
-                    "512k; Priority tier is 1.5x. Prompt-cache read $0.06/1M.",
+        description="MiniMax's flagship multimodal coding/agentic model. 1M token context, function calling, and adaptive thinking (thinking={type:'adaptive'|'disabled'}). Standard tier: $0.30/$1.20 per 1M tok at <=512k context, $0.60/$2.40 above 512k; Priority tier is 1.5x. Prompt-cache read $0.06/1M.",
         context_window=1_000_000,
         max_output_tokens=None,
         supports_vision=False,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.30,
-        output_cost_per_mtok=1.20,
+        input_cost_per_mtok=0.3,
+        output_cost_per_mtok=1.2,
     ),
     TextModelInfo(
         model_id='MiniMax-M2.7',
         display_name='MiniMax-M2.7',
-        description='MiniMax-M2.7 text/agentic model. 200K token context, function '
-                    'calling, and adaptive thinking. $0.30/$1.20 per 1M tok; '
-                    'prompt-cache read $0.06/1M, write $0.375/1M.',
+        description='MiniMax-M2.7 text/agentic model. 200K token context, function calling, and adaptive thinking. $0.30/$1.20 per 1M tok; prompt-cache read $0.06/1M, write $0.375/1M.',
         context_window=200_000,
         max_output_tokens=None,
         supports_vision=False,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.30,
-        output_cost_per_mtok=1.20,
+        input_cost_per_mtok=0.3,
+        output_cost_per_mtok=1.2,
     ),
     TextModelInfo(
         model_id='MiniMax-M2.7-highspeed',
         display_name='MiniMax-M2.7-highspeed',
-        description='Latency-optimized MiniMax-M2.7. 200K token context, function '
-                    'calling, and adaptive thinking. $0.60/$2.40 per 1M tok; '
-                    'prompt-cache read $0.06/1M, write $0.375/1M.',
+        description='Latency-optimized MiniMax-M2.7. 200K token context, function calling, and adaptive thinking. $0.60/$2.40 per 1M tok; prompt-cache read $0.06/1M, write $0.375/1M.',
         context_window=200_000,
         max_output_tokens=None,
         supports_vision=False,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.60,
-        output_cost_per_mtok=2.40,
+        input_cost_per_mtok=0.6,
+        output_cost_per_mtok=2.4,
     ),
     ImageModelInfo(
         model_id='image-01',
         display_name='image-01',
-        description='MiniMax image generation. Prompt-to-image with selectable '
-                    'aspect ratios; per-image billing.',
+        description='MiniMax image generation. Prompt-to-image with selectable aspect ratios; per-image billing.',
         supported_sizes=['1:1', '16:9', '4:3', '3:2', '2:3', '3:4', '9:16', '21:9'],
         supported_qualities=[],
         max_images_per_request=9,
@@ -82,10 +73,7 @@ _STATIC_MODELS = [
     VideoModelInfo(
         model_id='MiniMax-Hailuo-2.3',
         display_name='MiniMax-Hailuo-2.3',
-        description='MiniMax Hailuo 2.3 text/image-to-video (up to 1080p, 24fps). '
-                    'Async task API (create, then poll by id). Per-video billing, '
-                    'priced by resolution x duration: 768P/6s $0.28, 768P/10s '
-                    '$0.56, 1080P/6s $0.49 (cost_per_video encodes 768P/6s).',
+        description='MiniMax Hailuo 2.3 text/image-to-video (up to 1080p, 24fps). Async task API (create, then poll by id). Per-video billing, priced by resolution x duration: 768P/6s $0.28, 768P/10s $0.56, 1080P/6s $0.49 (cost_per_video encodes 768P/6s).',
         supported_resolutions=['768P', '1080P'],
         supports_audio=False,
         cost_per_second=None,
@@ -94,9 +82,7 @@ _STATIC_MODELS = [
     VideoModelInfo(
         model_id='MiniMax-Hailuo-2.3-Fast',
         display_name='MiniMax-Hailuo-2.3-Fast',
-        description='Efficiency-focused MiniMax Hailuo 2.3. Async task API. '
-                    'Per-video billing: 768P/6s $0.19, 768P/10s $0.32, 1080P/6s '
-                    '$0.33 (cost_per_video encodes 768P/6s).',
+        description='Efficiency-focused MiniMax Hailuo 2.3. Async task API. Per-video billing: 768P/6s $0.19, 768P/10s $0.32, 1080P/6s $0.33 (cost_per_video encodes 768P/6s).',
         supported_resolutions=['768P', '1080P'],
         supports_audio=False,
         cost_per_second=None,
@@ -105,34 +91,27 @@ _STATIC_MODELS = [
     AudioTTSModelInfo(
         model_id='speech-2.8-hd',
         display_name='speech-2.8-hd',
-        description='MiniMax high-fidelity text-to-speech (T2A v2). 40 languages, '
-                    'emotional tones, up to 10k chars/request. Per-character '
-                    'billing.',
-        supported_voices=['male-qn-qingse', 'female-shaonv', 'audiobook_male_1',
-                          'audiobook_female_1', 'presenter_male'],
+        description='MiniMax high-fidelity text-to-speech (T2A v2). 40 languages, emotional tones, up to 10k chars/request. Per-character billing.',
+        supported_voices=['male-qn-qingse', 'female-shaonv', 'audiobook_male_1', 'audiobook_female_1', 'presenter_male'],
         supported_output_formats=['mp3', 'pcm', 'flac', 'wav'],
         cost_per_mchars=100.0,
-        input_cost_per_mtok=None,
-        output_cost_per_mtok=None,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     AudioTTSModelInfo(
         model_id='speech-2.8-turbo',
         display_name='speech-2.8-turbo',
-        description='Speed-optimized MiniMax text-to-speech (T2A v2). 40 languages, '
-                    'up to 10k chars/request. Per-character billing.',
-        supported_voices=['male-qn-qingse', 'female-shaonv', 'audiobook_male_1',
-                          'audiobook_female_1', 'presenter_male'],
+        description='Speed-optimized MiniMax text-to-speech (T2A v2). 40 languages, up to 10k chars/request. Per-character billing.',
+        supported_voices=['male-qn-qingse', 'female-shaonv', 'audiobook_male_1', 'audiobook_female_1', 'presenter_male'],
         supported_output_formats=['mp3', 'pcm', 'flac', 'wav'],
         cost_per_mchars=60.0,
-        input_cost_per_mtok=None,
-        output_cost_per_mtok=None,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
     MusicModelInfo(
         model_id='Music-2.6',
         display_name='Music-2.6',
-        description='MiniMax text-to-music generation (prompt + lyrics). Billed '
-                    '$0.15 per generation of up to 5 minutes (cost_per_second '
-                    'encodes $0.15 / 300s).',
+        description='MiniMax text-to-music generation (prompt + lyrics). Billed $0.15 per generation of up to 5 minutes (cost_per_second encodes $0.15 / 300s).',
         cost_per_second=0.0005,
     ),
 ]

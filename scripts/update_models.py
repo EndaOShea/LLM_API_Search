@@ -51,6 +51,7 @@ _PROVIDER_FILES = {
     "inception": PROJECT_ROOT / "llm_api_search" / "providers" / "inception.py",
     "deepseek": PROJECT_ROOT / "llm_api_search" / "providers" / "deepseek.py",
     "zai": PROJECT_ROOT / "llm_api_search" / "providers" / "zai.py",
+    "minimax": PROJECT_ROOT / "llm_api_search" / "providers" / "minimax.py",
 }
 
 # Models to exclude from updates — superseded or deprecated model IDs per provider.

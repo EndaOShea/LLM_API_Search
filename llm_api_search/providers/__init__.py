@@ -13,6 +13,7 @@ from llm_api_search.providers.openai import OpenAIProvider
 from llm_api_search.providers.inception import InceptionProvider
 from llm_api_search.providers.deepseek import DeepSeekProvider
 from llm_api_search.providers.zai import ZaiProvider
+from llm_api_search.providers.minimax import MiniMaxProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
@@ -21,6 +22,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "inception": InceptionProvider,
     "deepseek": DeepSeekProvider,
     "zai": ZaiProvider,
+    "minimax": MiniMaxProvider,
 }
 
 # ---------------------------------------------------------------------------
@@ -265,6 +267,7 @@ __all__ = [
     "InceptionProvider",
     "DeepSeekProvider",
     "ZaiProvider",
+    "MiniMaxProvider",
     "PROVIDERS",
     "LEGACY_MODELS",
     "filter_models",
