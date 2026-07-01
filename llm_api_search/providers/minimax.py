@@ -25,7 +25,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='MiniMax-M3',
         display_name='MiniMax-M3',
-        description="MiniMax's flagship multimodal coding/agentic model. 1M token context, function calling, and adaptive thinking (thinking={type:'adaptive'|'disabled'}). Standard tier: $0.30/$1.20 per 1M tok at <=512k context, $0.60/$2.40 above 512k; Priority tier is 1.5x. Prompt-cache read $0.06/1M.",
+        description="MiniMax's flagship coding/agentic model. 1M token context, function calling, and adaptive thinking (thinking={type:'adaptive'|'disabled'}). Standard tier: $0.30/$1.20 per 1M tok at <=512k context, $0.60/$2.40 above 512k; Priority tier is 1.5x. Prompt-cache read $0.06/1M.",
         context_window=1_000_000,
         max_output_tokens=None,
         supports_vision=False,
