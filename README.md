@@ -1,6 +1,6 @@
 # LLM API Search
 
-An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, **Mercury (Inception Labs)**, and **DeepSeek**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
+An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, **Mercury (Inception Labs)**, **DeepSeek**, and **GLM (Z.ai)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
 Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**. Also includes specialized models for **computer use, native audio (Live API), deep research, and robotics**.
 
@@ -168,7 +168,7 @@ Models are organized by type, each with type-specific fields and pricing:
 | `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
 | `embedding` | `EmbeddingModelInfo` | per 1M tokens (input) | text-embedding-3-large |
 | `music` | `MusicModelInfo` | per second | Lyria 2 |
-| `video` | `VideoModelInfo` | per second | Veo 3.1 |
+| `video` | `VideoModelInfo` | per second or per video | Veo 3.1, CogVideoX-3 |
 
 Filter by type using the MCP tool or programmatically:
 
@@ -190,7 +190,7 @@ for m in info.models:
 
 ### Live vs static discovery
 
-When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`, `INCEPTION_API_KEY`, `DEEPSEEK_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
+When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`, `INCEPTION_API_KEY`, `DEEPSEEK_API_KEY`, `ZAI_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
 
 ```python
 # Force static-only (no network calls)
@@ -210,7 +210,7 @@ from llm_api_search.providers import get_rate_limits
 # All rate limits for a provider (returns all tiers per model)
 limits = get_rate_limits("google")
 
-# Specific tier — Anthropic: tier-1 to tier-4, Google: free/tier-1/tier-2/tier-3, DeepSeek: none published
+# Specific tier — Anthropic: tier-1 to tier-4, Google: free/tier-1/tier-2/tier-3, DeepSeek/Z.ai: none published
 limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="tier-1")
 rl = limits["claude-sonnet-4-6"]
 print(f"{rl.requests_per_minute} RPM, {rl.input_tokens_per_minute} ITPM")
