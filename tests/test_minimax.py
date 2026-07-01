@@ -70,3 +70,14 @@ def test_fetch_live_returns_static_without_key():
     # No /v1/models endpoint + no key → curated static is returned unchanged.
     info = MiniMaxProvider().fetch_live_models()
     assert [m.model_id for m in info.models] == [m.model_id for m in _STATIC_MODELS]
+
+
+def test_rate_limits_cover_every_static_model():
+    from llm_api_search.providers.rate_limits.minimax import RATE_LIMITS
+    static_ids = {m.model_id for m in _STATIC_MODELS}
+    assert static_ids <= set(RATE_LIMITS), "every model needs a rate-limit entry"
+    m3 = RATE_LIMITS["MiniMax-M3"]["default"]
+    assert m3.requests_per_minute == 200
+    assert m3.tokens_per_minute == 10_000_000
+    assert RATE_LIMITS["MiniMax-M2.7"]["default"].requests_per_minute == 500
+    assert RATE_LIMITS["MiniMax-Hailuo-2.3"]["default"].requests_per_minute == 5
