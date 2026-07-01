@@ -97,6 +97,7 @@ class VideoModelInfo(ModelInfo):
     supported_resolutions: list[str] = field(default_factory=list)
     supports_audio: bool = False
     cost_per_second: float | None = None
+    cost_per_video: float | None = None
 
 
 @dataclass
@@ -244,6 +245,8 @@ def _format_model_cost(m: ModelInfo) -> str:
             return f" | ${m.cost_per_second:.3f}/sec"
         return ""
     elif isinstance(m, VideoModelInfo):
+        if m.cost_per_video is not None:
+            return f" | ${m.cost_per_video:.2f}/video"
         if m.cost_per_second is not None:
             return f" | ${m.cost_per_second:.2f}/sec"
         return ""

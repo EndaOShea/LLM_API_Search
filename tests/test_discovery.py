@@ -242,8 +242,22 @@ def test_model_pricing_fields():
                 assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
                 assert m.cost_per_second >= 0
             elif isinstance(m, VideoModelInfo):
-                assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
-                assert m.cost_per_second >= 0
+                has_sec = m.cost_per_second is not None
+                has_vid = m.cost_per_video is not None
+                assert has_sec or has_vid, f"{key}/{m.model_id}: missing video pricing"
+                if has_sec:
+                    assert m.cost_per_second >= 0
+                if has_vid:
+                    assert m.cost_per_video >= 0
+
+
+def test_video_model_cost_per_video_formats():
+    from llm_api_search.providers.base import VideoModelInfo, _format_model_cost
+    m = VideoModelInfo(model_id="x", display_name="X", cost_per_video=0.20)
+    assert _format_model_cost(m) == " | $0.20/video"
+    # cost_per_second still works for models priced that way
+    m2 = VideoModelInfo(model_id="y", display_name="Y", cost_per_second=0.35)
+    assert _format_model_cost(m2) == " | $0.35/sec"
 
 
 # --- ModelType enum and subclass tests ---
