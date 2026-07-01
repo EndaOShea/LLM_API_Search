@@ -63,6 +63,10 @@ def test_media_snippets_all_languages():
             snip = p.get_connection_snippet(model_id, lang)
             assert model_id in snip, f"{model_id}/{lang}: id missing"
             assert path in snip, f"{model_id}/{lang}: endpoint missing"
+            # _BASE_URL already ends in /v1; guard against a regression that
+            # re-prefixes /v1 on the media path (the `path in snip` check alone
+            # would still pass on the malformed .../v1/v1/... URL).
+            assert "/v1/v1/" not in snip, f"{model_id}/{lang}: double /v1 in URL"
             assert len(snip) > 20
 
 
@@ -76,11 +80,26 @@ def test_rate_limits_cover_every_static_model():
     from llm_api_search.providers.rate_limits.minimax import RATE_LIMITS
     static_ids = {m.model_id for m in _STATIC_MODELS}
     assert static_ids <= set(RATE_LIMITS), "every model needs a rate-limit entry"
-    m3 = RATE_LIMITS["MiniMax-M3"]["default"]
-    assert m3.requests_per_minute == 200
-    assert m3.tokens_per_minute == 10_000_000
-    assert RATE_LIMITS["MiniMax-M2.7"]["default"].requests_per_minute == 500
-    assert RATE_LIMITS["MiniMax-Hailuo-2.3"]["default"].requests_per_minute == 5
+    # Expected (requests_per_minute, tokens_per_minute) per model — verifies the
+    # published values, not just key presence, so a typo can't stay green. TPM is
+    # None for the non-text (image/video/tts/music) endpoints.
+    expected = {
+        "MiniMax-M3": (200, 10_000_000),
+        "MiniMax-M2.7": (500, 20_000_000),
+        "MiniMax-M2.7-highspeed": (500, 20_000_000),
+        "image-01": (10, None),
+        "MiniMax-Hailuo-2.3": (5, None),
+        "MiniMax-Hailuo-2.3-Fast": (5, None),
+        "speech-2.8-hd": (60, None),
+        "speech-2.8-turbo": (60, None),
+        "Music-2.6": (120, None),
+    }
+    # Forcing function: a new static model must be given an expected value here.
+    assert set(expected) == static_ids, "expected table must list every static model"
+    for mid, (rpm, tpm) in expected.items():
+        rl = RATE_LIMITS[mid]["default"]
+        assert rl.requests_per_minute == rpm, f"{mid}: RPM"
+        assert rl.tokens_per_minute == tpm, f"{mid}: TPM"
 
 
 def test_thinking_configs_are_toggle_for_text_models():
