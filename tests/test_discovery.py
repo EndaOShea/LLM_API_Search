@@ -646,3 +646,16 @@ def test_zai_video_snippet_no_python_syntax_in_ts():
     p = PROVIDERS["zai"]()
     ts = p.get_connection_snippet("cogvideox-3", "typescript")
     assert "print(" not in ts
+
+
+def test_zai_legacy_models_registered():
+    from llm_api_search.providers import LEGACY_MODELS, filter_models
+    from llm_api_search.providers.base import TextModelInfo
+    assert LEGACY_MODELS["zai"] == {"glm-4.7", "glm-4.5", "glm-4.5v", "glm-4.6v"}
+    # A legacy id present in a list is filtered out by default.
+    models = [
+        TextModelInfo(model_id="glm-5.2", display_name="GLM-5.2"),
+        TextModelInfo(model_id="glm-4.5", display_name="GLM-4.5"),
+    ]
+    kept = {m.model_id for m in filter_models(models, "zai")}
+    assert kept == {"glm-5.2"}

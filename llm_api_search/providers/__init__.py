@@ -78,6 +78,11 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # a live discovery call.
         "deepseek-chat", "deepseek-reasoner",
     },
+    "zai": {
+        # Superseded GLM generations (kept out of default listings; the
+        # curated set carries glm-5.x + glm-4.6/4.5-air/4.5-flash).
+        "glm-4.7", "glm-4.5", "glm-4.5v", "glm-4.6v",
+    },
 }
 
 
