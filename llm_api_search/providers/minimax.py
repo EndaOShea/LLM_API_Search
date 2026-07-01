@@ -25,13 +25,13 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='MiniMax-M3',
         display_name='MiniMax-M3',
-        description="MiniMax's flagship coding/agentic model. 1M token context, function calling, and adaptive thinking (thinking={type:'adaptive'|'disabled'}). Standard tier: $0.30/$1.20 per 1M tok at <=512k context, $0.60/$2.40 above 512k; Priority tier is 1.5x. Prompt-cache read $0.06/1M.",
+        description="MiniMax's flagship natively-multimodal coding/agentic model (image + video input). 1M token context, function calling, and adaptive thinking (thinking={type:'adaptive'|'disabled'}). Standard tier: $0.30/$1.20 per 1M tok at <=512k context, $0.60/$2.40 above 512k; Priority tier is 1.5x. Prompt-cache read $0.06/1M.",
         context_window=1_000_000,
         max_output_tokens=None,
-        supports_vision=False,
+        supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
-        supports_computer_use=False,
+        supports_computer_use=False,  # M3 "operates a desktop computer" per MiniMax's blog + OpenRoom demo, but there is no documented computer-use API tool and the official model page omits it — keep False until MiniMax documents an API capability.
         input_cost_per_mtok=0.3,
         output_cost_per_mtok=1.2,
     ),
