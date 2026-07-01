@@ -95,3 +95,52 @@ def test_zai_merge_preserves_order_and_types():
     assert by_id["cogview-4"].cost_per_image == 0.01
     assert isinstance(by_id["cogvideox-3"], VideoModelInfo)
     assert by_id["cogvideox-3"].cost_per_video == 0.20
+
+
+def test_minimax_registered_in_update_files():
+    from scripts.update_models import _PROVIDER_FILES
+    assert "minimax" in _PROVIDER_FILES
+    assert _PROVIDER_FILES["minimax"].name == "minimax.py"
+
+
+def test_minimax_merge_preserves_order_and_types():
+    # Re-merging the curated models against themselves must be a no-op that
+    # keeps MiniMax-M3 first and preserves image/video/tts/music subtypes.
+    from scripts.update_models import _merge_models
+    from llm_api_search.providers.minimax import _STATIC_MODELS
+    from llm_api_search.providers.base import (
+        ImageModelInfo, VideoModelInfo, AudioTTSModelInfo, MusicModelInfo,
+    )
+    merged = _merge_models(list(_STATIC_MODELS), list(_STATIC_MODELS), set())
+    assert [m.model_id for m in merged] == [m.model_id for m in _STATIC_MODELS]
+    assert merged[0].model_id == "MiniMax-M3"
+    by_id = {m.model_id: m for m in merged}
+    assert isinstance(by_id["image-01"], ImageModelInfo)
+    assert isinstance(by_id["MiniMax-Hailuo-2.3"], VideoModelInfo)
+    assert by_id["MiniMax-Hailuo-2.3"].cost_per_video == 0.28
+    assert isinstance(by_id["speech-2.8-hd"], AudioTTSModelInfo)
+    assert isinstance(by_id["Music-2.6"], MusicModelInfo)
+
+
+def test_serialize_model_no_false_todo_on_char_billed_tts():
+    from llm_api_search.providers.base import AudioTTSModelInfo
+    m = AudioTTSModelInfo(model_id="speech-x", display_name="speech-x", cost_per_mchars=100.0)
+    out = update_models._serialize_model(m)
+    assert "# TODO: add pricing" not in out
+    assert "cost_per_mchars=100.0" in out
+    assert "input_cost_per_mtok=None," in out  # plain None, no TODO
+
+
+def test_serialize_model_stamps_todo_when_fully_unpriced():
+    from llm_api_search.providers.base import TextModelInfo
+    m = TextModelInfo(model_id="t", display_name="t")  # both token costs None
+    out = update_models._serialize_model(m)
+    assert out.count("# TODO: add pricing") == 2
+
+
+def test_serialize_model_no_false_todo_on_per_video_pricing():
+    from llm_api_search.providers.base import VideoModelInfo
+    m = VideoModelInfo(model_id="v", display_name="v", cost_per_video=0.2)
+    out = update_models._serialize_model(m)
+    assert "# TODO: add pricing" not in out
+    assert "cost_per_second=None," in out

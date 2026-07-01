@@ -160,6 +160,7 @@ _KNOWN_THINKING = {
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
     "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
     "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air", "glm-5v-turbo"],
+    "minimax": ["MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"],
 }
 
 

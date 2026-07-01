@@ -1,6 +1,6 @@
 # LLM API Search
 
-An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, **Mercury (Inception Labs)**, **DeepSeek**, and **GLM (Z.ai)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
+An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, **Mercury (Inception Labs)**, **DeepSeek**, **GLM (Z.ai)**, and **MiniMax**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
 Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**. Also includes specialized models for **computer use, native audio (Live API), deep research, and robotics**.
 

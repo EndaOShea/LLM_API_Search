@@ -97,7 +97,7 @@ _STATIC_MODELS = [
         description='Gemini 2.5 Flash Preview TTS',
         supported_voices=['Zephyr', 'Puck', 'Charon', 'Kore', 'Fenrir', 'Leda', 'Orus', 'Aoede', 'Callirrhoe', 'Autonoe', 'Enceladus', 'Iapetus', 'Umbriel', 'Algieba', 'Despina', 'Erinome', 'Algenib', 'Rasalgethi', 'Laomedeia', 'Achernar', 'Alnilam', 'Schedar', 'Gacrux', 'Pulcherrima', 'Achird', 'Zubenelgenubi', 'Vindemiatrix', 'Sadachbia', 'Sadaltager', 'Sulafat'],
         supported_output_formats=['wav'],
-        cost_per_mchars=None,  # TODO: add pricing
+        cost_per_mchars=None,
         input_cost_per_mtok=0.5,
         output_cost_per_mtok=10.0,
     ),
@@ -107,7 +107,7 @@ _STATIC_MODELS = [
         description='Gemini 2.5 Pro Preview TTS',
         supported_voices=['Zephyr', 'Puck', 'Charon', 'Kore', 'Fenrir', 'Leda', 'Orus', 'Aoede', 'Callirrhoe', 'Autonoe', 'Enceladus', 'Iapetus', 'Umbriel', 'Algieba', 'Despina', 'Erinome', 'Algenib', 'Rasalgethi', 'Laomedeia', 'Achernar', 'Alnilam', 'Schedar', 'Gacrux', 'Pulcherrima', 'Achird', 'Zubenelgenubi', 'Vindemiatrix', 'Sadachbia', 'Sadaltager', 'Sulafat'],
         supported_output_formats=['wav'],
-        cost_per_mchars=None,  # TODO: add pricing
+        cost_per_mchars=None,
         input_cost_per_mtok=1.0,
         output_cost_per_mtok=20.0,
     ),
@@ -570,7 +570,7 @@ _STATIC_MODELS = [
         supported_resolutions=[],
         supports_audio=False,
         cost_per_second=None,  # TODO: add pricing
-        cost_per_video=None,
+        cost_per_video=None,  # TODO: add pricing
     ),
     TextModelInfo(
         model_id='gemini-2.5-flash-native-audio-latest',
