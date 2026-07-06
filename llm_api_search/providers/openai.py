@@ -277,7 +277,7 @@ _STATIC_MODELS = [
         description='Instruction-steerable text-to-speech model',
         supported_voices=['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
-        cost_per_mchars=None,  # TODO: add pricing
+        cost_per_mchars=None,
         input_cost_per_mtok=0.6,
         output_cost_per_mtok=12.0,
     ),
@@ -287,7 +287,7 @@ _STATIC_MODELS = [
         description='Instruction-steerable text-to-speech model',
         supported_voices=['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
-        cost_per_mchars=None,  # TODO: add pricing
+        cost_per_mchars=None,
         input_cost_per_mtok=0.6,
         output_cost_per_mtok=12.0,
     ),
@@ -297,7 +297,7 @@ _STATIC_MODELS = [
         description='Instruction-steerable text-to-speech model snapshot from December 2025',
         supported_voices=['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
-        cost_per_mchars=None,  # TODO: add pricing
+        cost_per_mchars=None,
         input_cost_per_mtok=0.6,
         output_cost_per_mtok=12.0,
     ),
@@ -994,8 +994,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=15.0,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=None,
+        output_cost_per_mtok=None,
     ),
     AudioTTSModelInfo(
         model_id='tts-1-1106',
@@ -1004,8 +1004,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=15.0,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=None,
+        output_cost_per_mtok=None,
     ),
     AudioTTSModelInfo(
         model_id='tts-1-hd',
@@ -1014,8 +1014,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=30.0,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=None,
+        output_cost_per_mtok=None,
     ),
     AudioTTSModelInfo(
         model_id='tts-1-hd-1106',
@@ -1024,8 +1024,8 @@ _STATIC_MODELS = [
         supported_voices=['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'],
         supported_output_formats=['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'],
         cost_per_mchars=30.0,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=None,
+        output_cost_per_mtok=None,
     ),
     AudioTranscriptionModelInfo(
         model_id='whisper-1',
