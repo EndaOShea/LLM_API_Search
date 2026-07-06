@@ -50,7 +50,7 @@ The `PROVIDERS` dict in `providers/__init__.py` maps string keys ("anthropic", "
 
 ### Model type system
 
-`ModelInfo` is a base dataclass with subclasses for each model type: `TextModelInfo`, `ImageModelInfo`, `AudioTTSModelInfo`, `AudioTranscriptionModelInfo`, `EmbeddingModelInfo`, `MusicModelInfo`, `VideoModelInfo`. Each subclass has type-specific fields (e.g., `cost_per_image` for images, `dimensions` for embeddings). `VideoModelInfo` carries `cost_per_second` (e.g. Google Veo) or `cost_per_video` (e.g. Z.ai CogVideoX-3, which bills per generated clip); the pricing-completeness test accepts either. The `ModelType` enum (`text`, `image`, `audio_tts`, `audio_transcription`, `embedding`, `music`, `video`) is set automatically via `field(default=..., init=False)` on each subclass. `TextModelInfo` has boolean capability flags: `supports_vision`, `supports_tool_use`, `supports_image_generation`, `supports_computer_use`.
+`ModelInfo` is a base dataclass with subclasses for each model type: `TextModelInfo`, `ImageModelInfo`, `AudioTTSModelInfo`, `AudioTranscriptionModelInfo`, `EmbeddingModelInfo`, `MusicModelInfo`, `VideoModelInfo`. Each subclass has type-specific fields (e.g., `cost_per_image` for images, `dimensions` for embeddings). `VideoModelInfo` carries `cost_per_second` (e.g. Google Veo) or `cost_per_video` (e.g. Z.ai CogVideoX-3 and MiniMax Hailuo, which bill per generated clip); the pricing-completeness test accepts either. The `ModelType` enum (`text`, `image`, `audio_tts`, `audio_transcription`, `embedding`, `music`, `video`) is set automatically via `field(default=..., init=False)` on each subclass. `TextModelInfo` has boolean capability flags: `supports_vision`, `supports_tool_use`, `supports_image_generation`, `supports_computer_use`.
 
 ### Static model data
 
@@ -117,5 +117,5 @@ Drop a Python file in `mcp_servers/` with a `mcp` (FastMCP instance), `MOUNT_PAT
 - All tests use `live=False` to avoid network calls — static data must be complete
 - Connection snippets must contain the model ID and language-appropriate syntax (e.g., `require()` for JS, `import` for TS)
 - The `llm_get_connection_snippet` MCP tool returns all 5 languages when no language is specified, a single snippet when a valid language is given, or a message with supported languages and a GitHub issue link for unsupported ones
-- Every static model must have non-None type-appropriate pricing (e.g., `input_cost_per_mtok`/`output_cost_per_mtok` for text, `cost_per_image` for image, `cost_per_second` **or** `cost_per_video` for video, `cost_per_second` for music, `cost_per_minute` for transcription)
+- Every static model must have non-None type-appropriate pricing (e.g., `input_cost_per_mtok`/`output_cost_per_mtok` for text, `cost_per_image` for image, `cost_per_mchars` (or input/output token costs) for audio TTS, `cost_per_second` **or** `cost_per_video` for video, `cost_per_second` for music, `cost_per_minute` for transcription)
 - Provider live API calls use `urllib.request` (stdlib only), not third-party HTTP libraries
