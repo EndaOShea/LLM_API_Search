@@ -793,6 +793,28 @@ _STATIC_MODELS = [
         cost_per_second=0.5,
         cost_per_video=None,
     ),
+    ImageModelInfo(
+        model_id='gemini-3.1-flash-lite-image',
+        display_name='Nano Banana 2 Lite',
+        description='Gemini 3.1 Flash Lite Image.',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=0.0336,
+    ),
+    TextModelInfo(
+        model_id='gemini-omni-flash-preview',
+        display_name='Gemini Omni Flash Preview',
+        description='Gemini Omni Flash Preview',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 

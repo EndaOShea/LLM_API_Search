@@ -147,6 +147,9 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
         "glm-4.5-flash",
         "glm-5v-turbo",
         "glm-4.6v-flash",
+        "glm-4.5",
+        "glm-4.7",
+        "glm-5-turbo",
     },
 }
 
