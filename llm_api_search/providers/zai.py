@@ -149,42 +149,42 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='glm-4.5',
-        display_name='glm-4.5',
-        description='',
+        display_name='GLM-4.5',
+        description='GLM-4.5 text model. Tool calling and configurable thinking.',
         context_window=None,
         max_output_tokens=None,
         supports_vision=False,
-        supports_tool_use=False,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.6,
+        output_cost_per_mtok=2.2,
     ),
     TextModelInfo(
         model_id='glm-4.7',
-        display_name='glm-4.7',
-        description='',
+        display_name='GLM-4.7',
+        description='GLM-4.7 text model. Tool calling and configurable thinking.',
         context_window=None,
         max_output_tokens=None,
         supports_vision=False,
-        supports_tool_use=False,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.6,
+        output_cost_per_mtok=2.2,
     ),
     TextModelInfo(
         model_id='glm-5-turbo',
         display_name='glm-5-turbo',
         description='',
-        context_window=None,
+        context_window=262144,
         max_output_tokens=None,
         supports_vision=False,
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=1.2,
+        output_cost_per_mtok=4.0,
     ),
 ]
 

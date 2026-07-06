@@ -800,7 +800,7 @@ _STATIC_MODELS = [
         supported_sizes=[],
         supported_qualities=[],
         max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        cost_per_image=0.0336,
     ),
     TextModelInfo(
         model_id='gemini-omni-flash-preview',
