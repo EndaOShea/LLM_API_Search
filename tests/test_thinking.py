@@ -61,6 +61,15 @@ def test_anthropic_sonnet_46_has_no_xhigh():
     assert "max" in tc.levels
 
 
+def test_anthropic_sonnet_5_effort_levels():
+    tc = get_thinking_config("anthropic", "claude-sonnet-5")["claude-sonnet-5"]
+    assert tc.supported is True
+    assert tc.mode is ThinkingMode.EFFORT_LEVELS
+    assert tc.parameter == "output_config.effort"
+    assert tc.levels == ["low", "medium", "high", "xhigh", "max"]
+    assert tc.default_level == "high"
+
+
 def test_openai_gpt5_effort():
     tc = get_thinking_config("openai", "gpt-5.5")["gpt-5.5"]
     assert tc.supported is True
@@ -154,7 +163,7 @@ def test_zai_thinking_config():
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
-    "anthropic": ["claude-fable-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-4-6"],
+    "anthropic": ["claude-fable-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6"],
     "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "o3", "o4-mini"],
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],

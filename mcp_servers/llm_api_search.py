@@ -239,7 +239,8 @@ def llm_get_rate_limits(
                (falls back to the base alias for dated snapshots).  If omitted,
                returns limits for all models.
         tier: Optional tier name.  Tier names are provider-specific:
-              Anthropic uses "tier-1" through "tier-4" (no free tier).
+              Anthropic uses "start", "build", "scale" (no free tier; a fourth
+              negotiated "Custom" tier publishes no fixed numbers).
               Google uses "free", "tier-1" through "tier-3".
               OpenAI uses "tier-1" (baseline only).
               Inception uses "free", "paid", "enterprise".

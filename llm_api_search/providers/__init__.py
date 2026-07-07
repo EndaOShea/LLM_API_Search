@@ -121,8 +121,8 @@ def _resolve_entry(
     """Return either a single ``RateLimit`` or the full tier dict.
 
     *entry* is a dict mapping tier names to ``RateLimit`` objects.
-    Tier names are provider-specific (e.g. Anthropic uses ``"tier-1"``
-    through ``"tier-4"``, Inception uses ``"free"``/``"paid"``/``"enterprise"``).
+    Tier names are provider-specific (e.g. Anthropic uses ``"start"``/
+    ``"build"``/``"scale"``, Inception uses ``"free"``/``"paid"``/``"enterprise"``).
 
     When *tier* is given, the matching ``RateLimit`` is returned, or
     ``None`` if the model has no entry for that tier.
@@ -145,7 +145,7 @@ def get_rate_limits(
         model_id: Optional model ID.  If the exact ID isn't found, falls back
                   to the base alias by stripping date suffixes.
         tier: Optional tier name.  Tier names are provider-specific
-              (e.g. ``"tier-1"`` for Anthropic, ``"free"`` for OpenAI).
+              (e.g. ``"start"`` for Anthropic, ``"free"`` for OpenAI).
               When given, each value in the returned dict is a single
               ``RateLimit``.  When ``None``, the full tier dict is returned
               per model.

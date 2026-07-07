@@ -49,4 +49,13 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
         notes=_ADAPTIVE_NOTE + "Legacy budget_tokens deprecated. Manual-mode interleaved "
                                "thinking via interleaved-thinking-2025-05-14 beta header.",
     ),
+    "claude-sonnet-5": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="high", can_disable=True,
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking is on by default (unlike Sonnet 4.6, where "
+                               "no thinking field means no thinking). Manual budget_tokens is "
+                               "rejected (400), same as Opus 4.8/4.7.",
+    ),
 }

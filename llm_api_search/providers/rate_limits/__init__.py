@@ -10,7 +10,7 @@ from llm_api_search.providers.rate_limits.zai import RATE_LIMITS as _ZAI
 from llm_api_search.providers.rate_limits.minimax import RATE_LIMITS as _MINIMAX
 
 # Each provider maps model_id → {tier_name: RateLimit, ...}.
-# Tier names are provider-specific (e.g. "tier-1" for Anthropic, "free" for OpenAI).
+# Tier names are provider-specific (e.g. "start" for Anthropic, "free" for OpenAI).
 PROVIDER_RATE_LIMITS: dict[str, dict[str, dict[str, RateLimit]]] = {
     "anthropic": _ANTHROPIC,
     "google": _GOOGLE,

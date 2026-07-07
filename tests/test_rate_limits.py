@@ -43,9 +43,9 @@ def test_get_all_rate_limits():
 
 def test_get_rate_limits_with_tier():
     """Passing tier= should return flat RateLimits, skipping models without that tier."""
-    # Anthropic uses tier-1, others use free/paid
+    # Anthropic uses start/build/scale, others use free/paid
     for provider, tier in [
-        ("anthropic", "tier-1"),
+        ("anthropic", "start"),
         ("openai", "tier-1"),
         ("google", "free"),
         ("inception", "free"),
@@ -58,11 +58,11 @@ def test_get_rate_limits_with_tier():
             )
 
 
-def test_anthropic_has_four_tiers():
-    """Anthropic models should have tier-1 through tier-4."""
+def test_anthropic_has_three_tiers():
+    """Anthropic models should have start/build/scale (Custom is unpublished)."""
     limits = get_rate_limits("anthropic")
     for model_id, entry in limits.items():
-        for t in ("tier-1", "tier-2", "tier-3", "tier-4"):
+        for t in ("start", "build", "scale"):
             assert t in entry, f"anthropic/{model_id}: missing {t}"
 
 
@@ -70,7 +70,7 @@ def test_anthropic_tiers_increase():
     """Higher Anthropic tiers should have higher limits."""
     limits = get_rate_limits("anthropic", "claude-sonnet-4-6")
     entry = limits["claude-sonnet-4-6"]
-    for lower, higher in [("tier-1", "tier-2"), ("tier-2", "tier-3"), ("tier-3", "tier-4")]:
+    for lower, higher in [("start", "build"), ("build", "scale")]:
         assert entry[lower].requests_per_minute < entry[higher].requests_per_minute, (
             f"anthropic/claude-sonnet-4-6: {lower} RPM not less than {higher}"
         )
@@ -78,13 +78,13 @@ def test_anthropic_tiers_increase():
 
 def test_get_rate_limit_for_specific_model():
     """Querying a specific model with tier= should return one entry."""
-    limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="tier-1")
+    limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="start")
     assert "claude-sonnet-4-6" in limits
     rl = limits["claude-sonnet-4-6"]
     assert isinstance(rl, RateLimit)
-    assert rl.requests_per_minute == 50
-    assert rl.input_tokens_per_minute == 30_000
-    assert rl.output_tokens_per_minute == 8_000
+    assert rl.requests_per_minute == 1_000
+    assert rl.input_tokens_per_minute == 2_000_000
+    assert rl.output_tokens_per_minute == 400_000
 
 
 def test_dated_snapshot_fallback():

@@ -211,8 +211,8 @@ from llm_api_search.providers import get_rate_limits
 # All rate limits for a provider (returns all tiers per model)
 limits = get_rate_limits("google")
 
-# Specific tier — Anthropic: tier-1 to tier-4, Google: free/tier-1/tier-2/tier-3, MiniMax: default, DeepSeek/Z.ai: none published
-limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="tier-1")
+# Specific tier — Anthropic: start/build/scale, Google: free/tier-1/tier-2/tier-3, MiniMax: default, DeepSeek/Z.ai: none published
+limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="start")
 rl = limits["claude-sonnet-4-6"]
 print(f"{rl.requests_per_minute} RPM, {rl.input_tokens_per_minute} ITPM")
 
