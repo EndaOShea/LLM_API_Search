@@ -1217,6 +1217,45 @@ _STATIC_MODELS = [
         input_cost_per_mtok=20.0,
         output_cost_per_mtok=80.0,
     ),
+    TextModelInfo(
+        model_id='gpt-5.6-luna',
+        display_name='gpt-5.6-luna',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.6-sol',
+        display_name='gpt-5.6-sol',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gpt-5.6-terra',
+        display_name='gpt-5.6-terra',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
