@@ -164,7 +164,7 @@ def test_zai_thinking_config():
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
     "anthropic": ["claude-fable-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6"],
-    "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "o3", "o4-mini"],
+    "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "o3", "o4-mini"],
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
     "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
