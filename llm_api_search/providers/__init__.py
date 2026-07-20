@@ -15,6 +15,7 @@ from llm_api_search.providers.deepseek import DeepSeekProvider
 from llm_api_search.providers.zai import ZaiProvider
 from llm_api_search.providers.minimax import MiniMaxProvider
 from llm_api_search.providers.kimi import KimiProvider
+from llm_api_search.providers.qwen import QwenProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
@@ -25,6 +26,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "zai": ZaiProvider,
     "minimax": MiniMaxProvider,
     "kimi": KimiProvider,
+    "qwen": QwenProvider,
 }
 
 # ---------------------------------------------------------------------------
@@ -86,6 +88,10 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # Superseded GLM generations (kept out of default listings; the
         # curated set carries glm-5.x + glm-4.6/4.5-air/4.5-flash).
         "glm-4.7", "glm-4.5", "glm-4.5v", "glm-4.6v",
+    },
+    "qwen": {
+        # Previous generation, still sold but superseded by 3.7.
+        "qwen3-max", "qwen-plus", "qwen-flash",
     },
 }
 
@@ -271,6 +277,7 @@ __all__ = [
     "ZaiProvider",
     "MiniMaxProvider",
     "KimiProvider",
+    "QwenProvider",
     "PROVIDERS",
     "LEGACY_MODELS",
     "filter_models",

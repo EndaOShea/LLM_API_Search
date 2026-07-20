@@ -691,3 +691,48 @@ def test_kimi_snippet_all_languages():
         snip = p.get_connection_snippet("kimi-k3", lang)
         assert "kimi-k3" in snip, f"{lang}: model id missing"
         assert len(snip) > 20
+
+
+def test_qwen_static_info():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import TextModelInfo
+
+    info = PROVIDERS["qwen"]().get_static_info()
+    assert info.name == "Qwen (Alibaba Model Studio)"
+    assert info.api_base_url == "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+    assert info.auth_env_var == "DASHSCOPE_API_KEY"
+    assert isinstance(info.models[0], TextModelInfo)
+    assert info.models[0].model_id == "qwen3.7-max"
+    ids = {m.model_id for m in info.models}
+    assert ids == {"qwen3.7-max", "qwen3.7-plus"}
+    by_id = {m.model_id: m for m in info.models}
+    assert by_id["qwen3.7-max"].context_window == 1_000_000
+    assert by_id["qwen3.7-max"].max_output_tokens == 65_536
+    assert by_id["qwen3.7-max"].input_cost_per_mtok == 2.50
+    assert by_id["qwen3.7-max"].output_cost_per_mtok == 7.50
+    assert by_id["qwen3.7-max"].supports_vision is False
+    assert by_id["qwen3.7-plus"].input_cost_per_mtok == 0.40
+    assert by_id["qwen3.7-plus"].output_cost_per_mtok == 1.60
+    assert by_id["qwen3.7-plus"].supports_vision is True
+
+
+def test_qwen_snippet_all_languages():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import SUPPORTED_LANGUAGES
+    p = PROVIDERS["qwen"]()
+    for lang in SUPPORTED_LANGUAGES:
+        snip = p.get_connection_snippet("qwen3.7-max", lang)
+        assert "qwen3.7-max" in snip, f"{lang}: model id missing"
+        assert len(snip) > 20
+
+
+def test_qwen_legacy_models_registered():
+    from llm_api_search.providers import LEGACY_MODELS, filter_models
+    from llm_api_search.providers.base import TextModelInfo
+    assert LEGACY_MODELS["qwen"] == {"qwen3-max", "qwen-plus", "qwen-flash"}
+    models = [
+        TextModelInfo(model_id="qwen3.7-max", display_name="Qwen3.7 Max"),
+        TextModelInfo(model_id="qwen3-max", display_name="Qwen3 Max"),
+    ]
+    kept = {m.model_id for m in filter_models(models, "qwen")}
+    assert kept == {"qwen3.7-max"}
