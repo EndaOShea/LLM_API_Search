@@ -8,6 +8,8 @@ from llm_api_search.providers.rate_limits.inception import RATE_LIMITS as _INCEP
 from llm_api_search.providers.rate_limits.deepseek import RATE_LIMITS as _DEEPSEEK
 from llm_api_search.providers.rate_limits.zai import RATE_LIMITS as _ZAI
 from llm_api_search.providers.rate_limits.minimax import RATE_LIMITS as _MINIMAX
+from llm_api_search.providers.rate_limits.kimi import RATE_LIMITS as _KIMI
+from llm_api_search.providers.rate_limits.qwen import RATE_LIMITS as _QWEN
 
 # Each provider maps model_id → {tier_name: RateLimit, ...}.
 # Tier names are provider-specific (e.g. "start" for Anthropic, "free" for OpenAI).
@@ -19,4 +21,6 @@ PROVIDER_RATE_LIMITS: dict[str, dict[str, dict[str, RateLimit]]] = {
     "deepseek": _DEEPSEEK,
     "zai": _ZAI,
     "minimax": _MINIMAX,
+    "kimi": _KIMI,
+    "qwen": _QWEN,
 }

@@ -188,3 +188,31 @@ def test_zai_rate_limits_registered_empty():
     from llm_api_search.providers.rate_limits import PROVIDER_RATE_LIMITS
     assert "zai" in PROVIDER_RATE_LIMITS
     assert PROVIDER_RATE_LIMITS["zai"] == {}
+
+
+def test_kimi_rate_limits_shared_across_tiers():
+    """Kimi's spend tiers apply identically to every curated model."""
+    limits = get_rate_limits("kimi")
+    assert set(limits.keys()) == {"kimi-k3", "kimi-k2.6"}
+    for model_id, entry in limits.items():
+        assert set(entry.keys()) == {"tier0", "tier1", "tier2", "tier3", "tier4", "tier5"}
+    k3 = get_rate_limits("kimi", "kimi-k3", tier="tier0")["kimi-k3"]
+    assert k3.requests_per_minute == 3
+    assert k3.tokens_per_minute == 500_000
+    assert k3.tokens_per_day == 1_500_000
+    tier5 = get_rate_limits("kimi", "kimi-k3", tier="tier5")["kimi-k3"]
+    assert tier5.requests_per_minute == 10_000
+    assert tier5.tokens_per_minute == 5_000_000
+
+
+def test_qwen_rate_limits_single_default_tier():
+    limits = get_rate_limits("qwen")
+    assert set(limits.keys()) == {"qwen3.7-max", "qwen3.7-plus"}
+    for entry in limits.values():
+        assert set(entry.keys()) == {"default"}
+    max_rl = get_rate_limits("qwen", "qwen3.7-max", tier="default")["qwen3.7-max"]
+    assert max_rl.requests_per_minute == 600
+    assert max_rl.tokens_per_minute == 1_000_000
+    plus_rl = get_rate_limits("qwen", "qwen3.7-plus", tier="default")["qwen3.7-plus"]
+    assert plus_rl.requests_per_minute == 15_000
+    assert plus_rl.tokens_per_minute == 5_000_000
