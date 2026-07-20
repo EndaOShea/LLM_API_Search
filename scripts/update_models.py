@@ -52,6 +52,8 @@ _PROVIDER_FILES = {
     "deepseek": PROJECT_ROOT / "llm_api_search" / "providers" / "deepseek.py",
     "zai": PROJECT_ROOT / "llm_api_search" / "providers" / "zai.py",
     "minimax": PROJECT_ROOT / "llm_api_search" / "providers" / "minimax.py",
+    "kimi": PROJECT_ROOT / "llm_api_search" / "providers" / "kimi.py",
+    "qwen": PROJECT_ROOT / "llm_api_search" / "providers" / "qwen.py",
 }
 
 # Models to exclude from updates — superseded or deprecated model IDs per provider.
