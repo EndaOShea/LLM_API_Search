@@ -30,3 +30,11 @@ def test_catalog_excludes_legacy_snapshots():
     cat = build_catalog()
     openai_ids = [m["model_id"] for m in cat["providers"]["openai"]]
     assert not any(re.search(r"-\d{4}-\d{2}-\d{2}$", i) for i in openai_ids)
+
+
+def test_catalog_route_registered():
+    from mcp_server import build_app
+
+    app = build_app("127.0.0.1", 0)
+    paths = [getattr(r, "path", None) for r in app.routes]
+    assert "/catalog.json" in paths

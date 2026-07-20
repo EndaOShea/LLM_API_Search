@@ -21,6 +21,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse
 from starlette.routing import Mount, Route
 
+from llm_api_search.catalog import build_catalog
 from usage_middleware import UsageLoggingMiddleware, summarize_usage
 
 
@@ -128,10 +129,17 @@ def build_app(host: str, port: int):
     async def stats(request: Request):
         return JSONResponse(summarize_usage())
 
+    async def catalog(request: Request) -> JSONResponse:
+        return JSONResponse(
+            build_catalog(),
+            headers={"Cache-Control": "public, max-age=3600"},
+        )
+
     all_routes: list[Route | Mount] = [
         Route("/", index),
         Route("/health", health),
         Route("/stats", stats),
+        Route("/catalog.json", catalog),
     ] + mounts
 
     @asynccontextmanager
