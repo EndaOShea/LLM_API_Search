@@ -30,7 +30,7 @@ def test_discover_provider_static():
 
 def test_discover_all_static():
     results = discover(live=False)
-    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek", "zai", "minimax"}
+    assert set(results.keys()) == {"anthropic", "google", "openai", "inception", "deepseek", "zai", "minimax", "kimi", "qwen"}
     for key, info in results.items():
         assert isinstance(info, ProviderInfo)
         assert len(info.models) > 0
@@ -659,3 +659,35 @@ def test_zai_legacy_models_registered():
     ]
     kept = {m.model_id for m in filter_models(models, "zai")}
     assert kept == {"glm-5.2"}
+
+
+def test_kimi_static_info():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import TextModelInfo
+
+    info = PROVIDERS["kimi"]().get_static_info()
+    assert info.name == "Kimi (Moonshot AI)"
+    assert info.api_base_url == "https://api.moonshot.ai/v1"
+    assert info.auth_env_var == "MOONSHOT_API_KEY"
+    assert isinstance(info.models[0], TextModelInfo)
+    assert info.models[0].model_id == "kimi-k3"
+    ids = {m.model_id for m in info.models}
+    assert ids == {"kimi-k3", "kimi-k2.6"}
+    by_id = {m.model_id: m for m in info.models}
+    assert by_id["kimi-k3"].context_window == 1_048_576
+    assert by_id["kimi-k3"].input_cost_per_mtok == 3.00
+    assert by_id["kimi-k3"].output_cost_per_mtok == 15.00
+    assert by_id["kimi-k3"].supports_vision is True
+    assert by_id["kimi-k2.6"].context_window == 262_144
+    assert by_id["kimi-k2.6"].input_cost_per_mtok == 0.95
+    assert by_id["kimi-k2.6"].output_cost_per_mtok == 4.00
+
+
+def test_kimi_snippet_all_languages():
+    from llm_api_search.providers import PROVIDERS
+    from llm_api_search.providers.base import SUPPORTED_LANGUAGES
+    p = PROVIDERS["kimi"]()
+    for lang in SUPPORTED_LANGUAGES:
+        snip = p.get_connection_snippet("kimi-k3", lang)
+        assert "kimi-k3" in snip, f"{lang}: model id missing"
+        assert len(snip) > 20
