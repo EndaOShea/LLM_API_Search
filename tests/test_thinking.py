@@ -177,6 +177,18 @@ def test_kimi_thinking_config():
     assert k26.can_disable is True
 
 
+def test_qwen_thinking_config():
+    from llm_api_search.providers import get_thinking_config
+    from llm_api_search.providers.base import ThinkingMode
+    for mid in ("qwen3.7-max", "qwen3.7-plus"):
+        tc = get_thinking_config("qwen", mid)[mid]
+        assert tc.supported is True
+        assert tc.mode is ThinkingMode.TOKEN_BUDGET
+        assert tc.parameter == "thinking_budget"
+        assert tc.can_disable is True
+        assert tc.max_budget == 65_536
+
+
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
@@ -188,6 +200,7 @@ _KNOWN_THINKING = {
     "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air", "glm-5v-turbo"],
     "minimax": ["MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"],
     "kimi": ["kimi-k3", "kimi-k2.6"],
+    "qwen": ["qwen3.7-max", "qwen3.7-plus"],
 }
 
 
