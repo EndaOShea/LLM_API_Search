@@ -160,6 +160,23 @@ def test_zai_thinking_config():
     assert get_thinking_config("zai", "glm-4.5-flash")["glm-4.5-flash"].supported is False
 
 
+def test_kimi_thinking_config():
+    from llm_api_search.providers import get_thinking_config
+    from llm_api_search.providers.base import ThinkingMode
+    k3 = get_thinking_config("kimi", "kimi-k3")["kimi-k3"]
+    assert k3.supported is True
+    assert k3.mode is ThinkingMode.EFFORT_LEVELS
+    assert k3.parameter == "reasoning_effort"
+    assert k3.levels == ["low", "high", "max"]
+    assert k3.default_level == "max"
+    assert k3.can_disable is False
+    k26 = get_thinking_config("kimi", "kimi-k2.6")["kimi-k2.6"]
+    assert k26.supported is True
+    assert k26.mode is ThinkingMode.TOGGLE
+    assert k26.parameter == "thinking"
+    assert k26.can_disable is True
+
+
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
@@ -170,6 +187,7 @@ _KNOWN_THINKING = {
     "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
     "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air", "glm-5v-turbo"],
     "minimax": ["MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"],
+    "kimi": ["kimi-k3", "kimi-k2.6"],
 }
 
 

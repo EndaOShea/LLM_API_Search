@@ -8,6 +8,7 @@ from llm_api_search.providers.thinking.deepseek import THINKING_CONFIGS as _DEEP
 from llm_api_search.providers.thinking.inception import THINKING_CONFIGS as _INCEPTION
 from llm_api_search.providers.thinking.zai import THINKING_CONFIGS as _ZAI
 from llm_api_search.providers.thinking.minimax import THINKING_CONFIGS as _MINIMAX
+from llm_api_search.providers.thinking.kimi import THINKING_CONFIGS as _KIMI
 
 PROVIDER_THINKING_CONFIGS: dict[str, dict[str, ThinkingConfig]] = {
     "anthropic": _ANTHROPIC,
@@ -17,4 +18,5 @@ PROVIDER_THINKING_CONFIGS: dict[str, dict[str, ThinkingConfig]] = {
     "deepseek": _DEEPSEEK,
     "zai": _ZAI,
     "minimax": _MINIMAX,
+    "kimi": _KIMI,
 }
