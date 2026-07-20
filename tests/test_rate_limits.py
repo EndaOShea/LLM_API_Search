@@ -203,3 +203,16 @@ def test_kimi_rate_limits_shared_across_tiers():
     tier5 = get_rate_limits("kimi", "kimi-k3", tier="tier5")["kimi-k3"]
     assert tier5.requests_per_minute == 10_000
     assert tier5.tokens_per_minute == 5_000_000
+
+
+def test_qwen_rate_limits_single_default_tier():
+    limits = get_rate_limits("qwen")
+    assert set(limits.keys()) == {"qwen3.7-max", "qwen3.7-plus"}
+    for entry in limits.values():
+        assert set(entry.keys()) == {"default"}
+    max_rl = get_rate_limits("qwen", "qwen3.7-max", tier="default")["qwen3.7-max"]
+    assert max_rl.requests_per_minute == 600
+    assert max_rl.tokens_per_minute == 1_000_000
+    plus_rl = get_rate_limits("qwen", "qwen3.7-plus", tier="default")["qwen3.7-plus"]
+    assert plus_rl.requests_per_minute == 15_000
+    assert plus_rl.tokens_per_minute == 5_000_000
