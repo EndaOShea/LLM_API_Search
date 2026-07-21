@@ -21,6 +21,7 @@ import re
 import sys
 import textwrap
 from dataclasses import fields
+from datetime import date
 from pathlib import Path
 
 # Allow imports from the project root.
@@ -279,6 +280,25 @@ def update_provider(key: str) -> tuple[int, int]:
     return new_count, len(merged)
 
 
+DATA_VERSION_PATH = PROJECT_ROOT / "llm_api_search" / "data_version.py"
+
+
+def stamp_data_version() -> None:
+    """Rewrite llm_api_search/data_version.py with today's date.
+
+    Records when the static model data was last refreshed from live provider
+    APIs; catalog.py surfaces it as the catalog's ``generated_at`` stamp so
+    downstream sync scripts can detect a stale upstream.
+    """
+    DATA_VERSION_PATH.write_text(
+        "# Rewritten by scripts/update_models.py on each refresh run — records the date\n"
+        "# the static model data was last refreshed from live provider APIs. Consumed\n"
+        "# by catalog.py as the /catalog.json \"generated_at\" stamp so downstream sync\n"
+        "# scripts can detect a stale upstream.\n"
+        f'DATA_UPDATED = "{date.today().isoformat()}"\n'
+    )
+
+
 _NOTES_FILE = PROJECT_ROOT / "model_update_notes.md"
 
 
@@ -342,6 +362,9 @@ def main() -> None:
         unrecognized[key] = PROVIDERS[key]().unrecognized_live_model_ids()
 
     _emit_discovery_notes(unrecognized)
+
+    # Stamp the refresh date so catalog.py's generated_at reflects this run.
+    stamp_data_version()
 
     print("\nDone. Run `pytest tests/` to verify.")
 
