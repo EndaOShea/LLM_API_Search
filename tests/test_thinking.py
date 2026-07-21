@@ -201,6 +201,7 @@ _KNOWN_THINKING = {
     "minimax": ["MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"],
     "kimi": ["kimi-k3", "kimi-k2.6"],
     "qwen": ["qwen3.7-max", "qwen3.7-plus"],
+    "mistral": ["mistral-medium-3-5-26-04", "mistral-small-2603"],
 }
 
 

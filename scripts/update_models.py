@@ -55,6 +55,7 @@ _PROVIDER_FILES = {
     "minimax": PROJECT_ROOT / "llm_api_search" / "providers" / "minimax.py",
     "kimi": PROJECT_ROOT / "llm_api_search" / "providers" / "kimi.py",
     "qwen": PROJECT_ROOT / "llm_api_search" / "providers" / "qwen.py",
+    "mistral": PROJECT_ROOT / "llm_api_search" / "providers" / "mistral.py",
 }
 
 # Models to exclude from updates — superseded or deprecated model IDs per provider.

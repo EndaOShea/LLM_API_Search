@@ -10,6 +10,7 @@ from llm_api_search.providers.thinking.zai import THINKING_CONFIGS as _ZAI
 from llm_api_search.providers.thinking.minimax import THINKING_CONFIGS as _MINIMAX
 from llm_api_search.providers.thinking.kimi import THINKING_CONFIGS as _KIMI
 from llm_api_search.providers.thinking.qwen import THINKING_CONFIGS as _QWEN
+from llm_api_search.providers.thinking.mistral import THINKING_CONFIGS as _MISTRAL
 
 PROVIDER_THINKING_CONFIGS: dict[str, dict[str, ThinkingConfig]] = {
     "anthropic": _ANTHROPIC,
@@ -21,4 +22,5 @@ PROVIDER_THINKING_CONFIGS: dict[str, dict[str, ThinkingConfig]] = {
     "minimax": _MINIMAX,
     "kimi": _KIMI,
     "qwen": _QWEN,
+    "mistral": _MISTRAL,
 }
