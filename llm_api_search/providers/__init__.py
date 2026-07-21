@@ -16,6 +16,7 @@ from llm_api_search.providers.zai import ZaiProvider
 from llm_api_search.providers.minimax import MiniMaxProvider
 from llm_api_search.providers.kimi import KimiProvider
 from llm_api_search.providers.qwen import QwenProvider
+from llm_api_search.providers.mistral import MistralProvider
 
 PROVIDERS: dict[str, type[Provider]] = {
     "anthropic": AnthropicProvider,
@@ -27,6 +28,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "minimax": MiniMaxProvider,
     "kimi": KimiProvider,
     "qwen": QwenProvider,
+    "mistral": MistralProvider,
 }
 
 # ---------------------------------------------------------------------------
