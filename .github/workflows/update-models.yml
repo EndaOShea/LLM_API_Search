@@ -43,11 +43,54 @@ jobs:
       - name: Check for changes
         id: diff
         run: |
-          git diff --quiet llm_api_search/providers/ && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+          # models_changed: real provider-data drift (new/updated models) — drives
+          # the review checklist and needs-pricing labeling.
+          # changed: models_changed OR just the data_version.py freshness stamp.
+          # Gating the PR on `changed` (not `models_changed`) matters: on a quiet
+          # week with no live drift, update_models.py still rewrites data_version.py
+          # with today's date. If the PR were skipped whenever providers/ didn't
+          # move, that stamp would never get committed, and catalog.py's
+          # generated_at would freeze at the last real model change — making a
+          # verified-fresh week silently read as stale to downstream consumers.
+          if git diff --quiet llm_api_search/providers/; then
+            models_changed=false
+          else
+            models_changed=true
+          fi
+          echo "models_changed=$models_changed" >> "$GITHUB_OUTPUT"
+
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$models_changed" = "true" ]; then
+            echo "pr_title=chore: update model data from live APIs" >> "$GITHUB_OUTPUT"
+            {
+              echo "body_intro<<__BODY_EOF__"
+              echo "Automated weekly update of static model data."
+              echo ""
+              echo "**What changed:**"
+              echo "- Fetched live model lists from Anthropic, OpenAI, Google, Inception Labs, and DeepSeek APIs"
+              echo "- New models added with \`pricing=None\` — please fill in before merging"
+              echo "__BODY_EOF__"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_title=chore: confirm model data freshness (no changes)" >> "$GITHUB_OUTPUT"
+            {
+              echo "body_intro<<__BODY_EOF__"
+              echo "Automated weekly freshness check found no model drift — this PR only advances the \`data_version.py\` stamp so \`catalog.json\`'s \`generated_at\` reflects that the data was re-verified this week."
+              echo ""
+              echo "**What changed:**"
+              echo "- Nothing in \`llm_api_search/providers/\` — only the freshness stamp in \`llm_api_search/data_version.py\`"
+              echo "__BODY_EOF__"
+            } >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Collect discovery notes
         id: notes
-        if: steps.diff.outputs.changed == 'true'
+        if: steps.diff.outputs.models_changed == 'true'
         run: |
           {
             echo "body<<__NOTES_EOF__"
@@ -68,15 +111,11 @@ jobs:
           branch: auto/update-models
           delete-branch: true
           draft: ${{ steps.posttest.outcome == 'failure' }}
-          title: "chore: update model data from live APIs"
+          title: ${{ steps.diff.outputs.pr_title }}
           body: |
             ${{ steps.posttest.outcome == 'failure' && '> ⚠️ **Post-update tests failed.** This PR is a draft — fix the broken models before marking ready for review.' || '' }}
 
-            Automated weekly update of static model data.
-
-            **What changed:**
-            - Fetched live model lists from Anthropic, OpenAI, Google, Inception Labs, and DeepSeek APIs
-            - New models added with `pricing=None` — please fill in before merging
+            ${{ steps.diff.outputs.body_intro }}
 
             **Review checklist:**
             - [ ] Check new models have correct specs
