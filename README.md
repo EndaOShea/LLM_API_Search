@@ -1,6 +1,6 @@
 # LLM API Search
 
-An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, **Mercury (Inception Labs)**, **DeepSeek**, **GLM (Z.ai)**, **MiniMax**, **Kimi (Moonshot AI)**, and **Qwen (Alibaba Model Studio)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
+An MCP server and Python library that discovers the latest API versions, models, pricing, and rate limits for **Claude (Anthropic)**, **Gemini (Google)**, **OpenAI**, **Mercury (Inception Labs)**, **DeepSeek**, **GLM (Z.ai)**, **MiniMax**, **Kimi (Moonshot AI)**, **Qwen (Alibaba Model Studio)**, and **Mistral (La Plateforme)**, and provides ready-to-use connection snippets in **Python, TypeScript, JavaScript, Java, and C++**.
 
 Covers all model types: **text/chat, image generation, audio TTS, audio transcription, embeddings, music generation, and video generation**. Also includes specialized models for **computer use, native audio (Live API), deep research, and robotics**.
 
@@ -78,7 +78,7 @@ codex mcp add llm-api-search -- python3 /path/to/LLM_API_Search/mcp_server.py
 | `llm_list_models` | List models for a specific provider, with optional `model_type` filter |
 | `llm_get_connection_snippet` | Get a ready-to-use code snippet — returns all 5 languages by default, or a single language if specified. Unsupported languages get a message with supported options and a link to request it. |
 | `llm_get_rate_limits` | Get rate limits (RPM, TPM, etc.) for a provider or specific model |
-| `llm_get_thinking_config` | Get reasoning/thinking control (effort levels, token budget, or on/off toggle) for a provider or specific model |
+| `llm_get_thinking_config` | Get reasoning/thinking control (effort levels, token budget, or on/off toggle) for a provider or specific model. Models that aren't reasoning-capable return a definitive "not supported" rather than a lookup miss. |
 | `llm_compare_providers` | Side-by-side comparison of all providers with pricing |
 
 Legacy models and dated snapshots are filtered out by default. Pass `include_all=True` to any tool to see everything.
@@ -110,7 +110,9 @@ Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, an
 
 A GitHub Actions workflow runs weekly to fetch the latest model lists from each provider's API and open a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
 
-DeepSeek is handled differently: its live `/models` endpoint returns only generic aliases, so its catalog is curated by hand to keep versioned IDs and pricing accurate. To avoid silently missing a genuinely new DeepSeek model, the update also reports any unrecognized upstream IDs — surfaced in the PR body, the workflow run summary, and a CI warning — for someone to add manually.
+Three providers are curated by hand instead, because their live catalogs can't be auto-added safely: **DeepSeek** returns only generic aliases (not the versioned IDs), while **Qwen** and **Mistral** return hundreds of non-frontier variants and every legacy snapshot. To avoid silently missing a genuinely new model from those, the update reports any unrecognized upstream IDs — surfaced in the PR body, the workflow run summary, and a CI warning — for someone to add manually. Qwen and Mistral filter that report down to genuinely-new frontier releases so the weekly signal stays readable; Mistral compares release stamps, so aliases, superseded snapshots, and alternate spellings of an already-curated model don't show up.
+
+The update also reports when a provider's **live fetch failed** and it fell back to static data. Both outcomes previously printed `no new models`, which made a broken API key indistinguishable from a quiet week — the kind of thing that lets a released model stay missing from the catalog for weeks.
 
 ## Python library
 
@@ -163,7 +165,7 @@ Models are organized by type, each with type-specific fields and pricing:
 
 | Type | Subclass | Pricing | Example |
 |------|----------|---------|---------|
-| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 4.6, Gemini Robotics ER |
+| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 5, Mistral Medium 3.5, Gemini Robotics ER |
 | `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4, Nano Banana, image-01 |
 | `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS, speech-2.8-hd |
 | `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
@@ -191,7 +193,9 @@ for m in info.models:
 
 ### Live vs static discovery
 
-When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`, `INCEPTION_API_KEY`, `DEEPSEEK_API_KEY`, `ZAI_API_KEY`, `MOONSHOT_API_KEY`, `DASHSCOPE_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
+When API keys are present in the environment (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`, `INCEPTION_API_KEY`, `DEEPSEEK_API_KEY`, `ZAI_API_KEY`, `MINIMAX_API_KEY`, `MOONSHOT_API_KEY`, `DASHSCOPE_API_KEY`, `MISTRAL_API_KEY`), the library fetches live model lists directly from each provider. Without keys it falls back to built-in static model data.
+
+If a live fetch fails, the provider silently falls back to its static catalog so discovery never breaks — but the failure is recorded on `provider.live_fetch_error` rather than swallowed, so a broken key is distinguishable from a provider that simply has nothing new.
 
 ```python
 # Force static-only (no network calls)
@@ -211,9 +215,10 @@ from llm_api_search.providers import get_rate_limits
 # All rate limits for a provider (returns all tiers per model)
 limits = get_rate_limits("google")
 
-# Specific tier — Anthropic: start/build/scale, Google: free/tier-1/tier-2/tier-3, MiniMax/Qwen: default, Kimi: tier0..tier5, DeepSeek/Z.ai: none published
-limits = get_rate_limits("anthropic", "claude-sonnet-4-6", tier="start")
-rl = limits["claude-sonnet-4-6"]
+# Specific tier — Anthropic: start/build/scale, Google: free/tier-1/tier-2/tier-3,
+# MiniMax/Qwen: default, Kimi: tier0..tier5, DeepSeek/Z.ai/Mistral: none published
+limits = get_rate_limits("anthropic", "claude-opus-5", tier="start")
+rl = limits["claude-opus-5"]
 print(f"{rl.requests_per_minute} RPM, {rl.input_tokens_per_minute} ITPM")
 
 # Google free vs paid
