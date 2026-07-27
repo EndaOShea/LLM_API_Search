@@ -256,6 +256,21 @@ def _format_model_cost(m: ModelInfo) -> str:
 class Provider(ABC):
     """Abstract base for an LLM API provider."""
 
+    #: Set by ``fetch_live_models`` when a live API call failed and the provider
+    #: silently fell back to static data. Report-only — it never changes what
+    #: ``fetch_live_models`` returns, so runtime behaviour is unaffected.
+    #:
+    #: Without it, a fallback is indistinguishable from a genuinely quiet week:
+    #: both leave the merged model list equal to the curated one, and
+    #: ``update_models.py`` prints "no new models" either way. A permanently
+    #: broken API key would therefore go unnoticed indefinitely. The weekly
+    #: update reads this and surfaces it alongside the unrecognized-ID signal.
+    live_fetch_error: str | None = None
+
+    def _note_fetch_failure(self, exc: BaseException) -> None:
+        """Record why a live fetch fell back to static data (report-only)."""
+        self.live_fetch_error = f"{type(exc).__name__}: {exc}"
+
     @abstractmethod
     def get_static_info(self) -> ProviderInfo:
         """Return statically-known provider metadata and models."""
@@ -266,6 +281,8 @@ class Provider(ABC):
         """Fetch live model information from the provider's API.
 
         Falls back to static info if the API call fails or no API key is set.
+        On failure, implementations should call ``_note_fetch_failure`` so the
+        silent fallback is still visible to the weekly update.
         """
         ...
 

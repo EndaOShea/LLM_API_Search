@@ -134,8 +134,8 @@ class KimiProvider(Provider):
                 )
             if live_models:
                 info.models = live_models
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass  # fall back to static
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 

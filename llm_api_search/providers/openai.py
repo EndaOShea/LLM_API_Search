@@ -1328,8 +1328,8 @@ class OpenAIProvider(Provider):
             if live_models:
                 live_models.sort(key=lambda x: x.model_id)
                 info.models = live_models
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 
