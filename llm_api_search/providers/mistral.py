@@ -68,7 +68,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='mistral-small-2603',
         display_name='Mistral Small 4',
-        description="Hybrid model unifying instruct, reasoning, and coding in a single efficient model, with document/image understanding. 256K token context. Function calling. Adjustable reasoning via reasoning_effort (high/none). Alias: mistral-small-latest.",
+        description='Hybrid model unifying instruct, reasoning, and coding in a single efficient model, with document/image understanding. 256K token context. Function calling. Adjustable reasoning via reasoning_effort (high/none). Alias: mistral-small-latest.',
         context_window=262_144,
         max_output_tokens=None,
         supports_vision=True,
@@ -81,7 +81,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='mistral-large-3-25-12',
         display_name='Mistral Large 3',
-        description="State-of-the-art open-weight, general-purpose multimodal model (Mixture-of-Experts, 41B active params). 256K token context. Vision + function calling. Alias: mistral-large-latest.",
+        description='State-of-the-art open-weight, general-purpose multimodal model (Mixture-of-Experts, 41B active params). 256K token context. Vision + function calling. Alias: mistral-large-latest.',
         context_window=262_144,
         max_output_tokens=None,
         supports_vision=True,
@@ -107,16 +107,16 @@ _STATIC_MODELS = [
     EmbeddingModelInfo(
         model_id='mistral-embed',
         display_name='Mistral Embed',
-        description="Semantic text-embedding model. 1024-dimensional vectors, 8K token max input.",
-        dimensions=1024,
-        max_input_tokens=8192,
+        description='Semantic text-embedding model. 1024-dimensional vectors, 8K token max input.',
+        dimensions=1_024,
+        max_input_tokens=8_192,
         supports_multimodal=False,
         input_cost_per_mtok=0.1,
     ),
     AudioTTSModelInfo(
         model_id='voxtral-tts-26-03',
         display_name='Voxtral TTS',
-        description="State-of-the-art text-to-speech with zero-shot voice cloning (via a short audio prompt), 9 languages, and streaming (~90ms time-to-first-audio). Per-character billing. REST endpoint /v1/audio/speech.",
+        description='State-of-the-art text-to-speech with zero-shot voice cloning (via a short audio prompt), 9 languages, and streaming (~90ms time-to-first-audio). Per-character billing. REST endpoint /v1/audio/speech.',
         supported_voices=[],
         supported_output_formats=[],
         cost_per_mchars=16.0,
@@ -126,7 +126,7 @@ _STATIC_MODELS = [
     AudioTranscriptionModelInfo(
         model_id='voxtral-mini-transcribe-realtime-26-02',
         display_name='Voxtral Mini Transcribe Realtime',
-        description="Efficient audio-input model optimized for live transcription. OpenAI-compatible /v1/audio/transcriptions endpoint. Per-minute-of-audio billing.",
+        description='Efficient audio-input model optimized for live transcription. OpenAI-compatible /v1/audio/transcriptions endpoint. Per-minute-of-audio billing.',
         supported_input_formats=[],
         max_file_size_mb=None,
         cost_per_minute=0.006,

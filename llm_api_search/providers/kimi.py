@@ -35,8 +35,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=3.00,
-        output_cost_per_mtok=15.00,
+        input_cost_per_mtok=3.0,
+        output_cost_per_mtok=15.0,
     ),
     TextModelInfo(
         model_id='kimi-k2.6',
@@ -49,7 +49,20 @@ _STATIC_MODELS = [
         supports_image_generation=False,
         supports_computer_use=False,
         input_cost_per_mtok=0.95,
-        output_cost_per_mtok=4.00,
+        output_cost_per_mtok=4.0,
+    ),
+    TextModelInfo(
+        model_id='kimi-k2.7-code',
+        display_name='kimi-k2.7-code',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
     ),
 ]
 
