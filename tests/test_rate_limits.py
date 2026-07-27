@@ -202,7 +202,7 @@ def test_zai_rate_limits_registered_empty():
 def test_kimi_rate_limits_shared_across_tiers():
     """Kimi's spend tiers apply identically to every curated model."""
     limits = get_rate_limits("kimi")
-    assert set(limits.keys()) == {"kimi-k3", "kimi-k2.6"}
+    assert set(limits.keys()) == {"kimi-k3", "kimi-k2.6", "kimi-k2.7-code"}
     for model_id, entry in limits.items():
         assert set(entry.keys()) == {"tier0", "tier1", "tier2", "tier3", "tier4", "tier5"}
     k3 = get_rate_limits("kimi", "kimi-k3", tier="tier0")["kimi-k3"]

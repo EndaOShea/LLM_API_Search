@@ -4,7 +4,7 @@ Source: https://platform.kimi.ai/docs/pricing/limits
 Verified: 2026-07-20
 
 Kimi's limits are account-wide (shared across all models by the same spend
-tier), not per-model — both curated models get the same tier dict. Tier
+tier), not per-model — every curated model gets the same tier dict. Tier
 names follow Moonshot's own Tier0..Tier5 labels (by cumulative recharge).
 Unlisted TPD means Moonshot documents it as unlimited at that tier.
 """
@@ -23,4 +23,5 @@ _KIMI_TIERS: dict[str, RateLimit] = {
 RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "kimi-k3": dict(_KIMI_TIERS),
     "kimi-k2.6": dict(_KIMI_TIERS),
+    "kimi-k2.7-code": dict(_KIMI_TIERS),
 }

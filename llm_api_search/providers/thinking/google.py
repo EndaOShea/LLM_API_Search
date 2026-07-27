@@ -45,5 +45,7 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-3.1-pro-preview-customtools": _gemini3("high", can_disable=False),
     "gemini-3-flash-preview": _gemini3("medium", can_disable=False),
     "gemini-3.5-flash": _gemini3("medium", can_disable=False),
+    "gemini-3.6-flash": _gemini3("medium", can_disable=False),
     "gemini-3.1-flash-lite": _gemini3("medium", can_disable=False),
+    "gemini-3.5-flash-lite": _gemini3("medium", can_disable=False),
 }

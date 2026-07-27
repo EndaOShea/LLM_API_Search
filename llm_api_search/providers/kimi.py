@@ -35,8 +35,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=3.00,
-        output_cost_per_mtok=15.00,
+        input_cost_per_mtok=3.0,
+        output_cost_per_mtok=15.0,
     ),
     TextModelInfo(
         model_id='kimi-k2.6',
@@ -49,7 +49,20 @@ _STATIC_MODELS = [
         supports_image_generation=False,
         supports_computer_use=False,
         input_cost_per_mtok=0.95,
-        output_cost_per_mtok=4.00,
+        output_cost_per_mtok=4.0,
+    ),
+    TextModelInfo(
+        model_id='kimi-k2.7-code',
+        display_name='Kimi K2.7 Code',
+        description="Kimi's dedicated coding model, with text, image, and video input. 262,144 token context; output is bounded by the context window (Moonshot doesn't publish a separate ceiling for this model). Tool calling. Cache-hit input rate $0.19/Mtok.",
+        context_window=262_144,
+        max_output_tokens=None,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.95,
+        output_cost_per_mtok=4.0,
     ),
 ]
 
@@ -121,8 +134,8 @@ class KimiProvider(Provider):
                 )
             if live_models:
                 info.models = live_models
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass  # fall back to static
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 

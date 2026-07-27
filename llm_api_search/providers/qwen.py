@@ -63,8 +63,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=2.50,
-        output_cost_per_mtok=7.50,
+        input_cost_per_mtok=2.5,
+        output_cost_per_mtok=7.5,
     ),
     TextModelInfo(
         model_id='qwen3.7-plus',
@@ -76,8 +76,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.40,
-        output_cost_per_mtok=1.60,
+        input_cost_per_mtok=0.4,
+        output_cost_per_mtok=1.6,
     ),
 ]
 
@@ -138,8 +138,8 @@ class QwenProvider(Provider):
                 info.models = [m for m in _STATIC_MODELS if m.model_id in live_ids]
                 if not info.models:
                     info.models = list(_STATIC_MODELS)
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 

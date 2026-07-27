@@ -815,6 +815,32 @@ _STATIC_MODELS = [
         input_cost_per_mtok=None,  # TODO: add pricing
         output_cost_per_mtok=None,  # TODO: add pricing
     ),
+    TextModelInfo(
+        model_id='gemini-3.5-flash-lite',
+        display_name='Gemini 3.5 Flash Lite',
+        description='Fastest, most cost-effective 3.5 model for high-throughput execution, with frontier-class performance at a fraction of the cost.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.3,
+        output_cost_per_mtok=2.5,
+    ),
+    TextModelInfo(
+        model_id='gemini-3.6-flash',
+        display_name='Gemini 3.6 Flash',
+        description='Latest Flash model, balancing speed with intelligence for strong performance on agentic and multimodal tasks.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=1.5,
+        output_cost_per_mtok=7.5,
+    ),
 ]
 
 
@@ -893,8 +919,8 @@ class GeminiProvider(Provider):
                 )
             if live_models:
                 info.models = live_models
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 

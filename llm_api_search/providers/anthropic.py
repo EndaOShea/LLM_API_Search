@@ -6,6 +6,7 @@ import json
 import os
 import urllib.request
 import urllib.error
+import urllib.parse
 
 from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, ProviderInfo
 
@@ -23,6 +24,19 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=10.0,
         output_cost_per_mtok=50.0,
+    ),
+    TextModelInfo(
+        model_id='claude-opus-5',
+        display_name='Claude Opus 5',
+        description='For complex agentic coding and enterprise work; deep reasoning and long-horizon agentic execution. Thinking is on by default (disabling it is only allowed at effort high or below). Separate rate-limit bucket from the combined Opus 4.x pool.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=5.0,
+        output_cost_per_mtok=25.0,
     ),
     TextModelInfo(
         model_id='claude-opus-4-8',
@@ -209,6 +223,10 @@ _STATIC_MODELS = [
 ]
 
 _API_VERSION = "2023-06-01"
+# /v1/models pagination: `limit` maxes out at 1000; the page loop is bounded so
+# a malformed `has_more` can never spin forever.
+_MODELS_PAGE_SIZE = 1000
+_MAX_MODEL_PAGES = 10
 
 
 class AnthropicProvider(Provider):
@@ -247,19 +265,39 @@ class AnthropicProvider(Provider):
             return info
 
         try:
-            req = urllib.request.Request(
-                f"{info.api_base_url}/v1/models",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": _API_VERSION,
-                    "content-type": "application/json",
-                },
-            )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                data = json.loads(resp.read())
+            # /v1/models is paginated: `limit` defaults to 20 and the response
+            # carries `has_more`/`last_id`. Ask for the maximum page size and
+            # follow the cursor, so the catalog outgrowing one page can't
+            # silently truncate the list (and hide a newly released model).
+            entries: list[dict] = []
+            after_id: str | None = None
+            for _ in range(_MAX_MODEL_PAGES):
+                url = f"{info.api_base_url}/v1/models?limit={_MODELS_PAGE_SIZE}"
+                if after_id:
+                    url += f"&after_id={urllib.parse.quote(after_id)}"
+                req = urllib.request.Request(
+                    url,
+                    headers={
+                        "x-api-key": api_key,
+                        "anthropic-version": _API_VERSION,
+                        "content-type": "application/json",
+                    },
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    data = json.loads(resp.read())
+
+                page = data.get("data", [])
+                entries.extend(page)
+                # Stop unless the API says there's another page AND gave us a
+                # cursor to advance with — otherwise we'd re-request page one.
+                if not data.get("has_more") or not page:
+                    break
+                after_id = data.get("last_id") or page[-1].get("id")
+                if not after_id:
+                    break
 
             live_models: list[TextModelInfo] = []
-            for m in data.get("data", []):
+            for m in entries:
                 model_id = m.get("id", "")
                 live_models.append(
                     TextModelInfo(
@@ -270,8 +308,12 @@ class AnthropicProvider(Provider):
                 )
             if live_models:
                 info.models = live_models
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass  # fall back to static
+            else:
+                # A 200 with an empty catalog is not a normal outcome; without
+                # this the caller sees static data and no indication why.
+                self.live_fetch_error = "live /v1/models returned no models"
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 

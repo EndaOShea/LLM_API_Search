@@ -9,8 +9,14 @@ Mistral's live ``/v1/models`` catalog mixes every model type (text, embed,
 audio, OCR, moderation) and every legacy version, so ``fetch_live_models()``
 stays curated-only (like qwen.py) rather than surfacing every live ID.
 ``unrecognized_live_model_ids()`` flags a genuinely-new frontier *text* release
-(``mistral-{medium,large,small}-*``/``codestral-*`` not yet curated) without
-also flagging the rest of the catalog every week.
+without also flagging the rest of the catalog every week. Family prefix alone
+is not enough — Mistral keeps every legacy snapshot and a moving alias per
+family live forever, so an ID is reported only when its trailing ``YYMM``
+release stamp is strictly newer than the newest curated stamp in the same
+family. That keeps aliases (``mistral-medium-latest``), superseded snapshots
+(``mistral-medium-2505``), non-chat classes (``codestral-embed``), and
+alternate spellings of a curated model (``mistral-medium-2604`` is the same
+release as the curated ``mistral-medium-3-5-26-04``) all silent.
 
 Pricing source: per-model model cards at
 https://docs.mistral.ai/models/model-cards/<id> (USD).
@@ -33,22 +39,90 @@ from llm_api_search.providers.base import (
 _BASE_URL = "https://api.mistral.ai/v1"
 _DEFAULT_MODEL = "mistral-medium-3-5-26-04"
 
-# Matches a genuinely-new frontier *text* model ID, e.g. "mistral-medium-4-26-…"
-# or "codestral-2601". Used to pick real frontier releases out of Mistral's
-# much larger /v1/models catalog (embeddings, voxtral-*, ministral-*, ocr,
-# moderation, older generations, ...) without flagging all of it.
-_FRONTIER_ID_RE = re.compile(r"^(?:mistral-(?:medium|large|small)|codestral)-")
+# The frontier *text* families Mistral ships. Matching this prefix alone is far
+# too loose to use as the discovery filter on its own: Mistral keeps every
+# legacy snapshot and a moving alias for each family live indefinitely, so a
+# bare prefix match flagged 14 IDs in a single week — every one of them
+# `-latest` aliases, superseded snapshots, or alternate spellings of a model
+# already curated here. The real filter is the release-stamp comparison in
+# _classify_unrecognized below; this only narrows the field to text families.
+_FRONTIER_FAMILY_RE = re.compile(r"^(mistral-(?:medium|large|small)|codestral)(?:-|$)")
+
+# Model classes that share a frontier family prefix but are not chat models
+# (e.g. `codestral-embed` is an embedding model). Never flag these: their model
+# classes have no home in the curated `ModelType` set for this provider.
+_NON_TEXT_MARKERS = ("-embed", "-ocr", "-moderation", "-tts", "-transcribe")
+
+# A release stamp in either form Mistral uses: a bare -YYMM ("mistral-small-2603",
+# "codestral-2508") or a split -YY-MM ("mistral-medium-3-5-26-04"). Anchored to
+# end-of-string so an interior version fragment — the "3-5" in
+# `mistral-medium-3-5` — is never misread as a date.
+_RELEASE_STAMP_RE = re.compile(r"-(\d{2})-?(\d{2})$")
+
+
+def _family_of(model_id: str) -> str | None:
+    """Return the frontier text family a model ID belongs to, if any."""
+    match = _FRONTIER_FAMILY_RE.match(model_id)
+    return match.group(1) if match else None
+
+
+def _release_stamp(model_id: str) -> int | None:
+    """Return a model ID's trailing YYMM release stamp as an int, or None.
+
+    None means the ID carries no stamp at all — a moving alias
+    (`mistral-medium-latest`) or a bare version name (`mistral-medium-3-5`).
+    Both always point at a release we already curate under its dated ID, so
+    neither can be a genuinely new model. YYMM compares correctly as an int
+    across a year boundary (2512 < 2603).
+    """
+    match = _RELEASE_STAMP_RE.search(model_id)
+    if not match:
+        return None
+    return int(match.group(1) + match.group(2))
 
 
 def _classify_unrecognized(live_ids: set[str], static_ids: set[str]) -> set[str]:
-    """Return live frontier-text-shaped IDs that aren't already curated.
+    """Return live IDs that look like a genuinely *newer* frontier text release.
+
+    Hardened well beyond a family-prefix match: an ID is flagged only when it
+    carries a release stamp *and* that stamp is strictly newer than the newest
+    curated stamp in the same family. This drops all three noise classes in
+    Mistral's catalog at once:
+
+    * moving aliases (`mistral-medium-latest`) — no stamp, never flagged;
+    * superseded snapshots (`mistral-medium-2505`) — older stamp;
+    * alternate spellings of a curated model (`mistral-medium-2604` is the same
+      April-2026 release as the curated `mistral-medium-3-5-26-04`; both parse
+      to 2604, so it is correctly treated as already known).
+
+    A real new release still surfaces: `mistral-medium-2707` outranks 2604 and
+    is flagged. A family with nothing curated yet has an implicit floor of 0,
+    so its first dated model is flagged too.
 
     Pure (no network) so the classification can be unit-tested directly.
     """
-    return {
-        mid for mid in live_ids
-        if mid not in static_ids and _FRONTIER_ID_RE.match(mid)
-    }
+    newest_curated: dict[str, int] = {}
+    for mid in static_ids:
+        family = _family_of(mid)
+        stamp = _release_stamp(mid)
+        if family and stamp is not None:
+            newest_curated[family] = max(newest_curated.get(family, 0), stamp)
+
+    flagged: set[str] = set()
+    for mid in live_ids:
+        if mid in static_ids:
+            continue
+        family = _family_of(mid)
+        if family is None:
+            continue
+        if any(marker in mid for marker in _NON_TEXT_MARKERS):
+            continue
+        stamp = _release_stamp(mid)
+        if stamp is None:
+            continue
+        if stamp > newest_curated.get(family, 0):
+            flagged.add(mid)
+    return flagged
 
 
 _STATIC_MODELS = [
@@ -68,7 +142,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='mistral-small-2603',
         display_name='Mistral Small 4',
-        description="Hybrid model unifying instruct, reasoning, and coding in a single efficient model, with document/image understanding. 256K token context. Function calling. Adjustable reasoning via reasoning_effort (high/none). Alias: mistral-small-latest.",
+        description='Hybrid model unifying instruct, reasoning, and coding in a single efficient model, with document/image understanding. 256K token context. Function calling. Adjustable reasoning via reasoning_effort (high/none). Alias: mistral-small-latest.',
         context_window=262_144,
         max_output_tokens=None,
         supports_vision=True,
@@ -81,7 +155,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='mistral-large-3-25-12',
         display_name='Mistral Large 3',
-        description="State-of-the-art open-weight, general-purpose multimodal model (Mixture-of-Experts, 41B active params). 256K token context. Vision + function calling. Alias: mistral-large-latest.",
+        description='State-of-the-art open-weight, general-purpose multimodal model (Mixture-of-Experts, 41B active params). 256K token context. Vision + function calling. Alias: mistral-large-latest.',
         context_window=262_144,
         max_output_tokens=None,
         supports_vision=True,
@@ -107,16 +181,16 @@ _STATIC_MODELS = [
     EmbeddingModelInfo(
         model_id='mistral-embed',
         display_name='Mistral Embed',
-        description="Semantic text-embedding model. 1024-dimensional vectors, 8K token max input.",
-        dimensions=1024,
-        max_input_tokens=8192,
+        description='Semantic text-embedding model. 1024-dimensional vectors, 8K token max input.',
+        dimensions=1_024,
+        max_input_tokens=8_192,
         supports_multimodal=False,
         input_cost_per_mtok=0.1,
     ),
     AudioTTSModelInfo(
         model_id='voxtral-tts-26-03',
         display_name='Voxtral TTS',
-        description="State-of-the-art text-to-speech with zero-shot voice cloning (via a short audio prompt), 9 languages, and streaming (~90ms time-to-first-audio). Per-character billing. REST endpoint /v1/audio/speech.",
+        description='State-of-the-art text-to-speech with zero-shot voice cloning (via a short audio prompt), 9 languages, and streaming (~90ms time-to-first-audio). Per-character billing. REST endpoint /v1/audio/speech.',
         supported_voices=[],
         supported_output_formats=[],
         cost_per_mchars=16.0,
@@ -126,7 +200,7 @@ _STATIC_MODELS = [
     AudioTranscriptionModelInfo(
         model_id='voxtral-mini-transcribe-realtime-26-02',
         display_name='Voxtral Mini Transcribe Realtime',
-        description="Efficient audio-input model optimized for live transcription. OpenAI-compatible /v1/audio/transcriptions endpoint. Per-minute-of-audio billing.",
+        description='Efficient audio-input model optimized for live transcription. OpenAI-compatible /v1/audio/transcriptions endpoint. Per-minute-of-audio billing.',
         supported_input_formats=[],
         max_file_size_mb=None,
         cost_per_minute=0.006,
@@ -191,8 +265,8 @@ class MistralProvider(Provider):
                 info.models = [m for m in _STATIC_MODELS if m.model_id in live_ids]
                 if not info.models:
                     info.models = list(_STATIC_MODELS)
-        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError):
-            pass
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:
+            self._note_fetch_failure(exc)  # report-only; fall back to static
 
         return info
 

@@ -251,8 +251,13 @@ def _merge_models(
     return merged
 
 
-def update_provider(key: str) -> tuple[int, int]:
-    """Fetch live models for a provider and update its source file."""
+def update_provider(key: str) -> tuple[int, int, str | None]:
+    """Fetch live models for a provider and update its source file.
+
+    Returns ``(new_count, total, live_fetch_error)``. The third element is
+    non-None when the provider's live API call failed and it fell back to
+    static data — see ``Provider.live_fetch_error``.
+    """
     source_path = _PROVIDER_FILES[key]
     provider_cls = PROVIDERS[key]
     provider = provider_cls()
@@ -271,14 +276,14 @@ def update_provider(key: str) -> tuple[int, int]:
     match = _STATIC_BLOCK_RE.search(source)
     if not match:
         print(f"  WARNING: Could not find _STATIC_MODELS block in {source_path.name}")
-        return 0, len(merged)
+        return 0, len(merged), provider.live_fetch_error
 
     comments = _extract_trailing_comments(match.group(0))
     new_block = _serialize_models_block(merged, comments)
     updated = source[:match.start()] + new_block + source[match.end():]
     source_path.write_text(updated)
 
-    return new_count, len(merged)
+    return new_count, len(merged), provider.live_fetch_error
 
 
 DATA_VERSION_PATH = PROJECT_ROOT / "llm_api_search" / "data_version.py"
@@ -303,30 +308,57 @@ def stamp_data_version() -> None:
 _NOTES_FILE = PROJECT_ROOT / "model_update_notes.md"
 
 
-def _emit_discovery_notes(unrecognized: dict[str, set[str]]) -> None:
-    """Surface live model IDs that aren't curated and aren't known aliases.
+def _emit_discovery_notes(
+    unrecognized: dict[str, set[str]],
+    fetch_errors: dict[str, str] | None = None,
+) -> None:
+    """Surface the two things a run can silently get wrong.
 
-    These are providers (e.g. DeepSeek) whose live API lists a model the static
-    data doesn't recognize and the update can't auto-add — a human must review
-    and add it manually. Output goes to stdout, the GitHub Actions step summary
-    (if running in CI), and ``model_update_notes.md`` for the PR body.
+    1. Live model IDs that aren't curated and aren't known aliases — providers
+       (e.g. DeepSeek) whose live API lists a model the static data doesn't
+       recognize and the update can't auto-add.
+    2. Providers whose live fetch *failed* and silently reused static data. A
+       fallback and a genuinely quiet week both print "no new models", so
+       without this a broken API key looks identical to nothing changing.
+
+    Output goes to stdout, the GitHub Actions step summary (if running in CI),
+    and ``model_update_notes.md`` for the PR body.
     """
     hits = {k: sorted(v) for k, v in unrecognized.items() if v}
-    if not hits:
+    errors = {k: v for k, v in (fetch_errors or {}).items() if v}
+    if not hits and not errors:
         # Clear any stale file so a later run's PR body doesn't show old hits.
         _NOTES_FILE.write_text("")
         return
 
-    lines = ["### ⚠️ Unrecognized upstream models", ""]
-    lines.append(
-        "These IDs are served by the provider's live API but are neither "
-        "curated in `_STATIC_MODELS` nor a known alias. They could not be "
-        "auto-added — review and add them manually if they're real new models:"
-    )
-    lines.append("")
-    for key, ids in hits.items():
-        lines.append(f"- **{key}**: " + ", ".join(f"`{m}`" for m in ids))
-    note = "\n".join(lines) + "\n"
+    sections: list[str] = []
+
+    if errors:
+        lines = ["### ⚠️ Live model fetch failed", ""]
+        lines.append(
+            "These providers could not reach their live API and fell back to "
+            "the curated static data. This run therefore cannot tell a quiet "
+            "week from a broken key — any model released upstream since the "
+            "last successful fetch is missing from this PR:"
+        )
+        lines.append("")
+        for key, msg in errors.items():
+            lines.append(f"- **{key}**: `{msg}`")
+        sections.append("\n".join(lines))
+
+    if hits:
+        lines = ["### ⚠️ Unrecognized upstream models", ""]
+        lines.append(
+            "These IDs are served by the provider's live API but are neither "
+            "curated in `_STATIC_MODELS` nor a known alias. They could not be "
+            "auto-added — review and add them manually if they're real new models:"
+        )
+        lines.append("")
+        for key, ids in hits.items():
+            lines.append(f"- **{key}**: " + ", ".join(f"`{m}`" for m in ids))
+        sections.append("\n".join(lines))
+
+    note = "\n\n".join(sections) + "\n"
 
     print("\n" + note)
     _NOTES_FILE.write_text(note)
@@ -334,35 +366,45 @@ def _emit_discovery_notes(unrecognized: dict[str, set[str]]) -> None:
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as fh:
             fh.write(note)
-    # A GitHub Actions annotation so the signal is visible on the run even when
-    # there's no provider diff (hence no auto-update PR) to carry the note.
+    # GitHub Actions annotations so both signals are visible on the run even
+    # when there's no provider diff (hence no auto-update PR) to carry the note.
     if os.environ.get("GITHUB_ACTIONS"):
-        flat = "; ".join(f"{k}: {', '.join(v)}" for k, v in hits.items())
-        print(f"::warning title=Unrecognized upstream models::{flat}")
+        if errors:
+            flat_errors = "; ".join(f"{k}: {v}" for k, v in errors.items())
+            print(f"::warning title=Live model fetch failed::{flat_errors}")
+        if hits:
+            flat = "; ".join(f"{k}: {', '.join(v)}" for k, v in hits.items())
+            print(f"::warning title=Unrecognized upstream models::{flat}")
 
 
 def main() -> None:
     targets = sys.argv[1:] if len(sys.argv) > 1 else list(_PROVIDER_FILES.keys())
 
     unrecognized: dict[str, set[str]] = {}
+    fetch_errors: dict[str, str] = {}
     for key in targets:
         if key not in _PROVIDER_FILES:
             print(f"Unknown provider: {key}")
             continue
 
         print(f"Updating {key}...")
-        new, total = update_provider(key)
+        new, total, live_error = update_provider(key)
         if new:
             print(f"  {total} models total ({new} NEW — check pricing!)")
         else:
             print(f"  {total} models total (no new models)")
+        # Without this line, a failed fetch is indistinguishable from a quiet
+        # week: both print "no new models" above.
+        if live_error:
+            print(f"  WARNING: live fetch failed ({live_error}) — reused static data")
+            fetch_errors[key] = live_error
 
         # Discovery signal for providers that keep fetch_live_models curated
         # (DeepSeek): genuinely-new live IDs never reach the merge above, so
         # flag them separately. unrecognized_live_model_ids never raises.
         unrecognized[key] = PROVIDERS[key]().unrecognized_live_model_ids()
 
-    _emit_discovery_notes(unrecognized)
+    _emit_discovery_notes(unrecognized, fetch_errors)
 
     # Stamp the refresh date so catalog.py's generated_at reflects this run.
     stamp_data_version()

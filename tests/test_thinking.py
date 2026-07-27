@@ -192,14 +192,14 @@ def test_qwen_thinking_config():
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
-    "anthropic": ["claude-fable-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6"],
+    "anthropic": ["claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6"],
     "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "o3", "o4-mini"],
-    "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash"],
+    "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
     "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
     "zai": ["glm-5.2", "glm-5.1", "glm-5", "glm-4.6", "glm-4.5-air", "glm-5v-turbo"],
     "minimax": ["MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"],
-    "kimi": ["kimi-k3", "kimi-k2.6"],
+    "kimi": ["kimi-k3", "kimi-k2.6", "kimi-k2.7-code"],
     "qwen": ["qwen3.7-max", "qwen3.7-plus"],
     "mistral": ["mistral-medium-3-5-26-04", "mistral-small-2603"],
 }
