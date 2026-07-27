@@ -26,7 +26,12 @@ python mcp_server.py                    # stdio mode (single server)
 python mcp_server.py --http --port 8080 # HTTP mode (composite server)
 
 # Update static model data from live APIs (requires API keys)
-ANTHROPIC_API_KEY=... OPENAI_API_KEY=... GEMINI_API_KEY=... DEEPSEEK_API_KEY=... ZAI_API_KEY=... python scripts/update_models.py
+# One key per provider: ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY,
+# INCEPTION_API_KEY, DEEPSEEK_API_KEY, ZAI_API_KEY, MINIMAX_API_KEY,
+# MOONSHOT_API_KEY (kimi), DASHSCOPE_API_KEY (qwen), MISTRAL_API_KEY.
+# A provider whose key is absent is skipped; one whose fetch *fails* is
+# reported (see "Live-fetch failure signal") rather than silently skipped.
+ANTHROPIC_API_KEY=... OPENAI_API_KEY=... GEMINI_API_KEY=... python scripts/update_models.py
 python scripts/update_models.py openai  # single provider
 ```
 
