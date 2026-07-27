@@ -818,28 +818,28 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-3.5-flash-lite',
         display_name='Gemini 3.5 Flash Lite',
-        description='Gemini 3.5 Flash Lite',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='Fastest, most cost-effective 3.5 model for high-throughput execution, with frontier-class performance at a fraction of the cost.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.3,
+        output_cost_per_mtok=2.5,
     ),
     TextModelInfo(
         model_id='gemini-3.6-flash',
         display_name='Gemini 3.6 Flash',
-        description='Gemini 3.6 Flash',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='Latest Flash model, balancing speed with intelligence for strong performance on agentic and multimodal tasks.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=1.5,
+        output_cost_per_mtok=7.5,
     ),
 ]
 

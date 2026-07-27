@@ -53,16 +53,16 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='kimi-k2.7-code',
-        display_name='kimi-k2.7-code',
-        description='',
-        context_window=None,
+        display_name='Kimi K2.7 Code',
+        description="Kimi's dedicated coding model, with text, image, and video input. 262,144 token context; output is bounded by the context window (Moonshot doesn't publish a separate ceiling for this model). Tool calling. Cache-hit input rate $0.19/Mtok.",
+        context_window=262_144,
         max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.95,
+        output_cost_per_mtok=4.0,
     ),
 ]
 

@@ -9,7 +9,9 @@ negotiated per-account and publishes no fixed numbers, so only three tiers
 are modeled here. Limits are per model class: the Opus 4.x limit is shared
 across Opus 4.8/4.7/4.6/4.5, and the Sonnet 4.x limit is shared across
 Sonnet 4.6/4.5 — Claude Sonnet 5 has its own separate limit, not part of
-that combined bucket. Claude Fable 5 also has its own dedicated limits.
+that combined bucket. Claude Opus 5 is likewise a separate bucket and does
+not draw from the combined Opus 4.x pool. Claude Fable 5 also has its own
+dedicated limits.
 """
 
 from llm_api_search.providers.base import RateLimit
@@ -30,6 +32,23 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
             requests_per_minute=4_000,
             input_tokens_per_minute=4_000_000,
             output_tokens_per_minute=800_000,
+        ),
+    },
+    "claude-opus-5": {
+        "start": RateLimit(
+            requests_per_minute=1_000,
+            input_tokens_per_minute=2_000_000,
+            output_tokens_per_minute=400_000,
+        ),
+        "build": RateLimit(
+            requests_per_minute=5_000,
+            input_tokens_per_minute=5_000_000,
+            output_tokens_per_minute=1_000_000,
+        ),
+        "scale": RateLimit(
+            requests_per_minute=10_000,
+            input_tokens_per_minute=10_000_000,
+            output_tokens_per_minute=2_000_000,
         ),
     },
     "claude-opus-4-8": {

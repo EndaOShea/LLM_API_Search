@@ -19,6 +19,17 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
         notes=_ADAPTIVE_NOTE + "Adaptive is the only mode; manual budget_tokens is rejected (400). "
                                "display defaults to 'omitted'.",
     ),
+    "claude-opus-5": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="high", can_disable=True,
+        notes=_ADAPTIVE_NOTE + "Thinking is ON by default (omitting the thinking field runs "
+                               "adaptive, unlike Opus 4.8/4.7). thinking={type:'disabled'} is "
+                               "accepted only at effort high or below — pairing it with xhigh/max "
+                               "returns a 400. Manual budget_tokens is rejected (400). The raw "
+                               "chain of thought is never returned; display defaults to 'omitted'.",
+    ),
     "claude-opus-4-8": ThinkingConfig(
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,
         parameter="output_config.effort",
