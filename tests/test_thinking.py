@@ -337,3 +337,33 @@ def test_mcp_serializer_is_the_library_serializer():
     from llm_api_search.providers import thinking_config_to_dict
     from mcp_servers.llm_api_search import _tc_to_dict
     assert _tc_to_dict is thinking_config_to_dict
+
+
+def test_anthropic_sampling_constraint_generation_split():
+    """Newest models lock sampling ALWAYS; 4.6-era only while thinking.
+
+    Source: platform.claude.com/docs/en/build-with-claude/thinking
+    ("Sampling parameters"), verified 2026-08-04.
+    """
+    from llm_api_search.providers.base import SamplingStatus, SamplingWhen
+    from llm_api_search.providers.thinking.anthropic import THINKING_CONFIGS
+
+    always_locked = [
+        "claude-fable-5", "claude-opus-5", "claude-opus-4-8",
+        "claude-opus-4-7", "claude-sonnet-5",
+    ]
+    for mid in always_locked:
+        sp = THINKING_CONFIGS[mid].sampling_params_allowed
+        for param in ("temperature", "top_p", "top_k"):
+            assert sp[param].status is SamplingStatus.DEFAULT_ONLY, (mid, param)
+            assert sp[param].when is SamplingWhen.ALWAYS, (mid, param)
+
+    for mid in ["claude-opus-4-6", "claude-sonnet-4-6"]:
+        sp = THINKING_CONFIGS[mid].sampling_params_allowed
+        assert sp["temperature"].status is SamplingStatus.FORBIDDEN
+        assert sp["temperature"].when is SamplingWhen.THINKING_ENABLED
+        assert sp["top_k"].status is SamplingStatus.FORBIDDEN
+        assert sp["top_k"].when is SamplingWhen.THINKING_ENABLED
+        assert sp["top_p"].status is SamplingStatus.RANGE
+        assert sp["top_p"].min == 0.95 and sp["top_p"].max == 1.0
+        assert sp["top_p"].when is SamplingWhen.THINKING_ENABLED
