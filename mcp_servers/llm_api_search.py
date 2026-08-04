@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from llm_api_search.discovery import discover, discover_provider, list_providers
-from llm_api_search.providers import filter_models, get_rate_limits, get_thinking_config
+from llm_api_search.providers import filter_models, get_rate_limits, get_thinking_config, thinking_config_to_dict as _tc_to_dict
 from llm_api_search.providers.base import SUPPORTED_LANGUAGES, TextModelInfo
 from llm_api_search.selector import select_provider
 
@@ -199,30 +199,6 @@ def llm_compare_providers(live: bool = False, include_all: bool = False) -> str:
 def _rl_to_dict(rl) -> dict:
     """Convert a RateLimit to a dict, omitting None fields."""
     return {k: v for k, v in dataclasses.asdict(rl).items() if v is not None}
-
-
-def _tc_to_dict(tc) -> dict:
-    """Convert a ThinkingConfig to a dict, omitting None/empty fields.
-
-    For non-capable models (the default config) the False booleans
-    ``supports_dynamic``/``can_disable`` are also dropped to keep the output
-    lean. For *capable* models they are kept, because ``can_disable=False``
-    ("thinking cannot be turned off", e.g. gemini-3-pro-preview, o3) is a
-    meaningful fact that callers need.
-    """
-    out = {}
-    for k, v in dataclasses.asdict(tc).items():
-        if v is None or v == [] or v == "":
-            continue
-        if (
-            isinstance(v, bool)
-            and v is False
-            and k in ("supports_dynamic", "can_disable")
-            and not tc.supported
-        ):
-            continue
-        out[k] = v.value if hasattr(v, "value") else v
-    return out
 
 
 @mcp.tool()

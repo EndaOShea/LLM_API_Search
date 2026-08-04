@@ -192,7 +192,7 @@ def test_qwen_thinking_config():
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
-    "anthropic": ["claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6"],
+    "anthropic": ["claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
     "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "o3", "o4-mini"],
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-robotics-er-2-preview"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
@@ -274,3 +274,185 @@ def test_no_orphan_thinking_config_keys():
         static_ids = {m.model_id for m in PROVIDERS[provider]().get_static_info().models}
         for mid in configs:
             assert mid in static_ids, f"{provider}/{mid}: not a known static model id"
+
+
+def test_sampling_constraint_dataclass_shape():
+    from llm_api_search.providers.base import (
+        SamplingConstraint, SamplingStatus, SamplingWhen, ThinkingConfig,
+    )
+
+    # Defaults: unconditional, no numeric fields.
+    c = SamplingConstraint(status=SamplingStatus.FORBIDDEN)
+    assert c.when is SamplingWhen.ALWAYS
+    assert c.value is None and c.min is None and c.max is None
+    assert c.notes == ""
+
+    # str-Enums serialize to plain strings (same idiom as ThinkingMode).
+    assert SamplingStatus.DEFAULT_ONLY.value == "default_only"
+    assert SamplingWhen.THINKING_ENABLED.value == "thinking_enabled"
+
+    # ThinkingConfig grows the field, empty by default so all existing
+    # registry entries stay valid unchanged.
+    assert ThinkingConfig().sampling_params_allowed == {}
+
+
+def test_thinking_config_to_dict_serializes_sampling_constraints():
+    from llm_api_search.providers import thinking_config_to_dict
+    from llm_api_search.providers.base import (
+        SamplingConstraint, SamplingStatus, SamplingWhen,
+        ThinkingConfig, ThinkingMode,
+    )
+
+    tc = ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort", levels=["low", "high"],
+        default_level="high", can_disable=True,
+        sampling_params_allowed={
+            "temperature": SamplingConstraint(status=SamplingStatus.DEFAULT_ONLY),
+            "top_p": SamplingConstraint(
+                status=SamplingStatus.RANGE, min=0.95, max=1.0,
+                when=SamplingWhen.THINKING_ENABLED,
+            ),
+        },
+    )
+    d = thinking_config_to_dict(tc)
+
+    # Enums coerced to plain strings; None fields dropped inside constraints.
+    assert d["sampling_params_allowed"]["temperature"] == {
+        "status": "default_only", "when": "always",
+    }
+    assert d["sampling_params_allowed"]["top_p"] == {
+        "status": "range", "when": "thinking_enabled", "min": 0.95, "max": 1.0,
+    }
+
+    # Enum values must be coerced to plain `str`, not left as str-Enum members.
+    # str-Enum equality with plain strings is True even without coercion, so the
+    # dict-equality assertions above cannot alone catch enum leakage.
+    for constraint in d["sampling_params_allowed"].values():
+        for key in ("status", "when"):
+            if key in constraint:
+                assert type(constraint[key]) is str, (
+                    f"{key} did not serialize to plain str: {constraint[key]!r} "
+                    f"({type(constraint[key])!r})"
+                )
+
+    # Models with no constraints: the empty dict is dropped entirely,
+    # like every other None/empty field.
+    bare = ThinkingConfig(supported=True, mode=ThinkingMode.TOKEN_BUDGET,
+                          parameter="thinkingBudget", max_budget=1000)
+    assert "sampling_params_allowed" not in thinking_config_to_dict(bare)
+
+
+def test_mcp_serializer_is_the_library_serializer():
+    # One serializer, two surfaces: the MCP module must not keep its own copy.
+    from llm_api_search.providers import thinking_config_to_dict
+    from mcp_servers.llm_api_search import _tc_to_dict
+    assert _tc_to_dict is thinking_config_to_dict
+
+
+def test_anthropic_sampling_constraint_generation_split():
+    """Newest models lock sampling ALWAYS; 4.6-era only while thinking.
+
+    Source: platform.claude.com/docs/en/build-with-claude/thinking
+    ("Sampling parameters"), verified 2026-08-04.
+    """
+    from llm_api_search.providers.base import SamplingStatus, SamplingWhen
+    from llm_api_search.providers.thinking.anthropic import THINKING_CONFIGS
+
+    always_locked = [
+        "claude-fable-5", "claude-opus-5", "claude-opus-4-8",
+        "claude-opus-4-7", "claude-sonnet-5",
+    ]
+    for mid in always_locked:
+        sp = THINKING_CONFIGS[mid].sampling_params_allowed
+        for param in ("temperature", "top_p", "top_k"):
+            assert sp[param].status is SamplingStatus.DEFAULT_ONLY, (mid, param)
+            assert sp[param].when is SamplingWhen.ALWAYS, (mid, param)
+
+    for mid in ["claude-opus-4-6", "claude-sonnet-4-6"]:
+        sp = THINKING_CONFIGS[mid].sampling_params_allowed
+        assert sp["temperature"].status is SamplingStatus.FORBIDDEN
+        assert sp["temperature"].when is SamplingWhen.THINKING_ENABLED
+        assert sp["top_k"].status is SamplingStatus.FORBIDDEN
+        assert sp["top_k"].when is SamplingWhen.THINKING_ENABLED
+        assert sp["top_p"].status is SamplingStatus.RANGE
+        assert sp["top_p"].min == 0.95 and sp["top_p"].max == 1.0
+        assert sp["top_p"].when is SamplingWhen.THINKING_ENABLED
+
+
+# Providers whose official docs currently publish no thinking-time sampling
+# constraints (or where we have not yet completed sourced research). A
+# provider leaves this set the moment its constraints are authored — the
+# coverage test below then enforces them for every reasoning model. Never
+# author guessed values to clear an entry; that violates the
+# official-sources rule (see the 2026-08-04 design spec).
+_SAMPLING_EXEMPT_PROVIDERS = {
+    "openai",     # reasoning guide + API ref silent on sampling restrictions (checked 2026-08-04)
+    "google",     # not yet researched
+    "deepseek",   # not yet researched
+    "inception",  # not yet researched
+    "zai",        # not yet researched
+    "minimax",    # not yet researched
+    "kimi",       # not yet researched
+    "qwen",       # not yet researched
+    "mistral",    # not yet researched
+}
+
+
+def test_sampling_exempt_providers_are_real_provider_keys():
+    """A renamed/dropped provider key must not sit dead in the exemption set."""
+    unknown = _SAMPLING_EXEMPT_PROVIDERS - set(PROVIDERS)
+    assert not unknown, (
+        f"_SAMPLING_EXEMPT_PROVIDERS contains unknown provider key(s): {sorted(unknown)} "
+        f"— not present in PROVIDERS: {sorted(PROVIDERS)}"
+    )
+
+
+def test_supported_models_have_sampling_constraints_or_exemption():
+    """Forcing function: a reasoning model can't ship without constraint data.
+
+    Every supported=True config must either carry sampling_params_allowed
+    or belong to an explicitly exempted provider.
+    """
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+
+    for provider, configs in PROVIDER_THINKING_CONFIGS.items():
+        if provider in _SAMPLING_EXEMPT_PROVIDERS:
+            continue
+        for mid, tc in configs.items():
+            if not tc.supported:
+                continue
+            assert tc.sampling_params_allowed, (
+                f"{provider}/{mid}: supported=True but no sampling_params_allowed — "
+                f"author it from official docs or add the provider to "
+                f"_SAMPLING_EXEMPT_PROVIDERS in this file"
+            )
+
+
+def test_sampling_constraints_use_valid_vocabulary():
+    """Every stored constraint is well-formed, wherever it is authored."""
+    from llm_api_search.providers.base import SamplingConstraint, SamplingStatus, SamplingWhen
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+
+    _VALID_PARAM_NAMES = {
+        "temperature", "top_p", "top_k", "frequency_penalty",
+        "presence_penalty", "min_p", "repetition_penalty",
+    }
+
+    for provider, configs in PROVIDER_THINKING_CONFIGS.items():
+        for mid, tc in configs.items():
+            for param, c in tc.sampling_params_allowed.items():
+                ctx = f"{provider}/{mid}/{param}"
+                assert param in _VALID_PARAM_NAMES, (
+                    f"{provider}/{mid}: unrecognized sampling parameter key {param!r}"
+                )
+                assert isinstance(c, SamplingConstraint), ctx
+                assert isinstance(c.status, SamplingStatus), ctx
+                assert isinstance(c.when, SamplingWhen), ctx
+                if c.status is SamplingStatus.RANGE:
+                    assert c.min is not None and c.max is not None, (
+                        f"{ctx}: RANGE requires min and max")
+                    assert c.min <= c.max, ctx
+                if c.status is SamplingStatus.UNSUPPORTED:
+                    assert c.value is None and c.min is None and c.max is None, (
+                        f"{ctx}: UNSUPPORTED must carry no numeric fields")

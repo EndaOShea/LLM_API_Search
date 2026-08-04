@@ -38,3 +38,44 @@ def test_catalog_route_registered():
     app = build_app("127.0.0.1", 0)
     paths = [getattr(r, "path", None) for r in app.routes]
     assert "/catalog.json" in paths
+
+
+def test_catalog_every_text_model_has_thinking_block():
+    from llm_api_search.providers.base import ThinkingMode
+
+    valid_modes = {m.value for m in ThinkingMode}
+    cat = build_catalog()
+    for key, models in cat["providers"].items():
+        for m in models:
+            tb = m.get("thinking")
+            assert isinstance(tb, dict), f"{key}:{m['model_id']} missing thinking block"
+            assert tb["mode"] in valid_modes, f"{key}:{m['model_id']} bad mode {tb.get('mode')!r}"
+            # Non-capable models are explicit, not absent: supported is
+            # always present (True, or the omitted-False contract below).
+            if tb["mode"] == "none":
+                assert not tb.get("supported", False)
+            else:
+                assert tb["supported"] is True
+
+
+def test_catalog_thinking_block_serializes_sampling_constraints():
+    # claude-opus-5: newest-generation lock, unconditional (regression-pinned
+    # in test_thinking.py; here we check it survives JSON-shaping).
+    cat = build_catalog()
+    by_id = {m["model_id"]: m for m in cat["providers"]["anthropic"]}
+    sp = by_id["claude-opus-5"]["thinking"]["sampling_params_allowed"]
+    assert sp["temperature"] == {"status": "default_only", "when": "always"}
+    assert sp["top_p"] == {"status": "default_only", "when": "always"}
+    assert sp["top_k"] == {"status": "default_only", "when": "always"}
+    # Everything in the block must be JSON-native (no enum leakage). Dict
+    # equality above passes even for un-coerced str-Enum members (they equal
+    # their plain-string value), so also assert the concrete type is `str`.
+    for constraint in sp.values():
+        for key in ("status", "when"):
+            if key in constraint:
+                assert type(constraint[key]) is str, (
+                    f"{key} did not serialize to plain str: {constraint[key]!r} "
+                    f"({type(constraint[key])!r})"
+                )
+    import json
+    json.dumps(cat)

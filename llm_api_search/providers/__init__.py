@@ -6,6 +6,7 @@ from llm_api_search.providers.base import (
     Provider, ModelInfo, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
     AudioTranscriptionModelInfo, EmbeddingModelInfo, MusicModelInfo, VideoModelInfo, ModelType,
     ProviderInfo, RateLimit, SUPPORTED_LANGUAGES, ThinkingConfig, ThinkingMode,
+    SamplingConstraint, SamplingStatus, SamplingWhen,
 )
 from llm_api_search.providers.anthropic import AnthropicProvider
 from llm_api_search.providers.google import GeminiProvider
@@ -258,6 +259,47 @@ def get_thinking_config(
     return {model_id: ThinkingConfig()}
 
 
+def thinking_config_to_dict(tc: "ThinkingConfig") -> dict:
+    """Serialize a ThinkingConfig to a plain dict, omitting None/empty fields.
+
+    Shared by the ``llm_get_thinking_config`` MCP tool and the
+    ``catalog.json`` export so the two surfaces cannot drift.
+
+    For non-capable models (the default config) the False booleans
+    ``supports_dynamic``/``can_disable`` are also dropped to keep the output
+    lean. For *capable* models they are kept, because ``can_disable=False``
+    ("thinking cannot be turned off", e.g. gemini-3-pro-preview, o3) is a
+    meaningful fact that callers need.
+
+    ``sampling_params_allowed`` values are serialized with the same rules:
+    str-Enum members become plain strings, None/empty fields are dropped.
+    """
+    import dataclasses
+
+    out: dict = {}
+    for k, v in dataclasses.asdict(tc).items():
+        if v is None or v == [] or v == "" or v == {}:
+            continue
+        if (
+            isinstance(v, bool)
+            and v is False
+            and k in ("supports_dynamic", "can_disable")
+            and not tc.supported
+        ):
+            continue
+        if k == "sampling_params_allowed":
+            v = {
+                param: {
+                    ck: (cv.value if hasattr(cv, "value") else cv)
+                    for ck, cv in constraint.items()
+                    if cv is not None and cv != ""
+                }
+                for param, constraint in v.items()
+            }
+        out[k] = v.value if hasattr(v, "value") else v
+    return out
+
+
 __all__ = [
     "Provider",
     "ModelInfo",
@@ -287,5 +329,9 @@ __all__ = [
     "get_rate_limits",
     "ThinkingConfig",
     "ThinkingMode",
+    "SamplingConstraint",
+    "SamplingStatus",
+    "SamplingWhen",
     "get_thinking_config",
+    "thinking_config_to_dict",
 ]
