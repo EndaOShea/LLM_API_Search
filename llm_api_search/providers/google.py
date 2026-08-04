@@ -841,6 +841,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.5,
         output_cost_per_mtok=7.5,
     ),
+    TextModelInfo(
+        model_id='gemini-robotics-er-2-preview',
+        display_name='Gemini Robotics-ER 2 Preview',
+        description='Gemini Robotics-ER 2 Preview',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
