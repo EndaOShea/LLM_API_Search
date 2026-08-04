@@ -1220,15 +1220,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gpt-5.6-luna',
         display_name='gpt-5.6-luna',
-        description='Smallest GPT-5.6 model, for cost-sensitive high-volume workloads (nano tier)',
+        description='Smallest GPT-5.6 model, for cost-sensitive high-volume workloads (nano tier). Cached input $0.02/1M.',
         context_window=1_050_000,
         max_output_tokens=128_000,
         supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=True,
-        input_cost_per_mtok=1.0,
-        output_cost_per_mtok=6.0,
+        input_cost_per_mtok=0.2,
+        output_cost_per_mtok=1.2,
     ),
     TextModelInfo(
         model_id='gpt-5.6-sol',
@@ -1246,15 +1246,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gpt-5.6-terra',
         display_name='gpt-5.6-terra',
-        description='Mid-tier GPT-5.6 model balancing intelligence and cost',
+        description='Mid-tier GPT-5.6 model balancing intelligence and cost. Cached input $0.20/1M.',
         context_window=1_050_000,
         max_output_tokens=128_000,
         supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=True,
-        input_cost_per_mtok=2.5,
-        output_cost_per_mtok=15.0,
+        input_cost_per_mtok=2.0,
+        output_cost_per_mtok=12.0,
     ),
 ]
 

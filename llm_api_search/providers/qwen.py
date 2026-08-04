@@ -17,6 +17,11 @@ Pricing source: https://www.alibabacloud.com/help/en/model-studio/model-pricing
 (list price; time-limited promos noted per-model in the description, not
 recorded as the static number since neither promo has a stated expiry).
 Verified: 2026-07-20.
+
+qwen3.5-plus / qwen3.6-plus specs and pricing:
+https://www.qwencloud.com/models/qwen3.5-plus and
+https://www.qwencloud.com/models/qwen3.6-plus (verified 2026-08-04; both
+list the same price for the <=256K and 256K-1M input tiers).
 """
 
 from __future__ import annotations
@@ -78,6 +83,32 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=0.4,
         output_cost_per_mtok=1.6,
+    ),
+    TextModelInfo(
+        model_id='qwen3.5-plus',
+        display_name='Qwen3.5 Plus',
+        description="Multimodal plus-tier model (text/image/video input). 1,000,000 token context, 65,536 max output, 81K max reasoning. Tool calling plus built-in web search and code interpreter. Thinking via enable_thinking + thinking_budget. Explicit cache: $0.5 create / $0.04 read per Mtok. Pricing is uniform across context tiers.",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.4,
+        output_cost_per_mtok=2.4,
+    ),
+    TextModelInfo(
+        model_id='qwen3.6-plus',
+        display_name='Qwen3.6 Plus',
+        description="Multimodal plus-tier model (text/image/video input). 1,000,000 token context, 65,536 max output. Tool calling plus built-in web search, code interpreter, web extractor, and image search tools. Thinking via enable_thinking + thinking_budget. Explicit cache: $0.625 create / $0.05 read per Mtok. Pricing is uniform across context tiers.",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.5,
+        output_cost_per_mtok=3.0,
     ),
 ]
 

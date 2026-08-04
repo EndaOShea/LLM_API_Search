@@ -2,6 +2,8 @@
 
 Source: https://www.alibabacloud.com/help/en/model-studio/rate-limit
 Verified: 2026-07-20
+qwen3.5-plus / qwen3.6-plus: https://www.qwencloud.com/models/<model_id>
+(verified 2026-08-04)
 
 DashScope publishes flat per-model defaults for the international region
 (not spend-tiered like Kimi), so both models are exposed under a single
@@ -15,6 +17,12 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "default": RateLimit(requests_per_minute=600, tokens_per_minute=1_000_000),
     },
     "qwen3.7-plus": {
+        "default": RateLimit(requests_per_minute=15_000, tokens_per_minute=5_000_000),
+    },
+    "qwen3.5-plus": {
+        "default": RateLimit(requests_per_minute=15_000, tokens_per_minute=5_000_000),
+    },
+    "qwen3.6-plus": {
         "default": RateLimit(requests_per_minute=15_000, tokens_per_minute=5_000_000),
     },
 }

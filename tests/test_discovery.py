@@ -704,7 +704,7 @@ def test_qwen_static_info():
     assert isinstance(info.models[0], TextModelInfo)
     assert info.models[0].model_id == "qwen3.7-max"
     ids = {m.model_id for m in info.models}
-    assert ids == {"qwen3.7-max", "qwen3.7-plus"}
+    assert ids == {"qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus"}
     by_id = {m.model_id: m for m in info.models}
     assert by_id["qwen3.7-max"].context_window == 1_000_000
     assert by_id["qwen3.7-max"].max_output_tokens == 65_536
@@ -714,6 +714,14 @@ def test_qwen_static_info():
     assert by_id["qwen3.7-plus"].input_cost_per_mtok == 0.40
     assert by_id["qwen3.7-plus"].output_cost_per_mtok == 1.60
     assert by_id["qwen3.7-plus"].supports_vision is True
+    assert by_id["qwen3.5-plus"].context_window == 1_000_000
+    assert by_id["qwen3.5-plus"].input_cost_per_mtok == 0.40
+    assert by_id["qwen3.5-plus"].output_cost_per_mtok == 2.40
+    assert by_id["qwen3.5-plus"].supports_vision is True
+    assert by_id["qwen3.6-plus"].context_window == 1_000_000
+    assert by_id["qwen3.6-plus"].input_cost_per_mtok == 0.50
+    assert by_id["qwen3.6-plus"].output_cost_per_mtok == 3.00
+    assert by_id["qwen3.6-plus"].supports_vision is True
 
 
 def test_qwen_snippet_all_languages():

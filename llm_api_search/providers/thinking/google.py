@@ -4,8 +4,10 @@ Source: https://ai.google.dev/gemini-api/docs/thinking
 Verified: 2026-06-04
 
 Gemini 3.x -> thinkingLevel (effort). Gemini 2.5 -> thinkingBudget (tokens).
-Specialized models (Gemma, audio, robotics, computer-use, deep-research, etc.)
-are non-reasoning and default to ThinkingMode.NONE on lookup.
+Specialized models (Gemma, audio, computer-use, deep-research, robotics-er
+1.x, etc.) are non-reasoning and default to ThinkingMode.NONE on lookup.
+Robotics-ER 2 is the exception: it thinks via the Gemini 3 thinkingLevel
+knob (https://ai.google.dev/gemini-api/docs/robotics-overview).
 """
 
 from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
@@ -48,4 +50,8 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-3.6-flash": _gemini3("medium", can_disable=False),
     "gemini-3.1-flash-lite": _gemini3("medium", can_disable=False),
     "gemini-3.5-flash-lite": _gemini3("medium", can_disable=False),
+    # Robotics-ER 2 (thinkingLevel; the ER 1.x models are non-reasoning).
+    # Docs don't publish its default level — "high" is the Gemini 3 family
+    # default; docs recommend "medium" to balance latency vs performance.
+    "gemini-robotics-er-2-preview": _gemini3("high", can_disable=False),
 }

@@ -844,15 +844,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-robotics-er-2-preview',
         display_name='Gemini Robotics-ER 2 Preview',
-        description='Gemini Robotics-ER 2 Preview',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='Embodied Reasoning 2: vision-language model for robotics — advanced spatial reasoning, video progress understanding, multi-robot collaboration, and agentic orchestration of robot tool calls. Text/image/video/audio input. Thinking via thinkingLevel.',
+        context_window=131_072,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=2.0,
+        output_cost_per_mtok=10.0,
     ),
 ]
 
