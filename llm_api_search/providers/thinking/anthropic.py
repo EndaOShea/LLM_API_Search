@@ -105,4 +105,14 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
                                "no thinking field means no thinking). Manual budget_tokens is "
                                "rejected (400), same as Opus 4.8/4.7.",
     ),
+    "claude-haiku-4-5-20251001": ThinkingConfig(
+        supported=True, mode=ThinkingMode.TOKEN_BUDGET,
+        parameter="thinking.budget_tokens",
+        min_budget=1024, max_budget=64000, supports_dynamic=False, can_disable=True,
+        sampling_params_allowed=_SAMPLING_THINKING_ONLY,
+        notes="Manual extended thinking only (thinking={type:'enabled',budget_tokens}); "
+              "thinking={type:'adaptive'} returns a 400 on this model. budget_tokens must "
+              "be less than max_tokens (64k output ceiling). No interleaved thinking — the "
+              "interleaved-thinking-2025-05-14 beta header is accepted but ignored.",
+    ),
 }

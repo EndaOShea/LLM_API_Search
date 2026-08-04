@@ -67,6 +67,15 @@ def test_catalog_thinking_block_serializes_sampling_constraints():
     assert sp["temperature"] == {"status": "default_only", "when": "always"}
     assert sp["top_p"] == {"status": "default_only", "when": "always"}
     assert sp["top_k"] == {"status": "default_only", "when": "always"}
-    # Everything in the block must be JSON-native (no enum leakage).
+    # Everything in the block must be JSON-native (no enum leakage). Dict
+    # equality above passes even for un-coerced str-Enum members (they equal
+    # their plain-string value), so also assert the concrete type is `str`.
+    for constraint in sp.values():
+        for key in ("status", "when"):
+            if key in constraint:
+                assert type(constraint[key]) is str, (
+                    f"{key} did not serialize to plain str: {constraint[key]!r} "
+                    f"({type(constraint[key])!r})"
+                )
     import json
     json.dumps(cat)

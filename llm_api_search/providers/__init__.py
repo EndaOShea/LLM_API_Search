@@ -6,6 +6,7 @@ from llm_api_search.providers.base import (
     Provider, ModelInfo, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
     AudioTranscriptionModelInfo, EmbeddingModelInfo, MusicModelInfo, VideoModelInfo, ModelType,
     ProviderInfo, RateLimit, SUPPORTED_LANGUAGES, ThinkingConfig, ThinkingMode,
+    SamplingConstraint, SamplingStatus, SamplingWhen,
 )
 from llm_api_search.providers.anthropic import AnthropicProvider
 from llm_api_search.providers.google import GeminiProvider
@@ -328,6 +329,9 @@ __all__ = [
     "get_rate_limits",
     "ThinkingConfig",
     "ThinkingMode",
+    "SamplingConstraint",
+    "SamplingStatus",
+    "SamplingWhen",
     "get_thinking_config",
     "thinking_config_to_dict",
 ]

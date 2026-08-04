@@ -192,7 +192,7 @@ def test_qwen_thinking_config():
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
-    "anthropic": ["claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6"],
+    "anthropic": ["claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
     "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "o3", "o4-mini"],
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-robotics-er-2-preview"],
     "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
@@ -325,6 +325,17 @@ def test_thinking_config_to_dict_serializes_sampling_constraints():
         "status": "range", "when": "thinking_enabled", "min": 0.95, "max": 1.0,
     }
 
+    # Enum values must be coerced to plain `str`, not left as str-Enum members.
+    # str-Enum equality with plain strings is True even without coercion, so the
+    # dict-equality assertions above cannot alone catch enum leakage.
+    for constraint in d["sampling_params_allowed"].values():
+        for key in ("status", "when"):
+            if key in constraint:
+                assert type(constraint[key]) is str, (
+                    f"{key} did not serialize to plain str: {constraint[key]!r} "
+                    f"({type(constraint[key])!r})"
+                )
+
     # Models with no constraints: the empty dict is dropped entirely,
     # like every other None/empty field.
     bare = ThinkingConfig(supported=True, mode=ThinkingMode.TOKEN_BUDGET,
@@ -388,6 +399,15 @@ _SAMPLING_EXEMPT_PROVIDERS = {
 }
 
 
+def test_sampling_exempt_providers_are_real_provider_keys():
+    """A renamed/dropped provider key must not sit dead in the exemption set."""
+    unknown = _SAMPLING_EXEMPT_PROVIDERS - set(PROVIDERS)
+    assert not unknown, (
+        f"_SAMPLING_EXEMPT_PROVIDERS contains unknown provider key(s): {sorted(unknown)} "
+        f"— not present in PROVIDERS: {sorted(PROVIDERS)}"
+    )
+
+
 def test_supported_models_have_sampling_constraints_or_exemption():
     """Forcing function: a reasoning model can't ship without constraint data.
 
@@ -414,10 +434,18 @@ def test_sampling_constraints_use_valid_vocabulary():
     from llm_api_search.providers.base import SamplingConstraint, SamplingStatus, SamplingWhen
     from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
 
+    _VALID_PARAM_NAMES = {
+        "temperature", "top_p", "top_k", "frequency_penalty",
+        "presence_penalty", "min_p", "repetition_penalty",
+    }
+
     for provider, configs in PROVIDER_THINKING_CONFIGS.items():
         for mid, tc in configs.items():
             for param, c in tc.sampling_params_allowed.items():
                 ctx = f"{provider}/{mid}/{param}"
+                assert param in _VALID_PARAM_NAMES, (
+                    f"{provider}/{mid}: unrecognized sampling parameter key {param!r}"
+                )
                 assert isinstance(c, SamplingConstraint), ctx
                 assert isinstance(c.status, SamplingStatus), ctx
                 assert isinstance(c.when, SamplingWhen), ctx
