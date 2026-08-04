@@ -12,3 +12,4 @@ logs/
 # weekly auto-update PR body by the workflow; never committed).
 model_update_notes.md
 .venv_test/
+.DS_Store

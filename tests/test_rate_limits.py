@@ -216,7 +216,9 @@ def test_kimi_rate_limits_shared_across_tiers():
 
 def test_qwen_rate_limits_single_default_tier():
     limits = get_rate_limits("qwen")
-    assert set(limits.keys()) == {"qwen3.7-max", "qwen3.7-plus"}
+    assert set(limits.keys()) == {
+        "qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus",
+    }
     for entry in limits.values():
         assert set(entry.keys()) == {"default"}
     max_rl = get_rate_limits("qwen", "qwen3.7-max", tier="default")["qwen3.7-max"]
