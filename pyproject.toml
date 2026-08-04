@@ -14,9 +14,11 @@ keywords = ["llm", "api", "anthropic", "claude", "gemini", "openai"]
 anthropic = ["anthropic"]
 google = ["google-genai"]
 openai = ["openai"]
-mcp = ["mcp[cli]"]
+# mcp 2.0 removed mcp.server.fastmcp (breaking restructure) — pin below 2
+# until mcp_servers/ is migrated to the 2.0 API.
+mcp = ["mcp[cli]<2"]
 test = ["pytest"]
-all = ["anthropic", "google-genai", "openai", "mcp[cli]"]
+all = ["anthropic", "google-genai", "openai", "mcp[cli]<2"]
 
 [tool.setuptools.packages.find]
 include = ["llm_api_search*"]
