@@ -3,7 +3,7 @@
 Sources:
   https://docs.z.ai/guides/overview/concept-param  (parameter support ranges)
   https://docs.z.ai/guides/capabilities/thinking     (reasoning_effort values)
-Verified: 2026-07-01
+Verified: 2026-07-01 (glm-5-turbo re-verified 2026-08-04)
 
 GLM exposes two distinct thinking controls with different model ranges:
 
@@ -44,5 +44,10 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "glm-5": _GLM_TOGGLE,
     "glm-4.6": _GLM_TOGGLE,
     "glm-4.5-air": _GLM_TOGGLE,
+    # Named verbatim in the Deep Thinking supported list ("GLM-5.2 GLM-5.1
+    # GLM-5 GLM-5-Turbo GLM-5V-Turbo GLM-4.5 GLM-4.6 GLM-4.7 series") and in
+    # its auto-decide group. The -flash variants (glm-4.5-flash,
+    # glm-4.6v-flash) are deliberately absent — that page does not list them.
+    "glm-5-turbo": _GLM_TOGGLE,
     "glm-5v-turbo": _GLM_TOGGLE,
 }
