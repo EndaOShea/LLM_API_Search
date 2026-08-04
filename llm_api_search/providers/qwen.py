@@ -87,7 +87,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='qwen3.5-plus',
         display_name='Qwen3.5 Plus',
-        description="Multimodal plus-tier model (text/image/video input). 1,000,000 token context, 65,536 max output, 81K max reasoning. Tool calling plus built-in web search and code interpreter. Thinking via enable_thinking + thinking_budget. Explicit cache: $0.5 create / $0.04 read per Mtok. Pricing is uniform across context tiers.",
+        description='Multimodal plus-tier model (text/image/video input). 1,000,000 token context, 65,536 max output, 81K max reasoning. Tool calling plus built-in web search and code interpreter. Thinking via enable_thinking + thinking_budget. Explicit cache: $0.5 create / $0.04 read per Mtok. Pricing is uniform across context tiers.',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -100,7 +100,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='qwen3.6-plus',
         display_name='Qwen3.6 Plus',
-        description="Multimodal plus-tier model (text/image/video input). 1,000,000 token context, 65,536 max output. Tool calling plus built-in web search, code interpreter, web extractor, and image search tools. Thinking via enable_thinking + thinking_budget. Explicit cache: $0.625 create / $0.05 read per Mtok. Pricing is uniform across context tiers.",
+        description='Multimodal plus-tier model (text/image/video input). 1,000,000 token context, 65,536 max output. Tool calling plus built-in web search, code interpreter, web extractor, and image search tools. Thinking via enable_thinking + thinking_budget. Explicit cache: $0.625 create / $0.05 read per Mtok. Pricing is uniform across context tiers.',
         context_window=1_000_000,
         max_output_tokens=65_536,
         supports_vision=True,
