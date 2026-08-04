@@ -125,6 +125,40 @@ class ThinkingMode(str, Enum):
     NONE = "none"                     # model does not think (default for non-capable models)
 
 
+class SamplingStatus(str, Enum):
+    """How a sampling parameter may be used on a given model."""
+
+    ALLOWED = "allowed"            # settable freely (recorded only when verified)
+    RANGE = "range"                # settable within [min, max]
+    DEFAULT_ONLY = "default_only"  # must be omitted or left at the API default
+    FORBIDDEN = "forbidden"        # must not be set
+    UNSUPPORTED = "unsupported"    # the provider API has no such parameter
+
+
+class SamplingWhen(str, Enum):
+    """When a sampling constraint applies."""
+
+    ALWAYS = "always"
+    THINKING_ENABLED = "thinking_enabled"
+
+
+@dataclass
+class SamplingConstraint:
+    """One sampling-parameter rule (e.g. ``temperature``) on one model.
+
+    ``when=THINKING_ENABLED`` means the rule bites only while thinking is
+    on; with thinking off the provider's normal sampling rules apply
+    (deliberately not modeled here — see the 2026-08-04 design spec).
+    """
+
+    status: SamplingStatus
+    when: SamplingWhen = SamplingWhen.ALWAYS
+    value: float | None = None   # reserved for a future pinned case
+    min: float | None = None     # RANGE only
+    max: float | None = None     # RANGE only
+    notes: str = ""
+
+
 @dataclass
 class ThinkingConfig:
     """Thinking / reasoning-control configuration for a single model.
@@ -144,6 +178,7 @@ class ThinkingConfig:
     supports_dynamic: bool = False                    # e.g. Gemini thinkingBudget=-1
     can_disable: bool = False
     notes: str = ""
+    sampling_params_allowed: dict[str, SamplingConstraint] = field(default_factory=dict)
 
 
 @dataclass

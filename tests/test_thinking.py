@@ -274,3 +274,23 @@ def test_no_orphan_thinking_config_keys():
         static_ids = {m.model_id for m in PROVIDERS[provider]().get_static_info().models}
         for mid in configs:
             assert mid in static_ids, f"{provider}/{mid}: not a known static model id"
+
+
+def test_sampling_constraint_dataclass_shape():
+    from llm_api_search.providers.base import (
+        SamplingConstraint, SamplingStatus, SamplingWhen, ThinkingConfig,
+    )
+
+    # Defaults: unconditional, no numeric fields.
+    c = SamplingConstraint(status=SamplingStatus.FORBIDDEN)
+    assert c.when is SamplingWhen.ALWAYS
+    assert c.value is None and c.min is None and c.max is None
+    assert c.notes == ""
+
+    # str-Enums serialize to plain strings (same idiom as ThinkingMode).
+    assert SamplingStatus.DEFAULT_ONLY.value == "default_only"
+    assert SamplingWhen.THINKING_ENABLED.value == "thinking_enabled"
+
+    # ThinkingConfig grows the field, empty by default so all existing
+    # registry entries stay valid unchanged.
+    assert ThinkingConfig().sampling_params_allowed == {}
