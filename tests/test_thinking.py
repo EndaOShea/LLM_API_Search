@@ -294,3 +294,46 @@ def test_sampling_constraint_dataclass_shape():
     # ThinkingConfig grows the field, empty by default so all existing
     # registry entries stay valid unchanged.
     assert ThinkingConfig().sampling_params_allowed == {}
+
+
+def test_thinking_config_to_dict_serializes_sampling_constraints():
+    from llm_api_search.providers import thinking_config_to_dict
+    from llm_api_search.providers.base import (
+        SamplingConstraint, SamplingStatus, SamplingWhen,
+        ThinkingConfig, ThinkingMode,
+    )
+
+    tc = ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort", levels=["low", "high"],
+        default_level="high", can_disable=True,
+        sampling_params_allowed={
+            "temperature": SamplingConstraint(status=SamplingStatus.DEFAULT_ONLY),
+            "top_p": SamplingConstraint(
+                status=SamplingStatus.RANGE, min=0.95, max=1.0,
+                when=SamplingWhen.THINKING_ENABLED,
+            ),
+        },
+    )
+    d = thinking_config_to_dict(tc)
+
+    # Enums coerced to plain strings; None fields dropped inside constraints.
+    assert d["sampling_params_allowed"]["temperature"] == {
+        "status": "default_only", "when": "always",
+    }
+    assert d["sampling_params_allowed"]["top_p"] == {
+        "status": "range", "when": "thinking_enabled", "min": 0.95, "max": 1.0,
+    }
+
+    # Models with no constraints: the empty dict is dropped entirely,
+    # like every other None/empty field.
+    bare = ThinkingConfig(supported=True, mode=ThinkingMode.TOKEN_BUDGET,
+                          parameter="thinkingBudget", max_budget=1000)
+    assert "sampling_params_allowed" not in thinking_config_to_dict(bare)
+
+
+def test_mcp_serializer_is_the_library_serializer():
+    # One serializer, two surfaces: the MCP module must not keep its own copy.
+    from llm_api_search.providers import thinking_config_to_dict
+    from mcp_servers.llm_api_search import _tc_to_dict
+    assert _tc_to_dict is thinking_config_to_dict
