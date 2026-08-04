@@ -367,3 +367,64 @@ def test_anthropic_sampling_constraint_generation_split():
         assert sp["top_p"].status is SamplingStatus.RANGE
         assert sp["top_p"].min == 0.95 and sp["top_p"].max == 1.0
         assert sp["top_p"].when is SamplingWhen.THINKING_ENABLED
+
+
+# Providers whose official docs currently publish no thinking-time sampling
+# constraints (or where we have not yet completed sourced research). A
+# provider leaves this set the moment its constraints are authored — the
+# coverage test below then enforces them for every reasoning model. Never
+# author guessed values to clear an entry; that violates the
+# official-sources rule (see the 2026-08-04 design spec).
+_SAMPLING_EXEMPT_PROVIDERS = {
+    "openai",     # reasoning guide + API ref silent on sampling restrictions (checked 2026-08-04)
+    "google",     # not yet researched
+    "deepseek",   # not yet researched
+    "inception",  # not yet researched
+    "zai",        # not yet researched
+    "minimax",    # not yet researched
+    "kimi",       # not yet researched
+    "qwen",       # not yet researched
+    "mistral",    # not yet researched
+}
+
+
+def test_supported_models_have_sampling_constraints_or_exemption():
+    """Forcing function: a reasoning model can't ship without constraint data.
+
+    Every supported=True config must either carry sampling_params_allowed
+    or belong to an explicitly exempted provider.
+    """
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+
+    for provider, configs in PROVIDER_THINKING_CONFIGS.items():
+        if provider in _SAMPLING_EXEMPT_PROVIDERS:
+            continue
+        for mid, tc in configs.items():
+            if not tc.supported:
+                continue
+            assert tc.sampling_params_allowed, (
+                f"{provider}/{mid}: supported=True but no sampling_params_allowed — "
+                f"author it from official docs or add the provider to "
+                f"_SAMPLING_EXEMPT_PROVIDERS in this file"
+            )
+
+
+def test_sampling_constraints_use_valid_vocabulary():
+    """Every stored constraint is well-formed, wherever it is authored."""
+    from llm_api_search.providers.base import SamplingConstraint, SamplingStatus, SamplingWhen
+    from llm_api_search.providers.thinking import PROVIDER_THINKING_CONFIGS
+
+    for provider, configs in PROVIDER_THINKING_CONFIGS.items():
+        for mid, tc in configs.items():
+            for param, c in tc.sampling_params_allowed.items():
+                ctx = f"{provider}/{mid}/{param}"
+                assert isinstance(c, SamplingConstraint), ctx
+                assert isinstance(c.status, SamplingStatus), ctx
+                assert isinstance(c.when, SamplingWhen), ctx
+                if c.status is SamplingStatus.RANGE:
+                    assert c.min is not None and c.max is not None, (
+                        f"{ctx}: RANGE requires min and max")
+                    assert c.min <= c.max, ctx
+                if c.status is SamplingStatus.UNSUPPORTED:
+                    assert c.value is None and c.min is None and c.max is None, (
+                        f"{ctx}: UNSUPPORTED must carry no numeric fields")
