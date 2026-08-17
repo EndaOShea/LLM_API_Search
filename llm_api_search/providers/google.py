@@ -854,6 +854,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=2.0,
         output_cost_per_mtok=10.0,
     ),
+    TextModelInfo(
+        model_id='gemini-3.7-flash',
+        display_name='Gemini 3.7 Flash',
+        description='Gemini 3.7 Flash',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
