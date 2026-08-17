@@ -28,11 +28,20 @@ from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
 _LEVEL_NOTE = "Response pricing = output tokens + thinking tokens."
 
 
-def _gemini3(default_level: str, can_disable: bool) -> ThinkingConfig:
+def _gemini3(
+    default_level: str,
+    can_disable: bool,
+    levels: list[str] | None = None,
+) -> ThinkingConfig:
+    """Gemini 3.x thinkingLevel config.
+
+    ``levels`` defaults to the full family ladder. Pass it explicitly for
+    models that reject part of it — gemini-3.7-flash errors on "minimal".
+    """
     return ThinkingConfig(
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,
         parameter="thinkingLevel",
-        levels=["minimal", "low", "medium", "high"],
+        levels=levels if levels is not None else ["minimal", "low", "medium", "high"],
         default_level=default_level, can_disable=can_disable,
         notes=_LEVEL_NOTE,
     )
@@ -61,6 +70,11 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-3-flash-preview": _gemini3("medium", can_disable=False),
     "gemini-3.5-flash": _gemini3("medium", can_disable=False),
     "gemini-3.6-flash": _gemini3("medium", can_disable=False),
+    # 3.7 Flash drops "minimal" — the docs' thinkingLevel table lists only
+    # low/medium/high, and passing "minimal" returns an error.
+    "gemini-3.7-flash": _gemini3(
+        "medium", can_disable=False, levels=["low", "medium", "high"],
+    ),
     "gemini-3.1-flash-lite": _gemini3("medium", can_disable=False),
     "gemini-3.5-flash-lite": _gemini3("medium", can_disable=False),
     # Robotics-ER 2 (thinkingLevel). Docs don't publish its default level —

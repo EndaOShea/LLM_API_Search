@@ -58,10 +58,23 @@ _PROVIDER_FILES = {
     "mistral": PROJECT_ROOT / "llm_api_search" / "providers" / "mistral.py",
 }
 
-# Models to exclude from updates — superseded or deprecated model IDs per provider.
+# Models to exclude from updates — per provider, IDs that must not be
+# auto-added to _STATIC_MODELS. Two reasons qualify:
+#   * superseded/deprecated IDs, or generic aliases (inception, deepseek);
+#   * models the live /models endpoint already serves but the provider has
+#     not yet published a per-token rate card for (zai glm-5.3). Every static
+#     model must carry pricing, and pricing is never guessed, so such a model
+#     cannot be curated until its price is official.
+# NOTE: exclusion is silent — _merge_models drops these before the new-model
+# count, so nothing re-flags them once a price is finally published.
 _EXCLUDED_MODELS: dict[str, set[str]] = {
     "inception": {"mercury", "mercury-coder"},
     "deepseek": {"deepseek-chat", "deepseek-reasoner"},
+    # Served by /models but GA pricing is unpublished — GLM-5.3 is currently
+    # reachable only via the subscription GLM Coding Plan, and docs.z.ai's
+    # pricing table still stops at GLM-5.2 (checked 2026-08-17). Remove this
+    # entry once Z.ai publishes a per-1M-token rate.
+    "zai": {"glm-5.3"},
 }
 
 # Regex that matches the entire `_STATIC_MODELS = [...]` block.
