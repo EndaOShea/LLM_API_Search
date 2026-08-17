@@ -63,6 +63,15 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-2": RateLimit(requests_per_minute=2_000, tokens_per_minute=3_000_000, requests_per_day=100_000),
         "tier-3": RateLimit(requests_per_minute=20_000, tokens_per_minute=20_000_000),
     },
+    # Mirrors gemini-3.6-flash (closest GA Flash analog). Google no longer
+    # publishes per-model interactive RPM/TPM/RPD in the public docs — they
+    # are only visible in the AI Studio dashboard. Refine when verified.
+    "gemini-3.7-flash": {
+        "free": RateLimit(requests_per_minute=5, tokens_per_minute=250_000, requests_per_day=20),
+        "tier-1": RateLimit(requests_per_minute=1_000, tokens_per_minute=1_000_000, requests_per_day=10_000),
+        "tier-2": RateLimit(requests_per_minute=2_000, tokens_per_minute=3_000_000, requests_per_day=100_000),
+        "tier-3": RateLimit(requests_per_minute=20_000, tokens_per_minute=20_000_000),
+    },
     "gemini-3.1-pro-preview": {
         "tier-1": RateLimit(requests_per_minute=25, tokens_per_minute=2_000_000, requests_per_day=250),
         "tier-2": RateLimit(requests_per_minute=1_000, tokens_per_minute=5_000_000, requests_per_day=50_000),
