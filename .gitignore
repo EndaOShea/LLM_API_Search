@@ -13,3 +13,4 @@ logs/
 model_update_notes.md
 .venv_test/
 .DS_Store
+.venv/

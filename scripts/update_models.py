@@ -242,6 +242,18 @@ def _merge_models(
                     continue
                 if f.name not in kwargs:
                     kwargs[f.name] = getattr(static_m, f.name)
+        else:
+            # New model: carry through whatever the live API actually told us
+            # (e.g. Gemini's inputTokenLimit/outputTokenLimit) instead of
+            # letting every field fall to its dataclass default.  Only non-None
+            # live values are copied, so unpopulated fields still land as None
+            # and show up as a `TODO` for the human reviewing the update PR.
+            for f in fields(type(live_m)):
+                if f.name in ("model_id", "display_name", "description", "model_type"):
+                    continue
+                value = getattr(live_m, f.name, None)
+                if value is not None:
+                    kwargs[f.name] = value
 
         if model_id in pricing_map:
             kwargs.update(pricing_map[model_id])

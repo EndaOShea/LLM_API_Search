@@ -134,6 +134,7 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
     "deepseek": {
         "deepseek-v4-flash",
         "deepseek-v4-pro",
+        "deepseek-v4-flash-vision-exp",
     },
     # Z.ai does not publish per-model tier rate limits (RPM/TPM).  The rate-
     # limit reference page describes general service limits only.  This is a
