@@ -867,6 +867,32 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.75,  # introductory; $1.50 from 2027-01-01
         output_cost_per_mtok=3.75,  # introductory; $7.50 from 2027-01-01
     ),
+    TextModelInfo(
+        model_id='gemini-robotics-er-2-streaming-preview',
+        display_name='Gemini Robotics-ER 2 Streaming Preview',
+        description='Gemini Robotics-ER 2 Streaming Preview',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gemini-3.5-live-translate-preview',
+        display_name='Gemini 3.5 Live Translate Preview',
+        description='Gemini 3.5 Live Translate Preview',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
