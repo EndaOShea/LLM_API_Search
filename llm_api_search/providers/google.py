@@ -376,15 +376,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-robotics-er-1.6-preview',
         display_name='Gemini Robotics-ER 1.6 Preview',
-        description='Gemini Robotics-ER 1.6 Preview',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='Embodied reasoning thinking model for robotics: understands physical spaces and plans multi-step tasks for robotic agents, with instrument reading and improved spatial and physical reasoning. Text/image/video/audio input.',
+        context_window=None,  # not published
+        max_output_tokens=None,  # not published
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=1.0,  # text/image/video; $2.00 audio
+        output_cost_per_mtok=5.0,
     ),
     TextModelInfo(
         model_id='gemini-2.5-computer-use-preview-10-2025',
@@ -614,15 +614,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-3.1-flash-live-preview',
         display_name='Gemini 3.1 Flash Live Preview',
-        description='Gemini 3.1 Flash Live Preview',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='Low-latency audio-to-audio Live API model for real-time dialogue and voice-first applications, with acoustic nuance detection, numeric precision, and multimodal awareness. Supports grounding with Google Search.',
+        context_window=None,  # not published for the Live API endpoint
+        max_output_tokens=None,  # not published for the Live API endpoint
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.75,  # text; $3.00 audio, $1.00 image/video
+        output_cost_per_mtok=4.5,  # text; $12.00 audio
     ),
     TextModelInfo(
         model_id='gemma-3-1b-it',
@@ -805,15 +805,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-omni-flash-preview',
         display_name='Gemini Omni Flash Preview',
-        description='Gemini Omni Flash Preview',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
+        description='Fast conversational video generation and editing: turns text and images into video and refines results through natural language. Paid tier only. Billed per token rather than per clip, so it is curated as a text model; video output is 5,792 tokens per second of 720p (~$0.10/sec).',
+        context_window=None,  # not published
+        max_output_tokens=None,  # not published
+        supports_vision=True,
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=1.5,  # text/image/video/audio
+        output_cost_per_mtok=9.0,  # text; $17.50 video (~$0.10/sec of 720p)
     ),
     TextModelInfo(
         model_id='gemini-3.5-flash-lite',
@@ -866,6 +866,32 @@ _STATIC_MODELS = [
         supports_computer_use=True,
         input_cost_per_mtok=0.75,  # introductory; $1.50 from 2027-01-01
         output_cost_per_mtok=3.75,  # introductory; $7.50 from 2027-01-01
+    ),
+    TextModelInfo(
+        model_id='gemini-robotics-er-2-streaming-preview',
+        display_name='Gemini Robotics-ER 2 Streaming Preview',
+        description='Embodied Reasoning 2 endpoint optimized for real-time text streaming over the Live API: bidirectional WebSocket sessions with blocking function calling, for reactive robot agents. Text/image/video/audio input, text output. Not available on ER 1.6 or the standard ER 2 endpoint.',
+        context_window=None,  # not published for the Live API endpoint
+        max_output_tokens=None,  # not published for the Live API endpoint
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=2.0,
+        output_cost_per_mtok=10.0,
+    ),
+    TextModelInfo(
+        model_id='gemini-3.5-live-translate-preview',
+        display_name='Gemini 3.5 Live Translate Preview',
+        description='Low-latency real-time speech-to-speech translation across 70+ languages over the Live API. Continuous stream processing rather than turn-based; audio input only, and no tool use or system instructions. Configured via target_language_code.',
+        context_window=None,  # not published for the Live API endpoint
+        max_output_tokens=None,  # not published for the Live API endpoint
+        supports_vision=False,
+        supports_tool_use=False,  # Live Translate supports translation only
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=3.5,  # audio; ~$0.0053/min at 25 tokens/sec
+        output_cost_per_mtok=21.0,  # audio; ~$0.0315/min at 25 tokens/sec
     ),
 ]
 
@@ -936,13 +962,24 @@ class GeminiProvider(Provider):
                 if not model_id:
                     continue
                 model_cls = self._model_class_for_id(model_id)
-                live_models.append(
-                    model_cls(
-                        model_id=model_id,
-                        display_name=m.get("displayName", model_id),
-                        description=m.get("description", ""),
-                    )
-                )
+                kwargs = {
+                    "model_id": model_id,
+                    "display_name": m.get("displayName", model_id),
+                    "description": m.get("description", ""),
+                }
+                # /v1beta/models publishes token limits; carry them through so
+                # auto-added models don't land with context_window=None. Only
+                # TextModelInfo has these fields, and the API omits them for
+                # some endpoints (Live API, robotics), so both are guarded.
+                if model_cls is TextModelInfo:
+                    for api_key_name, field in (
+                        ("inputTokenLimit", "context_window"),
+                        ("outputTokenLimit", "max_output_tokens"),
+                    ):
+                        value = m.get(api_key_name)
+                        if isinstance(value, int) and value > 0:
+                            kwargs[field] = value
+                live_models.append(model_cls(**kwargs))
             if live_models:
                 info.models = live_models
         except (urllib.error.URLError, json.JSONDecodeError, KeyError, OSError) as exc:

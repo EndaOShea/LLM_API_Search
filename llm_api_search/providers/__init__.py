@@ -73,6 +73,10 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # Versioned snapshots (non-date suffix format)
         "gemini-2.0-flash-001",
         "gemini-2.0-flash-lite-001",
+        # Gemini 2.0 family: marked "(Shut down)" under "Previous models"
+        # on ai.google.dev/gemini-api/docs/models.
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
         # Specialized/niche
         "aqa",
         # Replaced by GA gemini-3.1-flash-lite; shuts down 2026-05-25

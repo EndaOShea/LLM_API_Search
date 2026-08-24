@@ -4,13 +4,15 @@ DeepSeek's API is OpenAI-compatible (see https://api-docs.deepseek.com/).
 Snippets use the ``openai`` SDK pointed at ``https://api.deepseek.com``,
 which is the integration path DeepSeek's own docs recommend.
 
-Pricing notes:
+Pricing notes (source: https://api-docs.deepseek.com/quick_start/pricing):
+- DeepSeek bills two rates per model: *peak* (01:00-04:00 and 06:00-10:00
+  UTC, Monday-Friday) and *off-peak* (all other hours), where off-peak is
+  exactly half of peak. The single price field per direction records the
+  **peak** rate so callers plan for the worst case; the off-peak half is
+  noted in a trailing comment on each entry.
 - Input pricing recorded here is the *cache miss* rate. DeepSeek charges
-  significantly less on cache hits ($0.0028/Mtok flash, $0.0145/Mtok pro)
-  but most callers should plan for the cache-miss case.
-- V4-Pro's discounted rate ($0.435 in / $0.87 out) — originally a 75% promo
-  scheduled to expire 2026-05-31 — has been made permanent and is the rate
-  recorded here.
+  far less on cache hits ($0.014/Mtok flash and vision, $0.044/Mtok pro at
+  peak) but most callers should plan for the cache-miss case.
 - ``deepseek-chat`` and ``deepseek-reasoner`` are scheduled for deprecation
   on 2026-07-24 and are intentionally not listed.
 """
@@ -56,8 +58,8 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.435,
-        output_cost_per_mtok=0.87,
+        input_cost_per_mtok=1.32,  # peak, cache miss; $0.66 off-peak
+        output_cost_per_mtok=3.96,  # peak; $1.98 off-peak
     ),
     TextModelInfo(
         model_id='deepseek-v4-flash',
@@ -69,8 +71,21 @@ _STATIC_MODELS = [
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.14,
-        output_cost_per_mtok=0.28,
+        input_cost_per_mtok=0.44,  # peak, cache miss; $0.22 off-peak
+        output_cost_per_mtok=1.32,  # peak; $0.66 off-peak
+    ),
+    TextModelInfo(
+        model_id='deepseek-v4-flash-vision-exp',
+        display_name='DeepSeek V4 Flash Vision (Experimental)',
+        description='Experimental vision-capable variant of V4 Flash (DeepSeek-V4-Flash-Vision-Exp). Accepts images alongside text; images are converted to input tokens by dimension. 1M token context, up to 384K output. Supports tool calls, JSON output, and chat prefix completion; FIM completion is not supported.',
+        context_window=1_000_000,
+        max_output_tokens=384_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.44,  # peak, cache miss; $0.22 off-peak
+        output_cost_per_mtok=1.32,  # peak; $0.66 off-peak
     ),
 ]
 
