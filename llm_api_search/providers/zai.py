@@ -186,6 +186,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=1.2,
         output_cost_per_mtok=4.0,
     ),
+    TextModelInfo(
+        model_id='glm-5.3-flash',
+        display_name='glm-5.3-flash',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 

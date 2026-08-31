@@ -893,6 +893,45 @@ _STATIC_MODELS = [
         input_cost_per_mtok=3.5,  # audio; ~$0.0053/min at 25 tokens/sec
         output_cost_per_mtok=21.0,  # audio; ~$0.0315/min at 25 tokens/sec
     ),
+    TextModelInfo(
+        model_id='gemini-omni-1.1-flash',
+        display_name='Gemini Omni 1.1 Flash',
+        description='Gemini Omni 1.1 Flash ',
+        context_window=131_072,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gemini-3.5-transcribe',
+        display_name='Gemini 3.5 Transcribe',
+        description='Gemini 3.5 Transcribe',
+        context_window=98_304,
+        max_output_tokens=32_768,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='gemini-3.5-transcribe-live',
+        display_name='Gemini 3.5 Transcribe Live',
+        description='Gemini 3.5 Transcribe Live',
+        context_window=131_072,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
