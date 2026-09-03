@@ -610,7 +610,7 @@ def test_zai_static_info():
     # Vision flag on the vision models.
     vision = {m.model_id for m in info.models
               if isinstance(m, TextModelInfo) and m.supports_vision}
-    assert vision == {"glm-5v-turbo", "glm-4.6v-flash"}
+    assert vision == {"glm-5v-turbo", "glm-4.6v-flash", "glm-5.3-flash"}
     # Correct subtypes for image/video.
     by_id = {m.model_id: m for m in info.models}
     assert isinstance(by_id["cogview-4"], ImageModelInfo)
