@@ -81,6 +81,10 @@ LEGACY_MODELS: dict[str, set[str]] = {
         "aqa",
         # Replaced by GA gemini-3.1-flash-lite; shuts down 2026-05-25
         "gemini-3.1-flash-lite-preview",
+        # Google is refusing this model to new accounts as of 2026-09-03
+        # (firsthand report, not yet reflected in ai.google.dev docs).
+        # Superseded by gemini-3.1-flash-lite / gemini-3.5-flash-lite anyway.
+        "gemini-2.5-flash-lite",
     },
     "inception": {
         "mercury", "mercury-coder",
