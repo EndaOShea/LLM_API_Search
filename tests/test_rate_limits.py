@@ -140,6 +140,8 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
     # limit reference page describes general service limits only.  This is a
     # publisher policy, not a coverage gap.
     "zai": {
+        "glm-5.3",
+        "glm-5.3-flash",
         "glm-5.2",
         "glm-5.1",
         "glm-5",

@@ -9,7 +9,8 @@ import urllib.error
 
 from llm_api_search.providers.base import (
     ModelInfo, ModelType, TextModelInfo, ImageModelInfo, AudioTTSModelInfo,
-    EmbeddingModelInfo, MusicModelInfo, VideoModelInfo, Provider, ProviderInfo,
+    AudioTranscriptionModelInfo, EmbeddingModelInfo, MusicModelInfo,
+    VideoModelInfo, Provider, ProviderInfo,
 )
 
 _STATIC_MODELS = [
@@ -893,6 +894,31 @@ _STATIC_MODELS = [
         input_cost_per_mtok=3.5,  # audio; ~$0.0053/min at 25 tokens/sec
         output_cost_per_mtok=21.0,  # audio; ~$0.0315/min at 25 tokens/sec
     ),
+    VideoModelInfo(
+        model_id='gemini-omni-1.1-flash',
+        display_name='Gemini Omni Flash',
+        description='Next-generation video generation and conversational video editing model, GA on the paid tier only. Billed on total output token consumption at 5,792 tokens per second of 720p video ($17.50/Mtok video output), giving the effective per-second rate recorded here; text output is billed separately at $9.00/Mtok and all input at $1.50/Mtok. 720p is the only resolution Google documents, and native audio output is not documented for this model (Veo 3.1 is the one described as generating native audio), so supports_audio is recorded conservatively as False.',
+        supported_resolutions=['720p'],
+        supports_audio=False,
+        cost_per_second=0.1,
+        cost_per_video=None,
+    ),
+    AudioTranscriptionModelInfo(
+        model_id='gemini-3.5-transcribe',
+        display_name='Gemini 3.5 Transcribe',
+        description="Speech-to-text model with automatic language detection, speaker diarization, word-level timestamps, and custom vocabulary biasing. Paid tier is $2.00/Mtok audio input and $12.00/Mtok text output; the per-minute rate recorded here is Google's blended estimate at 25 audio tokens/sec in and 175 text tokens/min out. Free of charge on the free tier.",
+        supported_input_formats=[],
+        max_file_size_mb=None,
+        cost_per_minute=0.005,
+    ),
+    AudioTranscriptionModelInfo(
+        model_id='gemini-3.5-transcribe-live',
+        display_name='Gemini 3.5 Transcribe Live',
+        description="Low-latency, real-time speech-to-text for bidirectional streaming audio over WebSockets. Paid tier is $3.50/Mtok audio input and $21.00/Mtok text output; the per-minute rate recorded here is Google's blended estimate at 25 audio tokens/sec in and 175 text tokens/min out. Free of charge on the free tier.",
+        supported_input_formats=[],
+        max_file_size_mb=None,
+        cost_per_minute=0.009,
+    ),
 ]
 
 
@@ -934,6 +960,10 @@ class GeminiProvider(Provider):
             return EmbeddingModelInfo
         elif "tts" in model_id:
             return AudioTTSModelInfo
+        elif "transcribe" in model_id:
+            return AudioTranscriptionModelInfo
+        elif model_id.startswith("gemini-omni-"):
+            return VideoModelInfo
         elif model_id.startswith("lyria"):
             return MusicModelInfo
         elif model_id.startswith("veo-"):

@@ -12,8 +12,12 @@ GLM exposes two distinct thinking controls with different model ranges:
     above ONLY. Internally low/medium collapse to high and xhigh collapses to
     max, so only "high" and "max" are natively distinct.
 
-So glm-5.2 exposes graded ``reasoning_effort``; the older thinking-capable GLM
-models expose only the enable/disable toggle.
+GLM-5.3 and GLM-5.3-Flash also take ``reasoning_effort`` but narrow it to
+``low``/``high``/``max`` (default ``max``) and force thinking on —
+"thinking.type only supports enabled; thinking cannot be disabled".
+
+So glm-5.2 and the glm-5.3 family expose graded ``reasoning_effort``; the older
+thinking-capable GLM models expose only the enable/disable toggle.
 """
 
 from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
@@ -29,6 +33,16 @@ _GLM_EFFORT = ThinkingConfig(
           "Disable via thinking={type:'disabled'}.",
 )
 
+# GLM-5.3 family: graded reasoning_effort, narrowed levels, thinking forced on.
+_GLM_53_EFFORT = ThinkingConfig(
+    supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+    parameter="reasoning_effort",
+    levels=["low", "high", "max"], default_level="max", can_disable=False,
+    notes="Graded reasoning_effort, but only low/high/max are accepted on the "
+          "GLM-5.3 family (GLM-5.2's minimal/medium/xhigh/none are not). "
+          "Thinking is always on: thinking.type only supports 'enabled'.",
+)
+
 # GLM-4.5+ thinking-capable models without graded effort: on/off toggle only.
 _GLM_TOGGLE = ThinkingConfig(
     supported=True, mode=ThinkingMode.TOGGLE,
@@ -39,6 +53,8 @@ _GLM_TOGGLE = ThinkingConfig(
 )
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    "glm-5.3": _GLM_53_EFFORT,
+    "glm-5.3-flash": _GLM_53_EFFORT,
     "glm-5.2": _GLM_EFFORT,
     "glm-5.1": _GLM_TOGGLE,
     "glm-5": _GLM_TOGGLE,
