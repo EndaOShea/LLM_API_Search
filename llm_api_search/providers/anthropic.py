@@ -67,15 +67,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='claude-sonnet-5',
         display_name='Claude Sonnet 5',
-        description='The best combination of speed and intelligence. Introductory pricing ($2/$10 per Mtok) through Aug 31, 2026; standard pricing ($3/$15) after.',
+        description='The best combination of speed and intelligence. Standard pricing ($3/$15 per Mtok); the $2/$10 introductory rate ended Aug 31, 2026.',
         context_window=1_000_000,
         max_output_tokens=128_000,
         supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=2.0,
-        output_cost_per_mtok=10.0,
+        input_cost_per_mtok=3.0,
+        output_cost_per_mtok=15.0,
     ),
     TextModelInfo(
         model_id='claude-sonnet-4-6',
