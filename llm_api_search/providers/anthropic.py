@@ -220,6 +220,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=5.0,
         output_cost_per_mtok=25.0,
     ),
+    TextModelInfo(
+        model_id='claude-fable-5-1',
+        display_name='Claude Fable 5.1',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 _API_VERSION = "2023-06-01"

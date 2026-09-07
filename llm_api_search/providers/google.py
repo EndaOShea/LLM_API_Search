@@ -919,6 +919,25 @@ _STATIC_MODELS = [
         max_file_size_mb=None,
         cost_per_minute=0.009,
     ),
+    TextModelInfo(
+        model_id='gemini-3.8-flash',
+        display_name='Gemini 3.8 Flash',
+        description='Gemini 3.8 Flash',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    MusicModelInfo(
+        model_id='lyria-3.5',
+        display_name='Lyria 3.5',
+        description='Music Generation model',
+        cost_per_second=None,  # TODO: add pricing
+    ),
 ]
 
 
