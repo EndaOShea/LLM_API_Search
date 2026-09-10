@@ -72,6 +72,14 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-2": RateLimit(requests_per_minute=2_000, tokens_per_minute=3_000_000, requests_per_day=100_000),
         "tier-3": RateLimit(requests_per_minute=20_000, tokens_per_minute=20_000_000),
     },
+    # Same caveat as gemini-3.7-flash above: mirrored from the closest GA Flash
+    # analog because Google publishes no per-model interactive limits for it.
+    "gemini-3.8-flash": {
+        "free": RateLimit(requests_per_minute=5, tokens_per_minute=250_000, requests_per_day=20),
+        "tier-1": RateLimit(requests_per_minute=1_000, tokens_per_minute=1_000_000, requests_per_day=10_000),
+        "tier-2": RateLimit(requests_per_minute=2_000, tokens_per_minute=3_000_000, requests_per_day=100_000),
+        "tier-3": RateLimit(requests_per_minute=20_000, tokens_per_minute=20_000_000),
+    },
     "gemini-3.1-pro-preview": {
         "tier-1": RateLimit(requests_per_minute=25, tokens_per_minute=2_000_000, requests_per_day=250),
         "tier-2": RateLimit(requests_per_minute=1_000, tokens_per_minute=5_000_000, requests_per_day=50_000),

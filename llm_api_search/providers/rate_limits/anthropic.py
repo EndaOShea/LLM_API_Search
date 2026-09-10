@@ -17,6 +17,26 @@ dedicated limits.
 from llm_api_search.providers.base import RateLimit
 
 RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
+    # Per the rate-limit page's footnote 1, the Fable numbers are a *combined*
+    # limit across Claude Fable 5.1 and Claude Fable 5 — traffic to both draws
+    # from one bucket, so the two entries are identical by design, not copied.
+    "claude-fable-5-1": {
+        "start": RateLimit(
+            requests_per_minute=1_000,
+            input_tokens_per_minute=500_000,
+            output_tokens_per_minute=100_000,
+        ),
+        "build": RateLimit(
+            requests_per_minute=2_000,
+            input_tokens_per_minute=1_500_000,
+            output_tokens_per_minute=300_000,
+        ),
+        "scale": RateLimit(
+            requests_per_minute=4_000,
+            input_tokens_per_minute=4_000_000,
+            output_tokens_per_minute=800_000,
+        ),
+    },
     "claude-fable-5": {
         "start": RateLimit(
             requests_per_minute=1_000,

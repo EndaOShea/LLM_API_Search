@@ -239,8 +239,13 @@ def test_model_pricing_fields():
                 assert m.input_cost_per_mtok is not None, f"{key}/{m.model_id}: missing input_cost_per_mtok"
                 assert m.input_cost_per_mtok >= 0
             elif isinstance(m, MusicModelInfo):
-                assert m.cost_per_second is not None, f"{key}/{m.model_id}: missing cost_per_second"
-                assert m.cost_per_second >= 0
+                has_sec = m.cost_per_second is not None
+                has_song = m.cost_per_song is not None
+                assert has_sec or has_song, f"{key}/{m.model_id}: missing music pricing"
+                if has_sec:
+                    assert m.cost_per_second >= 0
+                if has_song:
+                    assert m.cost_per_song >= 0
             elif isinstance(m, VideoModelInfo):
                 has_sec = m.cost_per_second is not None
                 has_vid = m.cost_per_video is not None
@@ -249,6 +254,28 @@ def test_model_pricing_fields():
                     assert m.cost_per_second >= 0
                 if has_vid:
                     assert m.cost_per_video >= 0
+
+
+def test_music_model_cost_per_song_formats():
+    """Per-song pricing must render, and win over per-second when both are set.
+
+    Google bills the Lyria 3.x line per generated track, so a music model can
+    be fully priced with ``cost_per_second`` left None.
+    """
+    from llm_api_search.providers.base import MusicModelInfo, _format_model_cost
+
+    m = MusicModelInfo(model_id="x", display_name="X", cost_per_song=0.08)
+    assert "$0.08/song" in _format_model_cost(m)
+
+    m = MusicModelInfo(model_id="x", display_name="X", cost_per_second=0.002)
+    assert "$0.002/sec" in _format_model_cost(m)
+
+    m = MusicModelInfo(
+        model_id="x", display_name="X", cost_per_second=0.002, cost_per_song=0.08
+    )
+    assert "$0.08/song" in _format_model_cost(m)
+
+    assert _format_model_cost(MusicModelInfo(model_id="x", display_name="X")) == ""
 
 
 def test_video_model_cost_per_video_formats():

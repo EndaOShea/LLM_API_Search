@@ -75,6 +75,12 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-3.7-flash": _gemini3(
         "medium", can_disable=False, levels=["low", "medium", "high"],
     ),
+    # 3.8 Flash drops "minimal" like 3.7 — the model page states minimal "is not
+    # supported and returns an error". Docs don't publish its default level; it
+    # follows the family's "medium".
+    "gemini-3.8-flash": _gemini3(
+        "medium", can_disable=False, levels=["low", "medium", "high"],
+    ),
     "gemini-3.1-flash-lite": _gemini3("medium", can_disable=False),
     "gemini-3.5-flash-lite": _gemini3("medium", can_disable=False),
     # Robotics-ER 2 (thinkingLevel). Docs don't publish its default level —
