@@ -47,7 +47,29 @@ _GPT5_IDS = [
 ]
 _OSERIES_IDS = ["o3", "o3-pro", "o4-mini"]
 
+
+def _gpt6() -> ThinkingConfig:
+    """GPT-6 widens the effort ladder past ``high`` to ``xhigh`` and ``max``.
+
+    Kept separate from ``_gpt5`` rather than folded in: the GPT-5.x models
+    reject the two new levels, so sharing one config would advertise knobs
+    that 400 on most of the catalog.
+    """
+    return ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="reasoning.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="medium", can_disable=False,
+        notes="Always-on reasoning model. Reasoning tokens billed as output "
+              "tokens. The model page does not document a way to disable "
+              "reasoning, so can_disable follows the rest of the family.",
+    )
+
+
+_GPT6_IDS = ["gpt-6-astra"]
+
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     **{mid: _gpt5() for mid in _GPT5_IDS},
     **{mid: _oseries() for mid in _OSERIES_IDS},
+    **{mid: _gpt6() for mid in _GPT6_IDS},
 }

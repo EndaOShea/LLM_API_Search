@@ -113,6 +113,7 @@ _STATIC_MODELS = [
         display_name='Music-2.6',
         description='MiniMax text-to-music generation (prompt + lyrics). Billed $0.15 per generation of up to 5 minutes (cost_per_second encodes $0.15 / 300s).',
         cost_per_second=0.0005,
+        cost_per_song=None,
     ),
 ]
 

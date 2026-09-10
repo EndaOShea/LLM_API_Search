@@ -85,6 +85,25 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # (firsthand report, not yet reflected in ai.google.dev docs).
         # Superseded by gemini-3.1-flash-lite / gemini-3.5-flash-lite anyway.
         "gemini-2.5-flash-lite",
+        # Everything below Gemini 3.1 is superseded and no longer used.
+        # Gemini 2.5 generation
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "gemini-2.5-flash-image",
+        "gemini-2.5-flash-lite-preview-09-2025",
+        "gemini-2.5-flash-preview-tts",
+        "gemini-2.5-pro-preview-tts",
+        "gemini-2.5-computer-use-preview-10-2025",
+        "gemini-2.5-flash-native-audio-latest",
+        "gemini-2.5-flash-native-audio-preview-09-2025",
+        "gemini-2.5-flash-native-audio-preview-12-2025",
+        # Gemini 3.0 generation. "nano-banana-pro" is Google's marketing
+        # alias for gemini-3-pro-image, so it retires with it.
+        "gemini-3-pro-preview",
+        "gemini-3-flash-preview",
+        "gemini-3-pro-image",
+        "gemini-3-pro-image-preview",
+        "nano-banana-pro-preview",
     },
     "inception": {
         "mercury", "mercury-coder",

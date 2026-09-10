@@ -88,6 +88,9 @@ class MusicModelInfo(ModelInfo):
     """Music generation model."""
     model_type: ModelType = field(default=ModelType.MUSIC, init=False)
     cost_per_second: float | None = None
+    #: Some providers bill a flat rate per generated track rather than by
+    #: duration (Google's Lyria 3.x line). Mirrors VideoModelInfo.cost_per_video.
+    cost_per_song: float | None = None
 
 
 @dataclass
@@ -276,6 +279,8 @@ def _format_model_cost(m: ModelInfo) -> str:
             parts.append(f"${m.input_cost_per_mtok:.2f}/1M tok")
         return f" | {' | '.join(parts)}" if parts else ""
     elif isinstance(m, MusicModelInfo):
+        if m.cost_per_song is not None:
+            return f" | ${m.cost_per_song:.2f}/song"
         if m.cost_per_second is not None:
             return f" | ${m.cost_per_second:.3f}/sec"
         return ""

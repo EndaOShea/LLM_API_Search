@@ -40,7 +40,7 @@ _PRICING_FIELDS = {
     AudioTTSModelInfo: ("cost_per_mchars", "input_cost_per_mtok", "output_cost_per_mtok"),
     AudioTranscriptionModelInfo: ("cost_per_minute",),
     EmbeddingModelInfo: ("input_cost_per_mtok",),
-    MusicModelInfo: ("cost_per_second",),
+    MusicModelInfo: ("cost_per_second", "cost_per_song"),
     VideoModelInfo: ("cost_per_second", "cost_per_video"),
 }
 

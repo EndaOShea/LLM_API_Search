@@ -40,6 +40,18 @@ _SAMPLING_THINKING_ONLY = {
 }
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    # The models overview lists Fable 5.1's thinking as "Adaptive (always on)",
+    # where Fable 5 is plain "Adaptive" — hence can_disable=False here and True
+    # below. Both default to effort "high".
+    "claude-fable-5-1": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="high", can_disable=False,
+        sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking is always on; there is no documented "
+                               "way to disable it. Manual budget_tokens is rejected (400).",
+    ),
     "claude-fable-5": ThinkingConfig(
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,
         parameter="output_config.effort",
