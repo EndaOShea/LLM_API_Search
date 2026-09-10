@@ -14,6 +14,19 @@ from llm_api_search.providers.base import (
 
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='gpt-5.6-terra',
+        display_name='gpt-5.6-terra',
+        description='Mid-tier GPT-5.6 model balancing intelligence and cost. Cached input $0.20/1M.',
+        context_window=1_050_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=2.0,
+        output_cost_per_mtok=12.0,
+    ),
+    TextModelInfo(
         model_id='gpt-4',
         display_name='gpt-4',
         description='Original GPT-4 model with strong reasoning capabilities',
@@ -1242,19 +1255,6 @@ _STATIC_MODELS = [
         supports_computer_use=True,
         input_cost_per_mtok=5.0,
         output_cost_per_mtok=30.0,
-    ),
-    TextModelInfo(
-        model_id='gpt-5.6-terra',
-        display_name='gpt-5.6-terra',
-        description='Mid-tier GPT-5.6 model balancing intelligence and cost. Cached input $0.20/1M.',
-        context_window=1_050_000,
-        max_output_tokens=128_000,
-        supports_vision=True,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=True,
-        input_cost_per_mtok=2.0,
-        output_cost_per_mtok=12.0,
     ),
 ]
 

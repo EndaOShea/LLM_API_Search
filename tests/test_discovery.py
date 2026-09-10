@@ -744,3 +744,24 @@ def test_qwen_legacy_models_registered():
     ]
     kept = {m.model_id for m in filter_models(models, "qwen")}
     assert kept == {"qwen3.7-max"}
+
+
+def test_default_model_is_not_legacy():
+    """Every provider's default model must survive ``filter_models``.
+
+    ``select_provider`` resolves an unspecified model to the *unfiltered*
+    ``_STATIC_MODELS[0]``, while MCP listings show the *filtered* set. Nothing
+    tied the two together, so retiring the model at the head of a provider's
+    curated list left the library defaulting to a model no listing would show
+    (this is how ``google`` came to default to the hidden ``gemini-2.5-flash``).
+    Pinning it here makes the next such retirement fail at PR time.
+    """
+    from llm_api_search.providers import PROVIDERS, filter_models
+
+    for key in PROVIDERS:
+        default = select_provider(key, live=False).model.model_id
+        visible = {m.model_id for m in filter_models(PROVIDERS[key]().get_static_info().models, key)}
+        assert default in visible, (
+            f"{key}: default model {default!r} is filtered out of listings — "
+            f"move a current model to the head of _STATIC_MODELS"
+        )
