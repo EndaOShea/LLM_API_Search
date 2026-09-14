@@ -1269,6 +1269,42 @@ _STATIC_MODELS = [
         input_cost_per_mtok=4.0,
         output_cost_per_mtok=20.0,
     ),
+    ImageModelInfo(
+        model_id='gpt-image-2.5-flare',
+        display_name='gpt-image-2.5-flare',
+        description='',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=None,  # TODO: add pricing
+    ),
+    ImageModelInfo(
+        model_id='gpt-image-2.5-flare-2026-09-08',
+        display_name='gpt-image-2.5-flare-2026-09-08',
+        description='',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=None,  # TODO: add pricing
+    ),
+    ImageModelInfo(
+        model_id='gpt-image-2.5-sunburst',
+        display_name='gpt-image-2.5-sunburst',
+        description='',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=None,  # TODO: add pricing
+    ),
+    ImageModelInfo(
+        model_id='gpt-image-2.5-sunburst-2026-09-08',
+        display_name='gpt-image-2.5-sunburst-2026-09-08',
+        description='',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=None,  # TODO: add pricing
+    ),
 ]
 
 

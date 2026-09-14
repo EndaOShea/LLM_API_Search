@@ -51,6 +51,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.25,
         output_cost_per_mtok=0.75,
     ),
+    TextModelInfo(
+        model_id='mercury-2.5',
+        display_name='mercury-2.5',
+        description='Mercury 2.5',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
