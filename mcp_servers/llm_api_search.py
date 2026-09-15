@@ -219,7 +219,7 @@ def llm_get_rate_limits(
               negotiated "Custom" tier publishes no fixed numbers).
               Google uses "free", "tier-1" through "tier-3".
               OpenAI uses "tier-1" (baseline only).
-              Inception uses "free", "paid", "enterprise".
+              Inception uses "free", "paid".
               DeepSeek publishes no numeric rate limits (limits are dynamic
               by server load), so this tool returns no data for DeepSeek models.
               When omitted, returns all tiers per model.

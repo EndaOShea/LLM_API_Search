@@ -124,7 +124,7 @@ def test_deepseek_effort_and_toggle():
     assert tc.supported is True
     assert tc.mode is ThinkingMode.EFFORT_LEVELS
     assert tc.parameter == "reasoning_effort"
-    assert tc.levels == ["high", "max"]
+    assert tc.levels == ["low", "high", "max"]
     assert tc.can_disable is True
 
 
@@ -187,6 +187,9 @@ def test_qwen_thinking_config():
         assert tc.parameter == "thinking_budget"
         assert tc.can_disable is True
         assert tc.max_budget == 65_536
+    tc = get_thinking_config("qwen", "qwen3.8-max")["qwen3.8-max"]
+    assert tc.mode is ThinkingMode.TOKEN_BUDGET
+    assert tc.max_budget == 262_144
 
 
 # Models a human has confirmed are reasoning-capable. If one of these ever
@@ -195,13 +198,13 @@ _KNOWN_THINKING = {
     "anthropic": ["claude-fable-5-1", "claude-fable-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
     "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6-astra", "o3", "o4-mini"],
     "google": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite", "gemini-robotics-er-2-preview", "gemini-robotics-er-1.5-preview"],
-    "deepseek": ["deepseek-v4-pro", "deepseek-v4-flash"],
-    "inception": ["mercury-2", "mercury-edit", "mercury-edit-2"],
+    "deepseek": ["deepseek-flash", "deepseek-v4-pro", "deepseek-v4-flash", "deepseek-v4-flash-vision-exp"],
+    "inception": ["mercury-2.5", "mercury-2", "mercury-edit", "mercury-edit-2"],
     "zai": ["glm-5.3", "glm-5.3-flash", "glm-5.2", "glm-5.1", "glm-5", "glm-4.6",
             "glm-4.5-air", "glm-5v-turbo", "glm-5-turbo"],
     "minimax": ["MiniMax-M3", "MiniMax-M2.7", "MiniMax-M2.7-highspeed"],
     "kimi": ["kimi-k3", "kimi-k2.6", "kimi-k2.7-code"],
-    "qwen": ["qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus"],
+    "qwen": ["qwen3.8-max", "qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus"],
     "mistral": ["mistral-medium-3-5-26-04", "mistral-small-2603"],
 }
 

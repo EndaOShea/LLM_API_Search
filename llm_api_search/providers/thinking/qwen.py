@@ -41,7 +41,21 @@ _QWEN35_PLUS_BUDGET = ThinkingConfig(
           "page's 'Max Reasoning: 81K' figure — see comment above.",
 )
 
+# qwen3.8-max publishes "Max Reasoning: 262K" on its model page
+# (https://www.qwencloud.com/models/qwen3.8-max, verified 2026-09-15);
+# 262_144 applies the same 1024-based display rounding as above. The
+# deep-thinking guide lists it as thinking-enabled-by-default.
+_QWEN38_MAX_BUDGET = ThinkingConfig(
+    supported=True, mode=ThinkingMode.TOKEN_BUDGET,
+    parameter="thinking_budget", can_disable=True,
+    max_budget=262_144,
+    notes="Thinking enabled by default; disable via enable_thinking=false. "
+          "thinking_budget caps reasoning tokens. max_budget from the model "
+          "page's 'Max Reasoning: 262K' figure — see comment above.",
+)
+
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    "qwen3.8-max": _QWEN38_MAX_BUDGET,
     "qwen3.7-max": _QWEN_BUDGET,
     "qwen3.7-plus": _QWEN_BUDGET,
     "qwen3.5-plus": _QWEN35_PLUS_BUDGET,

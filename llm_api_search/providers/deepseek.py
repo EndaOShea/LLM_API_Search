@@ -11,8 +11,17 @@ Pricing notes (source: https://api-docs.deepseek.com/quick_start/pricing):
   **peak** rate so callers plan for the worst case; the off-peak half is
   noted in a trailing comment on each entry.
 - Input pricing recorded here is the *cache miss* rate. DeepSeek charges
-  far less on cache hits ($0.014/Mtok flash and vision, $0.044/Mtok pro at
-  peak) but most callers should plan for the cache-miss case.
+  far less on cache hits ($0.006/Mtok flash, $0.044/Mtok pro at peak) but
+  most callers should plan for the cache-miss case.
+- ``deepseek-flash`` (DeepSeek-V4.1-Flash, released 2026-09-10) replaced the
+  V4 Flash line. ``deepseek-v4-flash`` and ``deepseek-v4-flash-vision-exp``
+  are retired: the names are still accepted but are served by V4.1-Flash and
+  billed at the Flash price, so their entries carry Flash pricing and are
+  hidden via ``LEGACY_MODELS``. ``deepseek-v4-pro`` was announced to route to
+  V4.1-Flash from 2026-09-14, but the pricing page's footnote reverses that:
+  V4 Pro service continues past 2026-09-14 with billing unchanged. Sources:
+  https://api-docs.deepseek.com/news/news260910 and the pricing page above
+  (verified 2026-09-15).
 - ``deepseek-chat`` and ``deepseek-reasoner`` are scheduled for deprecation
   on 2026-07-24 and are intentionally not listed.
 """
@@ -49,6 +58,19 @@ def _classify_unrecognized(
 
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='deepseek-flash',
+        display_name='DeepSeek V4.1 Flash',
+        description="DeepSeek's current default model (DeepSeek-V4.1-Flash): 552B-parameter MoE with a causal encoder-decoder architecture and native visual understanding. Thinking mode on by default with reasoning_effort control. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion (non-thinking mode only).",
+        context_window=1_000_000,
+        max_output_tokens=384_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.3,  # peak, cache miss; $0.15 off-peak
+        output_cost_per_mtok=1.2,  # peak; $0.60 off-peak
+    ),
+    TextModelInfo(
         model_id='deepseek-v4-pro',
         display_name='DeepSeek V4 Pro',
         description="DeepSeek's flagship reasoning model with configurable thinking mode and reasoning effort. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion.",
@@ -64,28 +86,28 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='deepseek-v4-flash',
         display_name='DeepSeek V4 Flash',
-        description='Fast, low-cost DeepSeek model with configurable thinking mode. 1M token context, up to 384K output. Supports tool calls, JSON output, chat prefix completion, and FIM completion.',
+        description='Retired legacy name. DeepSeek V4 Flash was retired on 2026-09-10; this model name is still accepted but requests are served by DeepSeek-V4.1-Flash (deepseek-flash) and billed at the Flash price. Use deepseek-flash instead.',
         context_window=1_000_000,
         max_output_tokens=384_000,
         supports_vision=False,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.44,  # peak, cache miss; $0.22 off-peak
-        output_cost_per_mtok=1.32,  # peak; $0.66 off-peak
+        input_cost_per_mtok=0.3,  # peak, cache miss; $0.15 off-peak (billed at deepseek-flash rates)
+        output_cost_per_mtok=1.2,  # peak; $0.60 off-peak (billed at deepseek-flash rates)
     ),
     TextModelInfo(
         model_id='deepseek-v4-flash-vision-exp',
         display_name='DeepSeek V4 Flash Vision (Experimental)',
-        description='Experimental vision-capable variant of V4 Flash (DeepSeek-V4-Flash-Vision-Exp). Accepts images alongside text; images are converted to input tokens by dimension. 1M token context, up to 384K output. Supports tool calls, JSON output, and chat prefix completion; FIM completion is not supported.',
+        description='Retired legacy name. DeepSeek V4 Flash Vision (Experimental) was retired on 2026-09-10; this model name is still accepted but requests are served by DeepSeek-V4.1-Flash (deepseek-flash, which has native vision) and billed at the Flash price. Use deepseek-flash instead.',
         context_window=1_000_000,
         max_output_tokens=384_000,
         supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=0.44,  # peak, cache miss; $0.22 off-peak
-        output_cost_per_mtok=1.32,  # peak; $0.66 off-peak
+        input_cost_per_mtok=0.3,  # peak, cache miss; $0.15 off-peak (billed at deepseek-flash rates)
+        output_cost_per_mtok=1.2,  # peak; $0.60 off-peak (billed at deepseek-flash rates)
     ),
 ]
 
@@ -183,7 +205,7 @@ class DeepSeekProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or "deepseek-v4-pro"
+        model = model_id or "deepseek-flash"
         snippets = {
             "python": (
                 'import os\n'

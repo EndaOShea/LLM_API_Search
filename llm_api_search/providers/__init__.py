@@ -113,6 +113,9 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # here so the filter is consistent if they ever resurface from
         # a live discovery call.
         "deepseek-chat", "deepseek-reasoner",
+        # Retired 2026-09-10; the names still route to deepseek-flash
+        # (DeepSeek-V4.1-Flash) at Flash pricing.
+        "deepseek-v4-flash", "deepseek-v4-flash-vision-exp",
     },
     "zai": {
         # Superseded GLM generations (kept out of default listings; the
@@ -160,7 +163,7 @@ def _resolve_entry(
 
     *entry* is a dict mapping tier names to ``RateLimit`` objects.
     Tier names are provider-specific (e.g. Anthropic uses ``"start"``/
-    ``"build"``/``"scale"``, Inception uses ``"free"``/``"paid"``/``"enterprise"``).
+    ``"build"``/``"scale"``, Inception uses ``"free"``/``"paid"``).
 
     When *tier* is given, the matching ``RateLimit`` is returned, or
     ``None`` if the model has no entry for that tier.

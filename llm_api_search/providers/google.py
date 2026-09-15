@@ -942,6 +942,19 @@ _STATIC_MODELS = [
         max_file_size_mb=None,
         cost_per_minute=0.009,
     ),
+    TextModelInfo(
+        model_id='antigravity-preview-09-2026',
+        display_name='Antigravity Agent Preview',
+        description='Preview release of Antigravity Agent (09-2026)',
+        context_window=131_072,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 

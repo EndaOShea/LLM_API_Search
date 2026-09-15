@@ -729,10 +729,15 @@ def test_qwen_static_info():
     assert info.api_base_url == "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
     assert info.auth_env_var == "DASHSCOPE_API_KEY"
     assert isinstance(info.models[0], TextModelInfo)
-    assert info.models[0].model_id == "qwen3.7-max"
+    assert info.models[0].model_id == "qwen3.8-max"
     ids = {m.model_id for m in info.models}
-    assert ids == {"qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus"}
+    assert ids == {"qwen3.8-max", "qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus"}
     by_id = {m.model_id: m for m in info.models}
+    assert by_id["qwen3.8-max"].context_window == 1_000_000
+    assert by_id["qwen3.8-max"].max_output_tokens == 131_072
+    assert by_id["qwen3.8-max"].input_cost_per_mtok == 2.00
+    assert by_id["qwen3.8-max"].output_cost_per_mtok == 6.00
+    assert by_id["qwen3.8-max"].supports_vision is True
     assert by_id["qwen3.7-max"].context_window == 1_000_000
     assert by_id["qwen3.7-max"].max_output_tokens == 65_536
     assert by_id["qwen3.7-max"].input_cost_per_mtok == 2.50
