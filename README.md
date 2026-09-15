@@ -18,10 +18,11 @@ Browse what's available:
 curl https://llm-mcp.cora-branch.com/
 ```
 
-The hosted server also exposes two operational endpoints:
+The hosted server also exposes three plain-HTTP endpoints:
 
 - `https://llm-mcp.cora-branch.com/health` — readiness check (200 if all providers' static catalogs parse, 503 otherwise)
 - `https://llm-mcp.cora-branch.com/stats` — anonymous request counts (total, today, last 7 days, broken down by path)
+- `https://llm-mcp.cora-branch.com/catalog.json` — the current (non-legacy) text models for every provider as one JSON document, each with its thinking configuration, plus a `generated_at` date for when the data was last refreshed. Useful for syncing without an MCP session.
 
 Then connect from your preferred tool:
 
@@ -108,9 +109,9 @@ Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, an
 
 ## Automatic model updates
 
-A GitHub Actions workflow runs weekly to fetch the latest model lists from each provider's API and open a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
+A GitHub Actions workflow runs every Friday to fetch the latest model lists from each provider's API and open a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
 
-Three providers are curated by hand instead, because their live catalogs can't be auto-added safely: **DeepSeek** returns only generic aliases (not the versioned IDs), while **Qwen** and **Mistral** return hundreds of non-frontier variants and every legacy snapshot. To avoid silently missing a genuinely new model from those, the update reports any unrecognized upstream IDs — surfaced in the PR body, the workflow run summary, and a CI warning — for someone to add manually. Qwen and Mistral filter that report down to genuinely-new frontier releases so the weekly signal stays readable; Mistral compares release stamps, so aliases, superseded snapshots, and alternate spellings of an already-curated model don't show up.
+Three providers are curated by hand instead, because their live catalogs can't be auto-added safely: **DeepSeek**'s live list is only used to drop models it no longer serves, while **Qwen** and **Mistral** return hundreds of non-frontier variants and every legacy snapshot. To avoid silently missing a genuinely new model from those, the update reports any unrecognized upstream IDs — surfaced in the PR body, the workflow run summary, and a CI warning — for someone to add manually. Qwen and Mistral filter that report down to genuinely-new frontier releases so the weekly signal stays readable; Mistral compares release stamps, so aliases, superseded snapshots, and alternate spellings of an already-curated model don't show up.
 
 The update also reports when a provider's **live fetch failed** and it fell back to static data. Both outcomes previously printed `no new models`, which made a broken API key indistinguishable from a quiet week — the kind of thing that lets a released model stay missing from the catalog for weeks.
 
@@ -136,11 +137,11 @@ for key, info in providers.items():
     print(info.summary())
 
 # Programmatically select a provider and model
-sel = select_provider("anthropic", model_id="claude-sonnet-4-6")
+sel = select_provider("anthropic", model_id="claude-sonnet-5")
 print(sel.connection_snippet)
 
 # Get a TypeScript snippet instead
-sel = select_provider("openai", model_id="gpt-5.4", language="typescript")
+sel = select_provider("openai", model_id="gpt-5.6-terra", language="typescript")
 print(sel.connection_snippet)
 
 # Interactive selection (prompts via stdin)
@@ -165,12 +166,12 @@ Models are organized by type, each with type-specific fields and pricing:
 
 | Type | Subclass | Pricing | Example |
 |------|----------|---------|---------|
-| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 5, Mistral Medium 3.5, Gemini Robotics ER |
-| `image` | `ImageModelInfo` | per image | gpt-image-2.5-flare, Imagen 4, Nano Banana, image-01 |
-| `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS, speech-2.8-hd |
+| `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.6, Claude Opus 5, Mistral Medium 3.5, Gemini Robotics ER |
+| `image` | `ImageModelInfo` | per image | gpt-image-2.5-flare, Imagen 4, Nano Banana 2, image-01 |
+| `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini 3.1 Flash TTS, speech-2.8-hd |
 | `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
 | `embedding` | `EmbeddingModelInfo` | per 1M tokens (input) | text-embedding-3-large |
-| `music` | `MusicModelInfo` | per second | Lyria 2, Music-2.6 |
+| `music` | `MusicModelInfo` | per second | Lyria 3.5, Music-2.6 |
 | `video` | `VideoModelInfo` | per second or per video | Veo 3.1, CogVideoX-3, Hailuo 2.3 |
 
 Filter by type using the MCP tool or programmatically:
@@ -216,17 +217,32 @@ from llm_api_search.providers import get_rate_limits
 limits = get_rate_limits("google")
 
 # Specific tier — Anthropic: start/build/scale, Google: free/tier-1/tier-2/tier-3,
-# MiniMax/Qwen: default, Kimi: tier0..tier5, DeepSeek/Z.ai/Mistral: none published
+# OpenAI: tier-1, Inception: free/paid, MiniMax/Qwen: default, Kimi: tier0..tier5,
+# DeepSeek/Z.ai/Mistral: none published
 limits = get_rate_limits("anthropic", "claude-opus-5", tier="start")
 rl = limits["claude-opus-5"]
 print(f"{rl.requests_per_minute} RPM, {rl.input_tokens_per_minute} ITPM")
 
 # Google free vs paid
-free = get_rate_limits("google", "gemini-2.5-flash", tier="free")   # 5 RPM
-paid = get_rate_limits("google", "gemini-2.5-flash", tier="tier-1") # 1000 RPM
+free = get_rate_limits("google", "gemini-3.7-flash", tier="free")   # 5 RPM
+paid = get_rate_limits("google", "gemini-3.7-flash", tier="tier-1") # 1000 RPM
 
 # Dated snapshots fall back to the base alias automatically
 limits = get_rate_limits("openai", "gpt-4o-2024-08-06", tier="tier-1")
+```
+
+### Thinking configuration
+
+How to control reasoning for each model — named effort levels, a token budget, or an on/off toggle:
+
+```python
+from llm_api_search.providers import get_thinking_config
+
+tc = get_thinking_config("deepseek", "deepseek-flash")["deepseek-flash"]
+print(tc.mode.value, tc.parameter, tc.levels)   # effort_levels reasoning_effort ['low', 'high', 'max']
+
+# Models that can't reason return supported=False rather than a lookup miss
+get_thinking_config("openai", "gpt-4o")["gpt-4o"].supported   # False
 ```
 
 ### API
@@ -237,4 +253,5 @@ limits = get_rate_limits("openai", "gpt-4o-2024-08-06", tier="tier-1")
 | `discover_provider(name, live=True)` | Discover a single provider |
 | `list_providers()` | List available provider keys |
 | `select_provider(provider_key, model_id, live, interactive, language)` | Select a provider/model and get a connection snippet |
-| `get_rate_limits(provider, model_id=None)` | Get rate limits for a provider or specific model |
+| `get_rate_limits(provider, model_id=None, tier=None)` | Get rate limits for a provider or specific model, optionally for one tier |
+| `get_thinking_config(provider, model_id=None)` | Get the reasoning/thinking configuration for a provider or specific model |
