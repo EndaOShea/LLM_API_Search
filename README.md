@@ -166,7 +166,7 @@ Models are organized by type, each with type-specific fields and pricing:
 | Type | Subclass | Pricing | Example |
 |------|----------|---------|---------|
 | `text` | `TextModelInfo` | per 1M tokens (in/out) | GPT-5.4, Claude Opus 5, Mistral Medium 3.5, Gemini Robotics ER |
-| `image` | `ImageModelInfo` | per image | gpt-image-1.5, Imagen 4, Nano Banana, image-01 |
+| `image` | `ImageModelInfo` | per image | gpt-image-2.5-flare, Imagen 4, Nano Banana, image-01 |
 | `audio_tts` | `AudioTTSModelInfo` | per 1M chars or tokens | tts-1, Gemini Flash TTS, speech-2.8-hd |
 | `audio_transcription` | `AudioTranscriptionModelInfo` | per minute | Whisper, GPT-4o Transcribe |
 | `embedding` | `EmbeddingModelInfo` | per 1M tokens (input) | text-embedding-3-large |

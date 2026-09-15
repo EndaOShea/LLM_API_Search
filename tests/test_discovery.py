@@ -571,7 +571,9 @@ def test_mcp_list_models_filter_multiple_types():
     image_models = llm_list_models("openai", model_type="image")
     embedding_models = llm_list_models("openai", model_type="embedding")
     assert len(all_models) == len(text_models) + len(image_models) + len(llm_list_models("openai", model_type="audio_tts")) + len(llm_list_models("openai", model_type="audio_transcription")) + len(embedding_models)
-    assert len(image_models) >= 3
+    image_ids = {m["model_id"] for m in image_models}
+    # GPT Image 1.x and 2 are legacy (hidden by default); 2.5 is the current line.
+    assert {"gpt-image-2.5-flare", "gpt-image-2.5-sunburst"} <= image_ids
     assert len(embedding_models) >= 2
 
 
