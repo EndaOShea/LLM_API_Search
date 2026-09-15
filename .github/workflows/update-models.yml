@@ -2,8 +2,11 @@ name: Update model data
 
 on:
   schedule:
-    # Every Monday at 06:00 UTC
-    - cron: "0 6 * * 1"
+    # Every Friday at 06:17 UTC — after the Tue/Thu provider release days.
+    # Off the hour because GitHub delays top-of-hour schedules most (runs
+    # have started up to ~6h late). The pricing-fill routine fires Fri 13:30
+    # UTC to clear that delay; move both together.
+    - cron: "17 6 * * 5"
   workflow_dispatch: # Allow manual trigger
 
 permissions:
