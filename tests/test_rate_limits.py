@@ -132,6 +132,7 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
     # adjusted dynamically based on server load (HTTP 429 on overflow).  This
     # is a publisher policy, not a coverage gap from the auto-update flow.
     "deepseek": {
+        "deepseek-flash",
         "deepseek-v4-flash",
         "deepseek-v4-pro",
         "deepseek-v4-flash-vision-exp",
@@ -220,13 +221,16 @@ def test_kimi_rate_limits_shared_across_tiers():
 def test_qwen_rate_limits_single_default_tier():
     limits = get_rate_limits("qwen")
     assert set(limits.keys()) == {
-        "qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus",
+        "qwen3.8-max", "qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus",
     }
     for entry in limits.values():
         assert set(entry.keys()) == {"default"}
     max_rl = get_rate_limits("qwen", "qwen3.7-max", tier="default")["qwen3.7-max"]
     assert max_rl.requests_per_minute == 600
     assert max_rl.tokens_per_minute == 1_000_000
+    max38_rl = get_rate_limits("qwen", "qwen3.8-max", tier="default")["qwen3.8-max"]
+    assert max38_rl.requests_per_minute == 15_000
+    assert max38_rl.tokens_per_minute == 2_000_000
     plus_rl = get_rate_limits("qwen", "qwen3.7-plus", tier="default")["qwen3.7-plus"]
     assert plus_rl.requests_per_minute == 15_000
     assert plus_rl.tokens_per_minute == 5_000_000

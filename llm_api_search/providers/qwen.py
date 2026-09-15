@@ -22,6 +22,10 @@ qwen3.5-plus / qwen3.6-plus specs and pricing:
 https://www.qwencloud.com/models/qwen3.5-plus and
 https://www.qwencloud.com/models/qwen3.6-plus (verified 2026-08-04; both
 list the same price for the <=256K and 256K-1M input tiers).
+
+qwen3.8-max specs, pricing and rate limits:
+https://www.qwencloud.com/models/qwen3.8-max (verified 2026-09-15; single
+price tier, no promo listed).
 """
 
 from __future__ import annotations
@@ -37,7 +41,7 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-_DEFAULT_MODEL = "qwen3.7-max"
+_DEFAULT_MODEL = "qwen3.8-max"
 
 # Matches a frontier-generation chat model ID, e.g. "qwen3.7-max",
 # "qwen3.8-plus". Used to pick genuinely-new frontier releases out of
@@ -58,6 +62,19 @@ def _classify_unrecognized(live_ids: set[str], static_ids: set[str]) -> set[str]
 
 
 _STATIC_MODELS = [
+    TextModelInfo(
+        model_id='qwen3.8-max',
+        display_name='Qwen3.8 Max',
+        description="Alibaba's multimodal flagship (text/image/video input): a 2.4-trillion-parameter MoE aimed at long-horizon coding and professional work. 1,000,000 token context (991K max input), 131K max output, 262K max reasoning. Tool calling, structured outputs, and built-in web search, code interpreter, web extractor, and PDF parsing tools. Thinking via enable_thinking + thinking_budget, enabled by default. Implicit cache input $0.25; explicit cache $2.5 create / $0.17 read per Mtok.",
+        context_window=1_000_000,
+        max_output_tokens=131_072,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=2.0,
+        output_cost_per_mtok=6.0,
+    ),
     TextModelInfo(
         model_id='qwen3.7-max',
         display_name='Qwen3.7 Max',

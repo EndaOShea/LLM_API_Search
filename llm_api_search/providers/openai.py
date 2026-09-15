@@ -1271,39 +1271,39 @@ _STATIC_MODELS = [
     ),
     ImageModelInfo(
         model_id='gpt-image-2.5-flare',
-        display_name='gpt-image-2.5-flare',
-        description='',
-        supported_sizes=[],
-        supported_qualities=[],
+        display_name='GPT Image 2.5 Flare',
+        description="OpenAI's fastest GPT Image 2.5 model for high-quality, everyday image generation. Token-priced ($5/1M text input, $8/1M image input, $30/1M image output); cost_per_image is the medium-quality 1024x1024 output estimate (439 output tokens) from OpenAI's image-generation cost calculator. Also accepts custom WIDTHxHEIGHT sizes (multiples of 16, aspect ratio 1:3 to 3:1, max edge 3840px).",
+        supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
+        supported_qualities=['low', 'medium', 'high', 'xhigh', 'max', 'auto'],
         max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        cost_per_image=0.01317,
     ),
     ImageModelInfo(
         model_id='gpt-image-2.5-flare-2026-09-08',
         display_name='gpt-image-2.5-flare-2026-09-08',
-        description='',
-        supported_sizes=[],
-        supported_qualities=[],
+        description='Dated snapshot of gpt-image-2.5-flare (Sep 8, 2026)',
+        supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
+        supported_qualities=['low', 'medium', 'high', 'xhigh', 'max', 'auto'],
         max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        cost_per_image=0.01317,
     ),
     ImageModelInfo(
         model_id='gpt-image-2.5-sunburst',
-        display_name='gpt-image-2.5-sunburst',
-        description='',
-        supported_sizes=[],
-        supported_qualities=[],
+        display_name='GPT Image 2.5 Sunburst',
+        description="OpenAI's most capable GPT Image 2.5 model, for image generation and editing workflows where precision matters most. Token-priced ($5/1M text input, $8/1M image input, $30/1M image output); cost_per_image is the medium-quality 1024x1024 output estimate (439 output tokens) from OpenAI's image-generation cost calculator. Also accepts custom WIDTHxHEIGHT sizes (multiples of 16, aspect ratio 1:3 to 3:1, max edge 3840px).",
+        supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
+        supported_qualities=['low', 'medium', 'high', 'xhigh', 'max', 'auto'],
         max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        cost_per_image=0.01317,
     ),
     ImageModelInfo(
         model_id='gpt-image-2.5-sunburst-2026-09-08',
         display_name='gpt-image-2.5-sunburst-2026-09-08',
-        description='',
-        supported_sizes=[],
-        supported_qualities=[],
+        description='Dated snapshot of gpt-image-2.5-sunburst (Sep 8, 2026)',
+        supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
+        supported_qualities=['low', 'medium', 'high', 'xhigh', 'max', 'auto'],
         max_images_per_request=None,
-        cost_per_image=None,  # TODO: add pricing
+        cost_per_image=0.01317,
     ),
 ]
 

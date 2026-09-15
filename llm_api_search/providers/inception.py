@@ -10,8 +10,21 @@ import urllib.error
 from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, ProviderInfo
 
 # Known models — kept as a fallback when the live API is unavailable.
-# NOTE: Pricing is in EUR, not USD.
+# Pricing source: https://docs.inceptionlabs.ai/get-started/models (USD).
 _STATIC_MODELS = [
+    TextModelInfo(
+        model_id='mercury-2.5',
+        display_name='Mercury 2.5',
+        description="Inception's current-generation diffusion LLM (dLLM), a significant quality step up over Mercury 2. 260K context, 65,536 max output. Tunable reasoning via reasoning_effort, parallel tool calling, and schema-aligned structured outputs. List price shown; an 80%-off launch promo with no stated expiry currently brings this to $0.04/$0.15 per Mtok ($0.004 cached input).",
+        context_window=260_000,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.2,
+        output_cost_per_mtok=0.75,
+    ),
     TextModelInfo(
         model_id='mercury-2',
         display_name='mercury-2',
@@ -50,19 +63,6 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=0.25,
         output_cost_per_mtok=0.75,
-    ),
-    TextModelInfo(
-        model_id='mercury-2.5',
-        display_name='mercury-2.5',
-        description='Mercury 2.5',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
     ),
 ]
 
@@ -131,7 +131,7 @@ class InceptionProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or "mercury-2"
+        model = model_id or "mercury-2.5"
 
         if model == "mercury-edit":
             return self._fim_snippet(model, language)

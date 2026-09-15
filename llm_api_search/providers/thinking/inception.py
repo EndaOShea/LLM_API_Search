@@ -1,7 +1,7 @@
 """Inception Labs (Mercury) thinking configurations.
 
-Source: https://docs.inceptionlabs.ai/
-Verified: 2026-06-04
+Source: https://docs.inceptionlabs.ai/capabilities/reasoning-efforts
+Verified: 2026-09-15 (mercury-2.5 added; levels unchanged)
 """
 
 from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
@@ -16,6 +16,7 @@ _MERCURY = ThinkingConfig(
 )
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    "mercury-2.5": _MERCURY,
     "mercury-2": _MERCURY,
     "mercury-edit": _MERCURY,
     "mercury-edit-2": _MERCURY,
