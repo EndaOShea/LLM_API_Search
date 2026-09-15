@@ -54,8 +54,11 @@ LEGACY_MODELS: dict[str, set[str]] = {
         "text-embedding-ada-002",
         # TTS dated snapshots (non-standard date format)
         "tts-1-1106", "tts-1-hd-1106",
-        # GPT Image 2 (superseded by gpt-image-2.5-flare/-sunburst; dropped
-        # from the pricing page's standard table, batch-only as of 2026-09-15)
+        # GPT Image 1.x and 2 (superseded by gpt-image-2.5-flare/-sunburst).
+        # As of 2026-09-15 the pricing page's standard table lists only 2.5;
+        # gpt-image-2 is batch-only and the 1.x models appear only in the image
+        # guide's legacy per-image pricing table.
+        "gpt-image-1", "gpt-image-1-mini", "gpt-image-1.5",
         "gpt-image-2", "gpt-image-2-2026-04-21",
     },
     "anthropic": {
