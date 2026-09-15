@@ -146,10 +146,10 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "gpt-image-1.5": {
         "tier-1": RateLimit(requests_per_minute=50, requests_per_day=1_000),
     },
+    # GPT Image 2 / 2.5 publish TPM/IPM instead (model pages, verified 2026-09-15)
     "gpt-image-2": {
-        "tier-1": RateLimit(requests_per_minute=50, requests_per_day=1_000),
+        "tier-1": RateLimit(tokens_per_minute=100_000, images_per_minute=5),
     },
-    # GPT Image 2.5 publishes TPM/IPM instead (model pages, verified 2026-09-15)
     "gpt-image-2.5-flare": {
         "tier-1": RateLimit(tokens_per_minute=100_000, images_per_minute=5),
     },

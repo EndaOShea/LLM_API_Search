@@ -893,11 +893,11 @@ _STATIC_MODELS = [
     ImageModelInfo(
         model_id='gpt-image-2',
         display_name='gpt-image-2',
-        description='State-of-the-art image generation model. Token-priced ($8/1M image input, $30/1M image output); cost_per_image is a representative medium-quality estimate.',
+        description="State-of-the-art image generation model. Token-priced ($8/1M image input, $30/1M image output); cost_per_image is the medium-quality 1024x1024 output estimate (1,756 output tokens) from OpenAI's image-generation cost calculator.",
         supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
         supported_qualities=['low', 'medium', 'high', 'auto'],
         max_images_per_request=1,
-        cost_per_image=0.04,
+        cost_per_image=0.05268,
     ),
     ImageModelInfo(
         model_id='gpt-image-2-2026-04-21',
@@ -906,7 +906,7 @@ _STATIC_MODELS = [
         supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
         supported_qualities=['low', 'medium', 'high', 'auto'],
         max_images_per_request=1,
-        cost_per_image=0.04,
+        cost_per_image=0.05268,
     ),
     TextModelInfo(
         model_id='o3',
