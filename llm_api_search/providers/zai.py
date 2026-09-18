@@ -221,8 +221,8 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='glm-5.3-flashx',
-        display_name='glm-5.3-flashx',
-        description='',
+        display_name='GLM-5.3-FlashX',
+        description='GLM-5.3 FlashX variant. Specs and pricing not yet published on the official Z.ai docs page (docs.z.ai blocked at fetch time 2026-09-18); fill from https://docs.z.ai/guides/llm/glm-5.3-flashx and https://docs.z.ai/guides/overview/pricing.',
         context_window=None,
         max_output_tokens=None,
         supports_vision=False,
