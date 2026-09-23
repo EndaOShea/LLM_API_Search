@@ -11,7 +11,8 @@ Free tiers (glm-4.5-flash, glm-4.6v-flash) are recorded as 0.0.
 Spec source: per-model doc pages, split by modality — text-only models live
 under https://docs.z.ai/guides/llm/<model-id> and vision models (the ones
 carrying ``supports_vision=True``: glm-5.3-flash, glm-5v-turbo,
-glm-4.6v-flash) under https://docs.z.ai/guides/vlm/<model-id>.  The ``llm/``
+glm-4.6v-flash) under https://docs.z.ai/guides/vlm/<model-id>.
+glm-5.3-flashx has no page of its own; it shares vlm/glm-5.3-flash.  The ``llm/``
 path 308-redirects to ``vlm/`` for a vision model, so a stale ``llm/`` link
 still resolves and is not evidence that the model is text-only.
 """
