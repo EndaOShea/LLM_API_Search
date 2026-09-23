@@ -30,13 +30,12 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://api.z.ai/api/paas/v4"
-_DEFAULT_MODEL = "glm-5.2"
 
 _STATIC_MODELS = [
     TextModelInfo(
-        model_id='glm-5.2',
-        display_name='GLM-5.2',
-        description="Z.ai's flagship GLM model. 1M token context, up to 128K output. Tool calling, structured output (JSON), context caching, MCP, and configurable thinking (reasoning_effort, default max).",
+        model_id='glm-5.3',
+        display_name='GLM-5.3',
+        description="Z.ai's latest flagship GLM model, text-only input. 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort low/high/max, default max; cannot be disabled).",
         context_window=1_000_000,
         max_output_tokens=128_000,
         supports_vision=False,
@@ -47,9 +46,9 @@ _STATIC_MODELS = [
         output_cost_per_mtok=4.4,
     ),
     TextModelInfo(
-        model_id='glm-5.3',
-        display_name='GLM-5.3',
-        description="Z.ai's latest flagship GLM model, text-only input. 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort low/high/max, default max; cannot be disabled).",
+        model_id='glm-5.2',
+        display_name='GLM-5.2',
+        description="Z.ai's flagship GLM model. 1M token context, up to 128K output. Tool calling, structured output (JSON), context caching, MCP, and configurable thinking (reasoning_effort, default max).",
         context_window=1_000_000,
         max_output_tokens=128_000,
         supports_vision=False,
@@ -316,7 +315,7 @@ class ZaiProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or _DEFAULT_MODEL
+        model = model_id or _STATIC_MODELS[0].model_id
         mtype = self._get_model_type(model)
         if mtype == ModelType.IMAGE:
             return self._image_snippet(model, language)

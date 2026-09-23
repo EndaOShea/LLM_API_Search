@@ -631,9 +631,9 @@ def test_zai_static_info():
     assert info.name == "Z.ai (GLM)"
     assert info.api_base_url == "https://api.z.ai/api/paas/v4"
     assert info.auth_env_var == "ZAI_API_KEY"
-    # Text-first, glm-5.2 default.
+    # Text-first, glm-5.3 default (Z.ai quickstart model).
     assert isinstance(info.models[0], TextModelInfo)
-    assert info.models[0].model_id == "glm-5.2"
+    assert info.models[0].model_id == "glm-5.3"
     ids = {m.model_id for m in info.models}
     assert {"glm-5.2", "glm-5v-turbo", "cogview-4", "cogvideox-3"} <= ids
     # Vision flag on the vision models.
@@ -732,7 +732,7 @@ def test_qwen_static_info():
     assert info.api_base_url == "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
     assert info.auth_env_var == "DASHSCOPE_API_KEY"
     assert isinstance(info.models[0], TextModelInfo)
-    assert info.models[0].model_id == "qwen3.8-max"
+    assert info.models[0].model_id == "qwen3.7-plus"
     ids = {m.model_id for m in info.models}
     assert ids == {"qwen3.8-max", "qwen3.7-max", "qwen3.7-plus", "qwen3.5-plus", "qwen3.6-plus"}
     by_id = {m.model_id: m for m in info.models}
@@ -800,3 +800,20 @@ def test_default_model_is_not_legacy():
             f"{key}: default model {default!r} is filtered out of listings — "
             f"move a current model to the head of _STATIC_MODELS"
         )
+
+
+def test_snippet_default_matches_selector_default():
+    """``get_connection_snippet(None)`` must use the same default as selection.
+
+    Each provider used to hardcode its own snippet fallback, which drifted
+    independently of ``_STATIC_MODELS[0]``: by 2026-09 Google's snippet default
+    was the retired ``gemini-2.5-flash``, OpenAI's ``gpt-5.4`` and Anthropic's
+    ``claude-sonnet-4-6``, none of them the provider's recommended model.
+    """
+    from llm_api_search.providers import PROVIDERS
+
+    for key, cls in PROVIDERS.items():
+        head = cls().get_static_info().models[0].model_id
+        for lang in SUPPORTED_LANGUAGES:
+            snippet = cls().get_connection_snippet(None, lang)
+            assert head in snippet, f"{key}/{lang}: snippet default is not {head!r}"

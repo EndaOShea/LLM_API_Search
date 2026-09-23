@@ -13,6 +13,19 @@ from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, Pr
 # Known models — kept as a fallback when the live API is unavailable.
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='claude-opus-5-5',
+        display_name='Claude Opus 5.5',
+        description='For long-running agentic coding and knowledge work. Adaptive thinking is always on (cannot be disabled), default effort medium. Rejects forced tool use. Cache hits cost 0.05x base input, not the usual 0.1x. Separate rate-limit bucket.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=4.0,
+        output_cost_per_mtok=20.0,
+    ),
+    TextModelInfo(
         model_id='claude-fable-5',
         display_name='Claude Fable 5',
         description='Most capable widely released model for demanding reasoning and long-horizon agentic work',
@@ -37,19 +50,6 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=10.0,
         output_cost_per_mtok=50.0,
-    ),
-    TextModelInfo(
-        model_id='claude-opus-5-5',
-        display_name='Claude Opus 5.5',
-        description='For long-running agentic coding and knowledge work. Adaptive thinking is always on (cannot be disabled), default effort medium. Rejects forced tool use. Cache hits cost 0.05x base input, not the usual 0.1x. Separate rate-limit bucket.',
-        context_window=1_000_000,
-        max_output_tokens=128_000,
-        supports_vision=True,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=4.0,
-        output_cost_per_mtok=20.0,
     ),
     TextModelInfo(
         model_id='claude-opus-5',
@@ -346,7 +346,7 @@ class AnthropicProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or "claude-sonnet-4-6"
+        model = model_id or _STATIC_MODELS[0].model_id
         snippets = {
             "python": (
                 'import anthropic\n\n'

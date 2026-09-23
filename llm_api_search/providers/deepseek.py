@@ -205,7 +205,7 @@ class DeepSeekProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or "deepseek-flash"
+        model = model_id or _STATIC_MODELS[0].model_id
         snippets = {
             "python": (
                 'import os\n'
