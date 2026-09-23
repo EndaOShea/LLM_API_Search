@@ -55,6 +55,10 @@ _GLM_TOGGLE = ThinkingConfig(
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "glm-5.3": _GLM_53_EFFORT,
     "glm-5.3-flash": _GLM_53_EFFORT,
+    # Shares the GLM-5.3-Flash model page (docs.z.ai/guides/vlm/glm-5.3-flash),
+    # including "thinking.type only supports enabled"; concept-param does not
+    # name FlashX separately, so the Flash config is applied as-is.
+    "glm-5.3-flashx": _GLM_53_EFFORT,
     "glm-5.2": _GLM_EFFORT,
     "glm-5.1": _GLM_TOGGLE,
     "glm-5": _GLM_TOGGLE,

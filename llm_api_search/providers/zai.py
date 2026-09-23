@@ -222,15 +222,15 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='glm-5.3-flashx',
         display_name='GLM-5.3-FlashX',
-        description='GLM-5.3 FlashX variant. Specs and pricing not yet published on the official Z.ai docs page (docs.z.ai blocked at fetch time 2026-09-18); fill from https://docs.z.ai/guides/llm/glm-5.3-flashx and https://docs.z.ai/guides/overview/pricing.',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
+        description='High-speed GLM-5.3-Flash tier (~200 tokens/s) with native multimodal input (images, video, files). 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort). Not available on the GLM Coding Plan.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.37,
+        output_cost_per_mtok=1.25,
     ),
 ]
 
