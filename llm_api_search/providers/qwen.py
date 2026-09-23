@@ -41,7 +41,6 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-_DEFAULT_MODEL = "qwen3.8-max"
 
 # Matches a frontier-generation chat model ID, e.g. "qwen3.7-max",
 # "qwen3.8-plus". Used to pick genuinely-new frontier releases out of
@@ -62,6 +61,19 @@ def _classify_unrecognized(live_ids: set[str], static_ids: set[str]) -> set[str]
 
 
 _STATIC_MODELS = [
+    TextModelInfo(
+        model_id='qwen3.7-plus',
+        display_name='Qwen3.7 Plus',
+        description="Multimodal agent model (text/image/video input up to 16MP/image). 1,000,000 token context, 65,536 max output. Tool calling plus built-in web search and code execution. Pricing shown is the <=256K-context tier; above 256K it's $1.20/$4.80 per Mtok. Same thinking mechanism as qwen3.7-max. A 20%-off promo with no stated expiry is currently active on top of the list price shown.",
+        context_window=1_000_000,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.4,
+        output_cost_per_mtok=1.6,
+    ),
     TextModelInfo(
         model_id='qwen3.8-max',
         display_name='Qwen3.8 Max',
@@ -87,19 +99,6 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=2.5,
         output_cost_per_mtok=7.5,
-    ),
-    TextModelInfo(
-        model_id='qwen3.7-plus',
-        display_name='Qwen3.7 Plus',
-        description="Multimodal agent model (text/image/video input up to 16MP/image). 1,000,000 token context, 65,536 max output. Tool calling plus built-in web search and code execution. Pricing shown is the <=256K-context tier; above 256K it's $1.20/$4.80 per Mtok. Same thinking mechanism as qwen3.7-max. A 20%-off promo with no stated expiry is currently active on top of the list price shown.",
-        context_window=1_000_000,
-        max_output_tokens=65_536,
-        supports_vision=True,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=0.4,
-        output_cost_per_mtok=1.6,
     ),
     TextModelInfo(
         model_id='qwen3.5-plus',
@@ -223,7 +222,7 @@ class QwenProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or _DEFAULT_MODEL
+        model = model_id or _STATIC_MODELS[0].model_id
         snippets = {
             "python": (
                 'import os\n'

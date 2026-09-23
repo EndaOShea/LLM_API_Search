@@ -1,12 +1,12 @@
 """Anthropic thinking configurations.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking
-Verified: 2026-06-04
+Verified: 2026-06-04 (Opus 5.5 added 2026-09-23)
 
 Sampling constraints source:
 https://platform.claude.com/docs/en/build-with-claude/thinking
 ("Sampling parameters" section), verified 2026-08-04. Two generations:
-the newest models (Fable 5, Opus 5, Opus 4.8/4.7, Sonnet 5) return a 400
+the newest models (Fable 5.x, Opus 5.5, Opus 5, Opus 4.8/4.7, Sonnet 5) return a 400
 for non-default temperature/top_p/top_k on EVERY request, thinking or
 not; the 4.6 generation restricts sampling only while thinking is on
 (temperature and top_k incompatible; top_p allowed in [0.95, 1]).
@@ -60,6 +60,19 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
         sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
         notes=_ADAPTIVE_NOTE + "Adaptive is the only mode; manual budget_tokens is rejected (400). "
                                "display defaults to 'omitted'.",
+    ),
+    # Effort page: all five levels, default "medium" (every other effort model
+    # defaults to "high"); thinking={type:'disabled'} 400s at every level.
+    "claude-opus-5-5": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="medium", can_disable=False,
+        sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking is always on; thinking={type:'disabled'} "
+                               "returns a 400 at every effort level. Default effort is medium, "
+                               "one level below Opus 5. Forced tool use (tool_choice any/tool) "
+                               "is rejected on every request. display defaults to 'omitted'.",
     ),
     "claude-opus-5": ThinkingConfig(
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,

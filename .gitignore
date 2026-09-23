@@ -14,3 +14,6 @@ model_update_notes.md
 .venv_test/
 .DS_Store
 .venv/
+
+# Scratch files for agent tool runs; never committed.
+.claude/tmp/

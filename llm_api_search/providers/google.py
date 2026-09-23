@@ -15,6 +15,19 @@ from llm_api_search.providers.base import (
 
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='gemini-3.8-flash',
+        display_name='Gemini 3.8 Flash',
+        description='Most intelligent Flash model, for long-horizon software engineering, autonomous agents, and complex enterprise workflows. Text/image/video/audio/PDF input. Thinking via thinkingLevel (low/medium/high; minimal errors).',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=0.75,  # introductory; $1.50 from 2027-01-01
+        output_cost_per_mtok=3.75,  # introductory; $7.50 from 2027-01-01
+    ),
+    TextModelInfo(
         model_id='gemini-3.7-flash',
         display_name='Gemini 3.7 Flash',
         description='Latest and most capable Flash model, built for complex coding, agentic workflows, and reliable multi-step execution. Text/image/video/audio/PDF input. Thinking via thinkingLevel (low/medium/high; minimal errors).',
@@ -758,19 +771,6 @@ _STATIC_MODELS = [
         supports_multimodal=False,
         input_cost_per_mtok=0.025,
     ),
-    TextModelInfo(
-        model_id='gemini-3.8-flash',
-        display_name='Gemini 3.8 Flash',
-        description='Most intelligent Flash model, for long-horizon software engineering, autonomous agents, and complex enterprise workflows. Text/image/video/audio/PDF input. Thinking via thinkingLevel (low/medium/high; minimal errors).',
-        context_window=1_048_576,
-        max_output_tokens=65_536,
-        supports_vision=True,
-        supports_tool_use=True,
-        supports_image_generation=False,
-        supports_computer_use=True,
-        input_cost_per_mtok=0.75,  # introductory; $1.50 from 2027-01-01
-        output_cost_per_mtok=3.75,  # introductory; $7.50 from 2027-01-01
-    ),
     MusicModelInfo(
         model_id='lyria-3.5',
         display_name='Lyria 3.5',
@@ -1062,7 +1062,7 @@ class GeminiProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or "gemini-2.5-flash"
+        model = model_id or _STATIC_MODELS[0].model_id
         mtype = self._get_model_type(model)
         if mtype == ModelType.IMAGE:
             if model.startswith("gemini-"):

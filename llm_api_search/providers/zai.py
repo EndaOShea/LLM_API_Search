@@ -11,7 +11,8 @@ Free tiers (glm-4.5-flash, glm-4.6v-flash) are recorded as 0.0.
 Spec source: per-model doc pages, split by modality — text-only models live
 under https://docs.z.ai/guides/llm/<model-id> and vision models (the ones
 carrying ``supports_vision=True``: glm-5.3-flash, glm-5v-turbo,
-glm-4.6v-flash) under https://docs.z.ai/guides/vlm/<model-id>.  The ``llm/``
+glm-4.6v-flash) under https://docs.z.ai/guides/vlm/<model-id>.
+glm-5.3-flashx has no page of its own; it shares vlm/glm-5.3-flash.  The ``llm/``
 path 308-redirects to ``vlm/`` for a vision model, so a stale ``llm/`` link
 still resolves and is not evidence that the model is text-only.
 """
@@ -29,13 +30,12 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://api.z.ai/api/paas/v4"
-_DEFAULT_MODEL = "glm-5.2"
 
 _STATIC_MODELS = [
     TextModelInfo(
-        model_id='glm-5.2',
-        display_name='GLM-5.2',
-        description="Z.ai's flagship GLM model. 1M token context, up to 128K output. Tool calling, structured output (JSON), context caching, MCP, and configurable thinking (reasoning_effort, default max).",
+        model_id='glm-5.3',
+        display_name='GLM-5.3',
+        description="Z.ai's latest flagship GLM model, text-only input. 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort low/high/max, default max; cannot be disabled).",
         context_window=1_000_000,
         max_output_tokens=128_000,
         supports_vision=False,
@@ -46,9 +46,9 @@ _STATIC_MODELS = [
         output_cost_per_mtok=4.4,
     ),
     TextModelInfo(
-        model_id='glm-5.3',
-        display_name='GLM-5.3',
-        description="Z.ai's latest flagship GLM model, text-only input. 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort low/high/max, default max; cannot be disabled).",
+        model_id='glm-5.2',
+        display_name='GLM-5.2',
+        description="Z.ai's flagship GLM model. 1M token context, up to 128K output. Tool calling, structured output (JSON), context caching, MCP, and configurable thinking (reasoning_effort, default max).",
         context_window=1_000_000,
         max_output_tokens=128_000,
         supports_vision=False,
@@ -219,6 +219,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.15,
         output_cost_per_mtok=0.5,
     ),
+    TextModelInfo(
+        model_id='glm-5.3-flashx',
+        display_name='GLM-5.3-FlashX',
+        description='High-speed GLM-5.3-Flash tier (~200 tokens/s) with native multimodal input (images, video, files). 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort). Not available on the GLM Coding Plan.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.37,
+        output_cost_per_mtok=1.25,
+    ),
 ]
 
 
@@ -302,7 +315,7 @@ class ZaiProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or _DEFAULT_MODEL
+        model = model_id or _STATIC_MODELS[0].model_id
         mtype = self._get_model_type(model)
         if mtype == ModelType.IMAGE:
             return self._image_snippet(model, language)

@@ -37,7 +37,6 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://api.mistral.ai/v1"
-_DEFAULT_MODEL = "mistral-medium-3-5-26-04"
 
 # The frontier *text* families Mistral ships. Matching this prefix alone is far
 # too loose to use as the discovery filter on its own: Mistral keeps every
@@ -308,7 +307,7 @@ class MistralProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or _DEFAULT_MODEL
+        model = model_id or _STATIC_MODELS[0].model_id
         mtype = self._get_model_type(model)
         if mtype == ModelType.EMBEDDING:
             return self._embedding_snippet(model, language)

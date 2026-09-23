@@ -19,7 +19,6 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://api.minimax.io/v1"
-_DEFAULT_MODEL = "MiniMax-M3"
 
 _STATIC_MODELS = [
     TextModelInfo(
@@ -165,7 +164,7 @@ class MiniMaxProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or _DEFAULT_MODEL
+        model = model_id or _STATIC_MODELS[0].model_id
         mtype = self._get_model_type(model)
         # NOTE: _BASE_URL already ends in "/v1"; media paths are relative to it
         # (do NOT prefix another "/v1"), so the full URL is e.g.

@@ -81,6 +81,12 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "gpt-6-astra": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, batch_queue_limit=1_500_000),
     },
+    "gpt-6-sol": {
+        "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, batch_queue_limit=1_500_000),
+    },
+    "gpt-6-luna": {
+        "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, batch_queue_limit=5_000_000),
+    },
     # --- GPT-5 mini/nano: 500 RPM, 500K TPM, 50K RPD ---
     "gpt-5-mini": {
         "tier-1": RateLimit(requests_per_minute=500, tokens_per_minute=500_000, requests_per_day=50_000),

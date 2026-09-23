@@ -68,8 +68,30 @@ def _gpt6() -> ThinkingConfig:
 
 _GPT6_IDS = ["gpt-6-astra"]
 
+
+def _gpt6_disableable() -> ThinkingConfig:
+    """GPT-6 Sol and Luna: same ladder as Astra plus ``none``.
+
+    Their model pages list ``none`` among the reasoning.effort values where
+    Astra's does not, so they get their own config rather than widening
+    ``_gpt6`` and advertising a disable switch Astra doesn't document.
+    """
+    return ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="reasoning.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="medium", can_disable=True,
+        notes="reasoning.effort accepts none, low, medium (default), high, "
+              "xhigh, max; 'none' disables reasoning. Reasoning tokens billed "
+              "as output tokens.",
+    )
+
+
+_GPT6_DISABLEABLE_IDS = ["gpt-6-sol", "gpt-6-luna"]
+
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     **{mid: _gpt5() for mid in _GPT5_IDS},
     **{mid: _oseries() for mid in _OSERIES_IDS},
     **{mid: _gpt6() for mid in _GPT6_IDS},
+    **{mid: _gpt6_disableable() for mid in _GPT6_DISABLEABLE_IDS},
 }

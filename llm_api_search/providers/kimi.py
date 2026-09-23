@@ -22,7 +22,6 @@ from llm_api_search.providers.base import (
 )
 
 _BASE_URL = "https://api.moonshot.ai/v1"
-_DEFAULT_MODEL = "kimi-k3"
 
 _STATIC_MODELS = [
     TextModelInfo(
@@ -142,7 +141,7 @@ class KimiProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or _DEFAULT_MODEL
+        model = model_id or _STATIC_MODELS[0].model_id
         snippets = {
             "python": (
                 'import os\n'

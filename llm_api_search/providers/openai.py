@@ -14,6 +14,19 @@ from llm_api_search.providers.base import (
 
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='gpt-6-astra',
+        display_name='gpt-6-astra',
+        description='Flagship of the GPT-6 family for the most demanding reasoning and agentic work. Reasoning effort spans low through max. Cached input $1.00/1M.',
+        context_window=1_050_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=10.0,
+        output_cost_per_mtok=50.0,
+    ),
+    TextModelInfo(
         model_id='gpt-5.6-terra',
         display_name='gpt-5.6-terra',
         description='Mid-tier GPT-5.6 model balancing intelligence and cost. Cached input $0.20/1M.',
@@ -27,17 +40,30 @@ _STATIC_MODELS = [
         output_cost_per_mtok=12.0,
     ),
     TextModelInfo(
-        model_id='gpt-6-astra',
-        display_name='gpt-6-astra',
-        description='Flagship of the GPT-6 family for the most demanding reasoning and agentic work. Reasoning effort spans low through max. Cached input $1.00/1M.',
+        model_id='gpt-6-sol',
+        display_name='gpt-6-sol',
+        description='Mid-tier GPT-6 model built for complex coding and agentic workflows. Reasoning effort spans none through max (default medium). Cached input $0.20/1M.',
         context_window=1_050_000,
         max_output_tokens=128_000,
         supports_vision=True,
         supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=True,
-        input_cost_per_mtok=10.0,
-        output_cost_per_mtok=50.0,
+        input_cost_per_mtok=2.0,
+        output_cost_per_mtok=10.0,
+    ),
+    TextModelInfo(
+        model_id='gpt-6-luna',
+        display_name='gpt-6-luna',
+        description='Most efficient GPT-6 model for focused, high-volume tasks. Reasoning effort spans none through max (default medium). Cached input $0.01/1M.',
+        context_window=1_050_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=0.1,
+        output_cost_per_mtok=0.5,
     ),
     TextModelInfo(
         model_id='gpt-4',
@@ -1392,7 +1418,7 @@ class OpenAIProvider(Provider):
     def get_connection_snippet(
         self, model_id: str | None = None, language: str = "python"
     ) -> str:
-        model = model_id or "gpt-5.4"
+        model = model_id or _STATIC_MODELS[0].model_id
         mtype = self._get_model_type(model)
         if mtype == ModelType.IMAGE:
             return self._image_snippet(model, language)
