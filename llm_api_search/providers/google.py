@@ -955,6 +955,39 @@ _STATIC_MODELS = [
         input_cost_per_mtok=None,  # TODO: add pricing
         output_cost_per_mtok=None,  # TODO: add pricing
     ),
+    AudioTTSModelInfo(
+        model_id='gemini-3.8-flash-tts',
+        display_name='Gemini 3.8 Flash TTS',
+        description='Gemini 3.8 Flash TTS',
+        supported_voices=[],
+        supported_output_formats=[],
+        cost_per_mchars=None,  # TODO: add pricing
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    AudioTTSModelInfo(
+        model_id='gemini-3.8-flash-lite-tts',
+        display_name='Gemini 3.8 Flash Lite TTS',
+        description='Gemini 3.8 Flash Lite TTS',
+        supported_voices=[],
+        supported_output_formats=[],
+        cost_per_mchars=None,  # TODO: add pricing
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='antigravity-preview-latest',
+        display_name='Antigravity Agent Preview Latest',
+        description='Latest preview release of Antigravity Agent',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
