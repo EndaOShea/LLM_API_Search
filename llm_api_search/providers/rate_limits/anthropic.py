@@ -142,6 +142,25 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
             output_tokens_per_minute=2_000_000,
         ),
     },
+    # Own bucket per footnote 3 ("Claude Sonnet 5.5 and Claude Sonnet 5 each
+    # have a separate rate limit"); numbers match Claude Sonnet 5.
+    "claude-sonnet-5-5": {
+        "start": RateLimit(
+            requests_per_minute=1_000,
+            input_tokens_per_minute=2_000_000,
+            output_tokens_per_minute=400_000,
+        ),
+        "build": RateLimit(
+            requests_per_minute=5_000,
+            input_tokens_per_minute=5_000_000,
+            output_tokens_per_minute=1_000_000,
+        ),
+        "scale": RateLimit(
+            requests_per_minute=10_000,
+            input_tokens_per_minute=10_000_000,
+            output_tokens_per_minute=2_000_000,
+        ),
+    },
     "claude-sonnet-4-6": {
         "start": RateLimit(
             requests_per_minute=1_000,

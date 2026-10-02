@@ -130,6 +130,14 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
                                "no thinking field means no thinking). Manual budget_tokens is "
                                "rejected (400), same as Opus 4.8/4.7.",
     ),
+    "claude-sonnet-5-5": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="high", can_disable=True,
+        sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking; default effort high.",
+    ),
     "claude-haiku-4-5-20251001": ThinkingConfig(
         supported=True, mode=ThinkingMode.TOKEN_BUDGET,
         parameter="thinking.budget_tokens",
