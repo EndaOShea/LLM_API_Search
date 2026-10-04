@@ -2,6 +2,9 @@
 
 Source: https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking
 Verified: 2026-06-04 (Opus 5.5 added 2026-09-23, Sonnet 5.5 added 2026-10-04)
+can_disable source:
+https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
+(per-model table), verified 2026-10-04.
 
 Sampling constraints source:
 https://platform.claude.com/docs/en/build-with-claude/thinking
@@ -40,9 +43,9 @@ _SAMPLING_THINKING_ONLY = {
 }
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
-    # The models overview lists Fable 5.1's thinking as "Adaptive (always on)",
-    # where Fable 5 is plain "Adaptive" — hence can_disable=False here and True
-    # below. Both default to effort "high".
+    # The thinking-troubleshooting table lists both Fable models as "Always on"
+    # and rejecting thinking={type:'disabled'} with a 400 — hence
+    # can_disable=False on both. Both default to effort "high".
     "claude-fable-5-1": ThinkingConfig(
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,
         parameter="output_config.effort",
@@ -56,9 +59,10 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
         supported=True, mode=ThinkingMode.EFFORT_LEVELS,
         parameter="output_config.effort",
         levels=["low", "medium", "high", "xhigh", "max"],
-        default_level="high", can_disable=True,
+        default_level="high", can_disable=False,
         sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
-        notes=_ADAPTIVE_NOTE + "Adaptive is the only mode; manual budget_tokens is rejected (400). "
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking is always on; thinking={type:'disabled'} "
+                               "returns a 400. Manual budget_tokens is rejected (400). "
                                "display defaults to 'omitted'.",
     ),
     # Effort page: all five levels, default "medium" (every other effort model

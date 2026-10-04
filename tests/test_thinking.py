@@ -70,6 +70,14 @@ def test_anthropic_sonnet_5_effort_levels():
     assert tc.default_level == "high"
 
 
+def test_anthropic_always_on_models_cannot_disable():
+    # Anthropic's thinking-troubleshooting table marks these "Always on":
+    # thinking={type:'disabled'} returns a 400.
+    for mid in ["claude-fable-5-1", "claude-fable-5", "claude-opus-5-5"]:
+        tc = get_thinking_config("anthropic", mid)[mid]
+        assert tc.can_disable is False, mid
+
+
 def test_openai_gpt5_effort():
     tc = get_thinking_config("openai", "gpt-5.5")["gpt-5.5"]
     assert tc.supported is True
