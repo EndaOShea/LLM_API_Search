@@ -8,8 +8,8 @@ Custom (renamed from the older "Tier 1".."Tier 4" scheme). Custom is
 negotiated per-account and publishes no fixed numbers, so only three tiers
 are modeled here. Limits are per model class: the Opus 4.x limit is shared
 across Opus 4.8/4.7/4.6/4.5, and the Sonnet 4.x limit is shared across
-Sonnet 4.6/4.5 — Claude Sonnet 5 has its own separate limit, not part of
-that combined bucket. Claude Opus 5 is likewise a separate bucket and does
+Sonnet 4.6/4.5 — Claude Sonnet 5.5 and Claude Sonnet 5 each have their own
+separate limit, not part of that combined bucket. Claude Opus 5 is likewise a separate bucket and does
 not draw from the combined Opus 4.x pool, and Claude Opus 5.5 has its own
 separate bucket too. Claude Fable 5 also has its own
 dedicated limits.

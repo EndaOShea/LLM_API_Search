@@ -365,7 +365,7 @@ def test_anthropic_sampling_constraint_generation_split():
 
     always_locked = [
         "claude-fable-5", "claude-opus-5-5", "claude-opus-5", "claude-opus-4-8",
-        "claude-opus-4-7", "claude-sonnet-5",
+        "claude-opus-4-7", "claude-sonnet-5-5", "claude-sonnet-5",
     ]
     for mid in always_locked:
         sp = THINKING_CONFIGS[mid].sampling_params_allowed
