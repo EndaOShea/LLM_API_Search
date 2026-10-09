@@ -53,10 +53,10 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='mercury-edit-2',
-        display_name='mercury-edit-2',
-        description='Mercury Edit 2 is a diffusion large language model (dLLM) for code editing. Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance.',
-        context_window=None,
-        max_output_tokens=None,
+        display_name='Mercury Edit 2',
+        description='A code editing LLM for autocomplete (FIM) and next edit suggestions. Served at /v1/fim/completions and /v1/edit/completions (32K context each); no chat completions.',
+        context_window=32_000,
+        max_output_tokens=8_192,
         supports_vision=False,
         supports_tool_use=False,
         supports_image_generation=False,
@@ -146,7 +146,7 @@ class InceptionProvider(Provider):
     ) -> str:
         model = model_id or _STATIC_MODELS[0].model_id
 
-        if model == "mercury-edit":
+        if model in ("mercury-edit", "mercury-edit-2"):
             return self._fim_snippet(model, language)
         if model == "mercury-decide":
             return self._decisions_snippet(model, language)
@@ -321,7 +321,7 @@ class InceptionProvider(Provider):
                 '    },\n'
                 '    body: JSON.stringify({\n'
                 f'      model: "{model}",\n'
-                '      messages: [{{ role: "user", content: "Hello!" }}],\n'
+                '      messages: [{ role: "user", content: "Hello!" }],\n'
                 '      max_tokens: 10000,\n'
                 '    }),\n'
                 '  }\n'
@@ -341,7 +341,7 @@ class InceptionProvider(Provider):
                 '    },\n'
                 '    body: JSON.stringify({\n'
                 f'      model: "{model}",\n'
-                '      messages: [{{ role: "user", content: "Hello!" }}],\n'
+                '      messages: [{ role: "user", content: "Hello!" }],\n'
                 '      max_tokens: 10000,\n'
                 '    }),\n'
                 '  }\n'
@@ -359,7 +359,7 @@ class InceptionProvider(Provider):
                 'String json = """\n'
                 '    {\n'
                 f'        "model": "{model}",\n'
-                '        "messages": [{{"role": "user", "content": "Hello!"}}],\n'
+                '        "messages": [{"role": "user", "content": "Hello!"}],\n'
                 '        "max_tokens": 10000\n'
                 '    }""";\n\n'
                 'HttpRequest request = HttpRequest.newBuilder()\n'
