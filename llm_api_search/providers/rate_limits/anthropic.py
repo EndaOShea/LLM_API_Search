@@ -212,4 +212,21 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
             output_tokens_per_minute=2_000_000,
         ),
     },
+    "claude-haiku-5-5": {
+        "start": RateLimit(
+            requests_per_minute=1_000,
+            input_tokens_per_minute=2_000_000,
+            output_tokens_per_minute=400_000,
+        ),
+        "build": RateLimit(
+            requests_per_minute=5_000,
+            input_tokens_per_minute=5_000_000,
+            output_tokens_per_minute=1_000_000,
+        ),
+        "scale": RateLimit(
+            requests_per_minute=10_000,
+            input_tokens_per_minute=10_000_000,
+            output_tokens_per_minute=2_000_000,
+        ),
+    },
 }

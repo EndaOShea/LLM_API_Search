@@ -259,6 +259,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=5.0,
         output_cost_per_mtok=25.0,
     ),
+    TextModelInfo(
+        model_id='claude-haiku-5-5',
+        display_name='Claude Haiku 5.5',
+        description='For high-volume, latency-sensitive tasks such as classification, extraction, and routing. Pricing is tiered by prompt length: prompts over 100K tokens cost $0.50/$2.50 per MTok input/output instead of the listed $0.10/$0.50.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.1,
+        output_cost_per_mtok=0.5,
+    ),
 ]
 
 _API_VERSION = "2023-06-01"

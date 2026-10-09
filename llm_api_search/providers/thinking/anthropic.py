@@ -162,4 +162,18 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
               "be less than max_tokens (64k output ceiling). No interleaved thinking — the "
               "interleaved-thinking-2025-05-14 beta header is accepted but ignored.",
     ),
+    # Thinking-troubleshooting table: Haiku 5.5 is adaptive-only, thinking on by default
+    # (same class as Opus 5 — accepts disabled at effort high or below only).
+    "claude-haiku-5-5": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="medium", can_disable=True,
+        sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking is on by default. thinking={type:'disabled'} "
+                               "is accepted only at effort high or below — pairing it with "
+                               "xhigh or max returns a 400. A per-message effort that differs "
+                               "from the level in effect also returns a 400 when thinking is "
+                               "disabled. display defaults to 'omitted'.",
+    ),
 }

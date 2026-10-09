@@ -1,7 +1,7 @@
 """Inception Labs (Mercury) rate limits — published API limits per tier.
 
 Source: https://docs.inceptionlabs.ai/get-started/rate-limits#rate-limits
-Verified: 2026-09-15
+Verified: 2026-10-09
 
 Inception publishes one per-minute limit table per account tier (Free, Pay As
 You Go, Enterprise), not per model, so every model carries the same tier dict.
@@ -30,4 +30,5 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "mercury-2": _TIERS,
     "mercury-edit-2": _TIERS,
     "mercury-edit": _TIERS,
+    "mercury-decide": _TIERS,
 }

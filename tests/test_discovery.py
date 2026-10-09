@@ -207,6 +207,14 @@ def test_summary_includes_pricing():
                 )
 
 
+# Models whose rate card bills input tokens only, so output < input is the
+# published price rather than a transposed pair. Add an entry only when the
+# provider's docs say output is not charged.
+_OUTPUT_UNBILLED = {
+    ("inception", "mercury-decide"),
+}
+
+
 def test_model_pricing_fields():
     """All static GA models should have type-appropriate pricing set.
 
@@ -224,7 +232,8 @@ def test_model_pricing_fields():
                 assert m.output_cost_per_mtok is not None, f"{key}/{m.model_id}: missing output_cost_per_mtok"
                 assert m.input_cost_per_mtok >= 0
                 assert m.output_cost_per_mtok >= 0
-                assert m.output_cost_per_mtok >= m.input_cost_per_mtok, f"{key}/{m.model_id}: output < input"
+                if (key, m.model_id) not in _OUTPUT_UNBILLED:
+                    assert m.output_cost_per_mtok >= m.input_cost_per_mtok, f"{key}/{m.model_id}: output < input"
             elif isinstance(m, ImageModelInfo):
                 assert m.cost_per_image is not None, f"{key}/{m.model_id}: missing cost_per_image"
                 assert m.cost_per_image >= 0
