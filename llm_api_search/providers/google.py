@@ -988,6 +988,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=None,  # TODO: add pricing
         output_cost_per_mtok=None,  # TODO: add pricing
     ),
+    TextModelInfo(
+        model_id='gemini-nano-banana-2.1',
+        display_name='Nano Banana 2.1',
+        description='Gemini Nano Banana 2.1.',
+        context_window=65_536,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
