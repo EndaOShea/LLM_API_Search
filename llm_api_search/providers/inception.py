@@ -66,16 +66,16 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='mercury-decide',
-        display_name='mercury-decide',
-        description='Typed-decision preview. Decisions endpoint only.',
-        context_window=None,
-        max_output_tokens=None,
+        display_name='Mercury Decide',
+        description='Classification and scoring model: evaluates named questions against shared context and returns typed answers (binary probabilities, categorical choices, or ordinal scores). Served only at /v1/decisions; no chat completions, streaming, or tool calling. Only input tokens are billed; output tokens are reported but not charged. List price shown; a 50%-off promo with no stated expiry currently brings input to $0.02 per Mtok.',
+        context_window=None,  # not published
+        max_output_tokens=None,  # not published
         supports_vision=False,
         supports_tool_use=False,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.04,
+        output_cost_per_mtok=0.0,  # output tokens are not billed
     ),
 ]
 
@@ -148,7 +148,147 @@ class InceptionProvider(Provider):
 
         if model == "mercury-edit":
             return self._fim_snippet(model, language)
+        if model == "mercury-decide":
+            return self._decisions_snippet(model, language)
         return self._chat_snippet(model, language)
+
+    def _decisions_snippet(self, model: str, language: str) -> str:
+        # mercury-decide is served only at /v1/decisions (no chat completions).
+        snippets = {
+            "python": (
+                'import os\n'
+                'import requests\n\n'
+                'response = requests.post(\n'
+                '    "https://api.inceptionlabs.ai/v1/decisions",\n'
+                '    headers={\n'
+                '        "Content-Type": "application/json",\n'
+                '        "Authorization": f"Bearer {os.environ[\'INCEPTION_API_KEY\']}",\n'
+                '    },\n'
+                '    json={\n'
+                f'        "model": "{model}",\n'
+                '        "state": {"message": "Please refund the duplicate charge on my account."},\n'
+                '        "questions": {\n'
+                '            "billing": {\n'
+                '                "type": "noul",\n'
+                '                "instructions": "Is this request about billing?",\n'
+                '            },\n'
+                '        },\n'
+                '    },\n'
+                ')\n\n'
+                'print(response.json()["answers"])\n'
+            ),
+            "typescript": (
+                '// No official SDK — using native fetch API\n\n'
+                'const response = await fetch(\n'
+                '  "https://api.inceptionlabs.ai/v1/decisions",\n'
+                '  {\n'
+                '    method: "POST",\n'
+                '    headers: {\n'
+                '      "Content-Type": "application/json",\n'
+                '      Authorization: `Bearer ${process.env.INCEPTION_API_KEY}`,\n'
+                '    },\n'
+                '    body: JSON.stringify({\n'
+                f'      model: "{model}",\n'
+                '      state: { message: "Please refund the duplicate charge on my account." },\n'
+                '      questions: {\n'
+                '        billing: { type: "noul", instructions: "Is this request about billing?" },\n'
+                '      },\n'
+                '    }),\n'
+                '  }\n'
+                ');\n\n'
+                'const data = await response.json();\n'
+                'console.log(data.answers);\n'
+            ),
+            "javascript": (
+                '// No official SDK — using native fetch API\n\n'
+                'const response = await fetch(\n'
+                '  "https://api.inceptionlabs.ai/v1/decisions",\n'
+                '  {\n'
+                '    method: "POST",\n'
+                '    headers: {\n'
+                '      "Content-Type": "application/json",\n'
+                '      Authorization: `Bearer ${process.env.INCEPTION_API_KEY}`,\n'
+                '    },\n'
+                '    body: JSON.stringify({\n'
+                f'      model: "{model}",\n'
+                '      state: { message: "Please refund the duplicate charge on my account." },\n'
+                '      questions: {\n'
+                '        billing: { type: "noul", instructions: "Is this request about billing?" },\n'
+                '      },\n'
+                '    }),\n'
+                '  }\n'
+                ');\n\n'
+                'const data = await response.json();\n'
+                'console.log(data.answers);\n'
+            ),
+            "java": (
+                'import java.net.URI;\n'
+                'import java.net.http.HttpClient;\n'
+                'import java.net.http.HttpRequest;\n'
+                'import java.net.http.HttpResponse;\n\n'
+                '// No official SDK — using java.net.http.HttpClient\n'
+                'HttpClient client = HttpClient.newHttpClient();\n\n'
+                'String json = """\n'
+                '    {\n'
+                f'        "model": "{model}",\n'
+                '        "state": {"message": "Please refund the duplicate charge on my account."},\n'
+                '        "questions": {\n'
+                '            "billing": {"type": "noul", "instructions": "Is this request about billing?"}\n'
+                '        }\n'
+                '    }""";\n\n'
+                'HttpRequest request = HttpRequest.newBuilder()\n'
+                '    .uri(URI.create("https://api.inceptionlabs.ai/v1/decisions"))\n'
+                '    .header("Content-Type", "application/json")\n'
+                '    .header("Authorization", "Bearer " + System.getenv("INCEPTION_API_KEY"))\n'
+                '    .POST(HttpRequest.BodyPublishers.ofString(json))\n'
+                '    .build();\n\n'
+                'HttpResponse<String> response = client.send(request,\n'
+                '    HttpResponse.BodyHandlers.ofString());\n'
+                'System.out.println(response.body());\n'
+            ),
+            "cpp": (
+                '#include <iostream>\n'
+                '#include <string>\n'
+                '#include <curl/curl.h>\n'
+                '#include <nlohmann/json.hpp>\n\n'
+                'using json = nlohmann::json;\n\n'
+                'static size_t WriteCallback(void* contents, size_t size,\n'
+                '                            size_t nmemb, std::string* out) {\n'
+                '    out->append((char*)contents, size * nmemb);\n'
+                '    return size * nmemb;\n'
+                '}\n\n'
+                'int main() {\n'
+                '    const char* api_key = std::getenv("INCEPTION_API_KEY");\n'
+                '    CURL* curl = curl_easy_init();\n\n'
+                '    json body = {\n'
+                f'        {{"model", "{model}"}},\n'
+                '        {"state", {{"message", "Please refund the duplicate charge on my account."}}},\n'
+                '        {"questions", {{"billing", {\n'
+                '            {"type", "noul"},\n'
+                '            {"instructions", "Is this request about billing?"}\n'
+                '        }}}}\n'
+                '    };\n\n'
+                '    struct curl_slist* headers = nullptr;\n'
+                '    headers = curl_slist_append(headers, ("Authorization: Bearer " + std::string(api_key)).c_str());\n'
+                '    headers = curl_slist_append(headers, "Content-Type: application/json");\n\n'
+                '    std::string response;\n'
+                '    std::string payload = body.dump();\n'
+                '    curl_easy_setopt(curl, CURLOPT_URL,\n'
+                '        "https://api.inceptionlabs.ai/v1/decisions");\n'
+                '    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n'
+                '    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);\n'
+                '    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);\n\n'
+                '    curl_easy_perform(curl);\n'
+                '    curl_easy_cleanup(curl);\n'
+                '    curl_slist_free_all(headers);\n\n'
+                '    auto result = json::parse(response);\n'
+                '    std::cout << result["answers"].dump(2) << std::endl;\n'
+                '    return 0;\n'
+                '}\n'
+            ),
+        }
+        return snippets.get(language, snippets["python"])
 
     def _chat_snippet(self, model: str, language: str) -> str:
         snippets = {

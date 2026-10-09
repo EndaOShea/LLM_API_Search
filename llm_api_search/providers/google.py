@@ -988,18 +988,14 @@ _STATIC_MODELS = [
         input_cost_per_mtok=None,  # TODO: add pricing
         output_cost_per_mtok=None,  # TODO: add pricing
     ),
-    TextModelInfo(
+    ImageModelInfo(
         model_id='gemini-nano-banana-2.1',
         display_name='Nano Banana 2.1',
-        description='Gemini Nano Banana 2.1.',
-        context_window=65_536,
-        max_output_tokens=65_536,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        description='Update to Nano Banana 2 (Gemini 3.1 Flash Image) for high-efficiency image generation and conversational editing, with better visual quality, multi-turn character consistency, text rendering, and search-grounded generation at 1K, 2K, and 4K. Paid tier only. Billed per token: $1.50/Mtok input, $7.50/Mtok text and thinking output, $30/Mtok image output (1,120 tokens per 1K image).',
+        supported_sizes=[],
+        supported_qualities=[],
+        max_images_per_request=None,
+        cost_per_image=0.0336,  # 1K standard tier; 2K $0.0504, 4K $0.113
     ),
 ]
 
