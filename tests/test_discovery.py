@@ -166,6 +166,41 @@ def test_connection_snippet_model_id_in_all_languages():
         )
 
 
+def test_snippets_have_no_unrendered_format_braces():
+    """A ``{{`` left in a TS/JS/Java snippet is an f-string escape that landed
+    in a plain string, so the emitted code is a syntax error. Only the opening
+    pair is checked — ``}}`` also closes nested objects legitimately. C++ is
+    skipped: nested initializer lists use doubled braces legitimately.
+    """
+    from llm_api_search.providers import PROVIDERS
+
+    for key, cls in PROVIDERS.items():
+        provider = cls()
+        for m in provider.get_static_info().models:
+            for lang in ("typescript", "javascript", "java"):
+                snippet = provider.get_connection_snippet(m.model_id, lang)
+                assert "{{" not in snippet, (
+                    f"{key}/{m.model_id}/{lang}: unrendered format braces"
+                )
+
+
+def test_inception_snippets_use_each_models_endpoint():
+    """Mercury's edit and decide models are not served on chat completions."""
+    from llm_api_search.providers import PROVIDERS
+
+    provider = PROVIDERS["inception"]()
+    expected = {
+        "mercury-2.5": "/v1/chat/completions",
+        "mercury-edit-2": "/v1/fim/completions",
+        "mercury-decide": "/v1/decisions",
+    }
+    for model_id, endpoint in expected.items():
+        for lang in SUPPORTED_LANGUAGES:
+            snippet = provider.get_connection_snippet(model_id, lang)
+            assert endpoint in snippet, f"{model_id}/{lang}: expected {endpoint}"
+            assert model_id in snippet
+
+
 def test_sdk_installs_per_language():
     """Verify sdk_installs contains entries for multiple languages."""
     results = discover(live=False)

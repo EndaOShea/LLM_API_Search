@@ -53,10 +53,10 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='mercury-edit-2',
-        display_name='mercury-edit-2',
-        description='Mercury Edit 2 is a diffusion large language model (dLLM) for code editing. Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance.',
-        context_window=None,
-        max_output_tokens=None,
+        display_name='Mercury Edit 2',
+        description='A code editing LLM for autocomplete (FIM) and next edit suggestions. Served at /v1/fim/completions and /v1/edit/completions (32K context each); no chat completions.',
+        context_window=32_000,
+        max_output_tokens=8_192,
         supports_vision=False,
         supports_tool_use=False,
         supports_image_generation=False,
@@ -76,6 +76,19 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=0.04,
         output_cost_per_mtok=0.0,  # output tokens are not billed
+    ),
+    TextModelInfo(
+        model_id='mercury-voice',  # inferred from Inception's naming; no published ID
+        display_name='Mercury Voice',
+        description='A diffusion LLM tuned for voice agents. Enterprise customers only (contact Inception sales for access). Tool calling and structured outputs; reasoning_effort low, medium, or high. The model ID is not published by Inception and is inferred from its naming pattern — confirm it against your account before use. List price shown; a 50%-off launch promo with no stated expiry currently brings this to $0.20/$0.75 per Mtok ($0.02 cached input).',
+        context_window=128_000,
+        max_output_tokens=50_000,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.4,
+        output_cost_per_mtok=1.5,
     ),
 ]
 
@@ -146,7 +159,7 @@ class InceptionProvider(Provider):
     ) -> str:
         model = model_id or _STATIC_MODELS[0].model_id
 
-        if model == "mercury-edit":
+        if model in ("mercury-edit", "mercury-edit-2"):
             return self._fim_snippet(model, language)
         if model == "mercury-decide":
             return self._decisions_snippet(model, language)
@@ -321,7 +334,7 @@ class InceptionProvider(Provider):
                 '    },\n'
                 '    body: JSON.stringify({\n'
                 f'      model: "{model}",\n'
-                '      messages: [{{ role: "user", content: "Hello!" }}],\n'
+                '      messages: [{ role: "user", content: "Hello!" }],\n'
                 '      max_tokens: 10000,\n'
                 '    }),\n'
                 '  }\n'
@@ -341,7 +354,7 @@ class InceptionProvider(Provider):
                 '    },\n'
                 '    body: JSON.stringify({\n'
                 f'      model: "{model}",\n'
-                '      messages: [{{ role: "user", content: "Hello!" }}],\n'
+                '      messages: [{ role: "user", content: "Hello!" }],\n'
                 '      max_tokens: 10000,\n'
                 '    }),\n'
                 '  }\n'
@@ -359,7 +372,7 @@ class InceptionProvider(Provider):
                 'String json = """\n'
                 '    {\n'
                 f'        "model": "{model}",\n'
-                '        "messages": [{{"role": "user", "content": "Hello!"}}],\n'
+                '        "messages": [{"role": "user", "content": "Hello!"}],\n'
                 '        "max_tokens": 10000\n'
                 '    }""";\n\n'
                 'HttpRequest request = HttpRequest.newBuilder()\n'

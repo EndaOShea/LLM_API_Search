@@ -31,4 +31,5 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     "mercury-edit-2": _TIERS,
     "mercury-edit": _TIERS,
     "mercury-decide": _TIERS,
+    "mercury-voice": _TIERS,
 }
