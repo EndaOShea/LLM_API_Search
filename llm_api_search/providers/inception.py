@@ -77,6 +77,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.04,
         output_cost_per_mtok=0.0,  # output tokens are not billed
     ),
+    TextModelInfo(
+        model_id='mercury-voice',  # inferred from Inception's naming; no published ID
+        display_name='Mercury Voice',
+        description='A diffusion LLM tuned for voice agents. Enterprise customers only (contact Inception sales for access). Tool calling and structured outputs; reasoning_effort low, medium, or high. The model ID is not published by Inception and is inferred from its naming pattern — confirm it against your account before use. List price shown; a 50%-off launch promo with no stated expiry currently brings this to $0.20/$0.75 per Mtok ($0.02 cached input).',
+        context_window=128_000,
+        max_output_tokens=50_000,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.4,
+        output_cost_per_mtok=1.5,
+    ),
 ]
 
 
