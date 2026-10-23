@@ -997,6 +997,19 @@ _STATIC_MODELS = [
         max_images_per_request=None,
         cost_per_image=0.0336,  # 1K standard tier; 2K $0.0504, 4K $0.113
     ),
+    TextModelInfo(
+        model_id='gemini-4-argon',
+        display_name='Gemini 4 Argon',
+        description='Gemini 4 Argon',
+        context_window=1_048_576,
+        max_output_tokens=32_768,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
