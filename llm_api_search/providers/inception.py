@@ -13,9 +13,22 @@ from llm_api_search.providers.base import ModelInfo, TextModelInfo, Provider, Pr
 # Pricing source: https://docs.inceptionlabs.ai/get-started/models (USD).
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='mercury-3',
+        display_name='Mercury 3',
+        description="Inception's most intelligent diffusion LLM (dLLM), succeeding Mercury 2.5. 1M context, 131,072 max output. Text only. Tunable reasoning via reasoning_effort (instant/low/medium/high), tool calling, and structured outputs. Supported temperature range 0.5-1.0. List price shown; a 50%-off launch promo with no stated expiry currently brings this to $0.10/$0.35 per Mtok ($0.01 cached input).",
+        context_window=1_000_000,
+        max_output_tokens=131_072,
+        supports_vision=False,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=0.2,
+        output_cost_per_mtok=0.7,
+    ),
+    TextModelInfo(
         model_id='mercury-2.5',
         display_name='Mercury 2.5',
-        description="Inception's current-generation diffusion LLM (dLLM), a significant quality step up over Mercury 2. 260K context, 65,536 max output. Tunable reasoning via reasoning_effort, parallel tool calling, and schema-aligned structured outputs. List price shown; an 80%-off launch promo with no stated expiry currently brings this to $0.04/$0.15 per Mtok ($0.004 cached input).",
+        description="Inception's previous-generation diffusion LLM (dLLM), a significant quality step up over Mercury 2. 260K context, 65,536 max output. Tunable reasoning via reasoning_effort, parallel tool calling, and schema-aligned structured outputs. List price shown; an 80%-off launch promo with no stated expiry currently brings this to $0.04/$0.15 per Mtok ($0.004 cached input).",
         context_window=260_000,
         max_output_tokens=65_536,
         supports_vision=False,
@@ -89,19 +102,6 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=0.4,
         output_cost_per_mtok=1.5,
-    ),
-    TextModelInfo(
-        model_id='mercury-3',
-        display_name='mercury-3',
-        description='Mercury 3',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
     ),
 ]
 

@@ -63,6 +63,11 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-2.5-flash": _budget(0, 24576, can_disable=True),
     "gemini-2.5-flash-lite": _budget(512, 24576, can_disable=True),
     "gemini-2.5-flash-lite-preview-09-2025": _budget(512, 24576, can_disable=True),
+    # Gemini 4 (thinking levels) — the thinking page lists low/medium/high with
+    # default "On (medium)" and no minimal/off level (verified 2026-10-30).
+    "gemini-4-argon": _gemini3(
+        "medium", can_disable=False, levels=["low", "medium", "high"],
+    ),
     # Gemini 3.x (thinking levels)
     "gemini-3-pro-preview": _gemini3("high", can_disable=False),
     "gemini-3.1-pro-preview": _gemini3("high", can_disable=False),

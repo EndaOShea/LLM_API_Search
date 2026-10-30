@@ -80,6 +80,15 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-2": RateLimit(requests_per_minute=2_000, tokens_per_minute=3_000_000, requests_per_day=100_000),
         "tier-3": RateLimit(requests_per_minute=20_000, tokens_per_minute=20_000_000),
     },
+    # The rate-limits page publishes only "Batch enqueued tokens" for Argon
+    # (verified 2026-10-30); RPM/TPM/RPD are shown only in the AI Studio
+    # dashboard, so they are left unset rather than copied from another model.
+    # Not available on the free tier.
+    "gemini-4-argon": {
+        "tier-1": RateLimit(batch_queue_limit=5_000_000),
+        "tier-2": RateLimit(batch_queue_limit=500_000_000),
+        "tier-3": RateLimit(batch_queue_limit=1_000_000_000),
+    },
     "gemini-3.1-pro-preview": {
         "tier-1": RateLimit(requests_per_minute=25, tokens_per_minute=2_000_000, requests_per_day=250),
         "tier-2": RateLimit(requests_per_minute=1_000, tokens_per_minute=5_000_000, requests_per_day=50_000),

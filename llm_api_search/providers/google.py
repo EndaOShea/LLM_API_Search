@@ -28,6 +28,19 @@ _STATIC_MODELS = [
         output_cost_per_mtok=3.75,  # introductory; $7.50 from 2027-01-01
     ),
     TextModelInfo(
+        model_id='gemini-4-argon',
+        display_name='Gemini 4 Argon',
+        description='Flagship reasoning model and first of the Gemini 4 family, for complex software engineering, deep math and science, and autonomous multi-step agents. Text/image/video/audio/PDF input, text output. Thinking via thinkingLevel (low/medium/high). 65,536 output tokens by default; long decode raises this to 1,048,576. Computer use is in preview. Implicit caching only. Not on the free tier.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=2.0,  # introductory; $4.00 from 2026-12-01
+        output_cost_per_mtok=10.0,  # introductory; $20.00 from 2026-12-01
+    ),
+    TextModelInfo(
         model_id='gemini-3.7-flash',
         display_name='Gemini 3.7 Flash',
         description='Latest and most capable Flash model, built for complex coding, agentic workflows, and reliable multi-step execution. Text/image/video/audio/PDF input. Thinking via thinkingLevel (low/medium/high; minimal errors).',
@@ -996,19 +1009,6 @@ _STATIC_MODELS = [
         supported_qualities=[],
         max_images_per_request=None,
         cost_per_image=0.0336,  # 1K standard tier; 2K $0.0504, 4K $0.113
-    ),
-    TextModelInfo(
-        model_id='gemini-4-argon',
-        display_name='Gemini 4 Argon',
-        description='Gemini 4 Argon',
-        context_window=1_048_576,
-        max_output_tokens=32_768,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
     ),
 ]
 
