@@ -1,7 +1,7 @@
 """Inception Labs (Mercury) thinking configurations.
 
 Source: https://docs.inceptionlabs.ai/capabilities/reasoning-efforts
-Verified: 2026-10-09 (mercury-voice added from the models page; others unchanged)
+Verified: 2026-10-30 (mercury-3 added from the models page — same instant/low/medium/high ladder; others unchanged)
 """
 
 from llm_api_search.providers.base import ThinkingConfig, ThinkingMode
@@ -28,6 +28,7 @@ _MERCURY_VOICE = ThinkingConfig(
 )
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    "mercury-3": _MERCURY,
     "mercury-2.5": _MERCURY,
     "mercury-voice": _MERCURY_VOICE,
     "mercury-2": _MERCURY,
