@@ -232,6 +232,19 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.37,
         output_cost_per_mtok=1.25,
     ),
+    TextModelInfo(
+        model_id='glm-5.3-flashx-legal',
+        display_name='glm-5.3-flashx-legal',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 

@@ -63,6 +63,32 @@ _STATIC_MODELS = [
         input_cost_per_mtok=0.95,
         output_cost_per_mtok=4.0,
     ),
+    TextModelInfo(
+        model_id='kimi-k2.7-code-highspeed',
+        display_name='kimi-k2.7-code-highspeed',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
+    TextModelInfo(
+        model_id='kimi-k3.1-pro',
+        display_name='kimi-k3.1-pro',
+        description='',
+        context_window=None,
+        max_output_tokens=None,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 

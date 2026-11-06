@@ -1010,6 +1010,15 @@ _STATIC_MODELS = [
         max_images_per_request=None,
         cost_per_image=0.0336,  # 1K standard tier; 2K $0.0504, 4K $0.113
     ),
+    VideoModelInfo(
+        model_id='gemini-omni-1.2-flash',
+        display_name='Gemini Omni 1.2 Flash',
+        description='Gemini Omni 1.2 Flash',
+        supported_resolutions=[],
+        supports_audio=False,
+        cost_per_second=None,  # TODO: add pricing
+        cost_per_video=None,  # TODO: add pricing
+    ),
 ]
 
 
