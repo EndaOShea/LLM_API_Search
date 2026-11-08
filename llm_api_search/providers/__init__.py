@@ -110,6 +110,12 @@ LEGACY_MODELS: dict[str, set[str]] = {
         "gemini-3-pro-image",
         "gemini-3-pro-image-preview",
         "nano-banana-pro-preview",
+        # Gemini Omni: the preview is marked shut down on the Gemini Omni
+        # Flash model card, and 1.1 Flash is "previous generation" — its
+        # requests route to gemini-omni-1.2-flash from 2026-12-03 and are
+        # billed at 1.2 rates.
+        "gemini-omni-flash-preview",
+        "gemini-omni-1.1-flash",
     },
     "inception": {
         "mercury", "mercury-coder",
@@ -127,6 +133,12 @@ LEGACY_MODELS: dict[str, set[str]] = {
         # Superseded GLM generations (kept out of default listings; the
         # curated set carries glm-5.x + glm-4.6/4.5-air/4.5-flash).
         "glm-4.7", "glm-4.5", "glm-4.5v", "glm-4.6v",
+    },
+    "kimi": {
+        # K2 series: listed under "Deprecated models" on
+        # platform.kimi.ai/docs/models — closed to newly registered users
+        # since 2026-10-31, retirement expected late December 2026.
+        "kimi-k2.6", "kimi-k2.7-code", "kimi-k2.7-code-highspeed",
     },
     "qwen": {
         # Previous generation, still sold but superseded by 3.7.

@@ -12,7 +12,9 @@ Spec source: per-model doc pages, split by modality — text-only models live
 under https://docs.z.ai/guides/llm/<model-id> and vision models (the ones
 carrying ``supports_vision=True``: glm-5.3-flash, glm-5v-turbo,
 glm-4.6v-flash) under https://docs.z.ai/guides/vlm/<model-id>.
-glm-5.3-flashx has no page of its own; it shares vlm/glm-5.3-flash.  The ``llm/``
+glm-5.3-flashx and glm-5.3-flashx-legal have no pages of their own; both share
+vlm/glm-5.3-flash (the Legal section there gives positioning and use cases but
+no separate spec table, so Legal inherits the FlashX limits).  The ``llm/``
 path 308-redirects to ``vlm/`` for a vision model, so a stale ``llm/`` link
 still resolves and is not evidence that the model is text-only.
 """
@@ -234,16 +236,16 @@ _STATIC_MODELS = [
     ),
     TextModelInfo(
         model_id='glm-5.3-flashx-legal',
-        display_name='glm-5.3-flashx-legal',
-        description='',
-        context_window=None,
-        max_output_tokens=None,
+        display_name='GLM-5.3-FlashX-Legal',
+        description='Legal-domain variant of GLM-5.3-FlashX with legal mid-training and post-training, for legal research, contract review, and legal document drafting (Z.ai reports a 19.2% all-criteria pass rate on Harvey LAB, 12.5 points over the base model). 1M token context, up to 128K output. Tool calling and always-on thinking (reasoning_effort; Z.ai recommends max). Recorded as text-only: the pricing page lists it under Text Models and the shared Flash/FlashX model card does not state its input modalities separately. Same price as GLM-5.3-FlashX (cached input $0.075/Mtok); Z.ai recommends pairing it with its legal MCP services.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
         supports_vision=False,
-        supports_tool_use=False,
+        supports_tool_use=True,
         supports_image_generation=False,
         supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
+        input_cost_per_mtok=0.37,
+        output_cost_per_mtok=1.25,
     ),
 ]
 

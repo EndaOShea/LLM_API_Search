@@ -59,6 +59,9 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     # including "thinking.type only supports enabled"; concept-param does not
     # name FlashX separately, so the Flash config is applied as-is.
     "glm-5.3-flashx": _GLM_53_EFFORT,
+    # Legal-domain FlashX variant; same shared model page (its Legal section
+    # recommends reasoning_effort: max and names no separate thinking rules).
+    "glm-5.3-flashx-legal": _GLM_53_EFFORT,
     "glm-5.2": _GLM_EFFORT,
     "glm-5.1": _GLM_TOGGLE,
     "glm-5": _GLM_TOGGLE,
