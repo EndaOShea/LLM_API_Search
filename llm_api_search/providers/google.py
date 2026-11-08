@@ -855,7 +855,7 @@ _STATIC_MODELS = [
     TextModelInfo(
         model_id='gemini-omni-flash-preview',
         display_name='Gemini Omni Flash Preview',
-        description='Fast conversational video generation and editing: turns text and images into video and refines results through natural language. Paid tier only. Billed per token rather than per clip, so it is curated as a text model; video output is 5,792 tokens per second of 720p (~$0.10/sec).',
+        description='Fast conversational video generation and editing: turns text and images into video and refines results through natural language. Paid tier only. Billed per token rather than per clip, so it is curated as a text model; video output is 5,792 tokens per second of 720p (~$0.10/sec). Shut down per the Gemini Omni Flash model card (November 2026); use gemini-omni-1.2-flash.',
         context_window=None,  # not published
         max_output_tokens=None,  # not published
         supports_vision=True,
@@ -932,8 +932,8 @@ _STATIC_MODELS = [
     ),
     VideoModelInfo(
         model_id='gemini-omni-1.1-flash',
-        display_name='Gemini Omni Flash',
-        description='Next-generation video generation and conversational video editing model, GA on the paid tier only. Billed on total output token consumption at 5,792 tokens per second of 720p video ($17.50/Mtok video output), giving the effective per-second rate recorded here; text output is billed separately at $9.00/Mtok and all input at $1.50/Mtok. 720p is the only resolution Google documents, and native audio output is not documented for this model (Veo 3.1 is the one described as generating native audio), so supports_audio is recorded conservatively as False.',
+        display_name='Gemini Omni 1.1 Flash',
+        description='Previous-generation video generation and conversational video editing model, superseded by gemini-omni-1.2-flash: from 2026-12-03 its requests route to 1.2 automatically and are billed at 1.2 rates. Paid tier only. Billed on total output token consumption at 5,792 tokens per second of 720p video ($17.50/Mtok video output), giving the effective per-second rate recorded here; text output is billed separately at $9.00/Mtok and all input at $1.50/Mtok. Native audio output is not documented for this model (its model card lists video-only output), so supports_audio is recorded conservatively as False.',
         supported_resolutions=['720p'],
         supports_audio=False,
         cost_per_second=0.1,
@@ -1009,6 +1009,15 @@ _STATIC_MODELS = [
         supported_qualities=[],
         max_images_per_request=None,
         cost_per_image=0.0336,  # 1K standard tier; 2K $0.0504, 4K $0.113
+    ),
+    VideoModelInfo(
+        model_id='gemini-omni-1.2-flash',
+        display_name='Gemini Omni 1.2 Flash',
+        description='Video generation and conversational video editing with native synchronized audio, GA on the paid tier only (stable, November 2026). Text, image, and video input; 3-15 s clips at 24 fps in 16:9 or 9:16 (first/last-frame interpolation and per-turn extension 3-10 s, extensions up to 30 s total); up to 3 videos per prompt. Billed on output tokens at 5,792 tokens per second of 720p video ($12.00/Mtok video output, about $0.07/s, the rate recorded here); 360p is 1,931 tokens/s (~$0.023/s), upscaled 1080p 8,688 tokens/s (~$0.104/s) and upscaled 4K 17,376 tokens/s (~$0.209/s). Text output $9.00/Mtok; all input $1.50/Mtok. Replaces Gemini Omni 1.1 Flash, whose requests route here from 2026-12-03.',
+        supported_resolutions=['360p', '720p', '1080p', '4k'],
+        supports_audio=True,
+        cost_per_second=0.07,
+        cost_per_video=None,
     ),
 ]
 

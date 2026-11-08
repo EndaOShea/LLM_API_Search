@@ -744,10 +744,18 @@ def test_kimi_static_info():
     assert info.api_base_url == "https://api.moonshot.ai/v1"
     assert info.auth_env_var == "MOONSHOT_API_KEY"
     assert isinstance(info.models[0], TextModelInfo)
-    assert info.models[0].model_id == "kimi-k3"
+    # Moonshot's quickstart: "we recommend starting with Kimi K3.1 Pro".
+    assert info.models[0].model_id == "kimi-k3.1-pro"
     ids = {m.model_id for m in info.models}
-    assert ids == {"kimi-k3", "kimi-k2.6", "kimi-k2.7-code"}
+    assert ids == {
+        "kimi-k3.1-pro", "kimi-k3.1-pro-highspeed", "kimi-k3",
+        "kimi-k2.6", "kimi-k2.7-code", "kimi-k2.7-code-highspeed",
+    }
     by_id = {m.model_id: m for m in info.models}
+    assert by_id["kimi-k3.1-pro"].context_window == 1_048_576
+    assert by_id["kimi-k3.1-pro"].input_cost_per_mtok == 2.00
+    assert by_id["kimi-k3.1-pro"].output_cost_per_mtok == 10.00
+    assert by_id["kimi-k3.1-pro"].supports_vision is True
     assert by_id["kimi-k3"].context_window == 1_048_576
     assert by_id["kimi-k3"].input_cost_per_mtok == 3.00
     assert by_id["kimi-k3"].output_cost_per_mtok == 15.00

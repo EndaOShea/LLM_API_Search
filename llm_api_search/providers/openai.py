@@ -1331,6 +1331,24 @@ _STATIC_MODELS = [
         max_images_per_request=None,
         cost_per_image=0.01317,
     ),
+    ImageModelInfo(
+        model_id='gpt-image-2.6-flare',
+        display_name='GPT Image 2.6 Flare',
+        description="OpenAI's fastest GPT Image 2.6 model, for interactive image generation and editing (images in as little as six seconds at low quality). Token-priced ($5/1M text input, $8/1M image input, $30/1M image output, unchanged from 2.5); cost_per_image is the medium-quality 1024x1024 output estimate (1,449 output tokens) from OpenAI's image-generation cost calculator. Adds a complexity setting (low/medium/high, default high, no extra fee), markup-guided edits, SVG output, and animated GIF output. Also accepts custom WIDTHxHEIGHT sizes (multiples of 16, aspect ratio 1:3 to 3:1, max edge 3840px).",
+        supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
+        supported_qualities=['low', 'medium', 'high', 'xhigh', 'max', 'auto'],
+        max_images_per_request=None,
+        cost_per_image=0.04347,
+    ),
+    ImageModelInfo(
+        model_id='gpt-image-2.6-sunburst',
+        display_name='GPT Image 2.6 Sunburst',
+        description="OpenAI's most capable GPT Image 2.6 model, for detailed compositions and editing workflows, with higher-quality generation and greater consistency across edits. Token-priced ($5/1M text input, $8/1M image input, $30/1M image output, unchanged from 2.5); cost_per_image is the medium-quality 1024x1024 output estimate (1,449 output tokens) from OpenAI's image-generation cost calculator. Adds a complexity setting (low/medium/high, default high, no extra fee), markup-guided edits, SVG output, and animated GIF output. Also accepts custom WIDTHxHEIGHT sizes (multiples of 16, aspect ratio 1:3 to 3:1, max edge 3840px).",
+        supported_sizes=['1024x1024', '1024x1536', '1536x1024', 'auto'],
+        supported_qualities=['low', 'medium', 'high', 'xhigh', 'max', 'auto'],
+        max_images_per_request=None,
+        cost_per_image=0.04347,
+    ),
 ]
 
 

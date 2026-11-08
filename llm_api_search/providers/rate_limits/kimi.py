@@ -21,7 +21,10 @@ _KIMI_TIERS: dict[str, RateLimit] = {
 }
 
 RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
+    "kimi-k3.1-pro": dict(_KIMI_TIERS),
+    "kimi-k3.1-pro-highspeed": dict(_KIMI_TIERS),
     "kimi-k3": dict(_KIMI_TIERS),
     "kimi-k2.6": dict(_KIMI_TIERS),
     "kimi-k2.7-code": dict(_KIMI_TIERS),
+    "kimi-k2.7-code-highspeed": dict(_KIMI_TIERS),
 }
