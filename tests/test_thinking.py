@@ -73,7 +73,7 @@ def test_anthropic_sonnet_5_effort_levels():
 def test_anthropic_always_on_models_cannot_disable():
     # Anthropic's thinking-troubleshooting table marks these "Always on":
     # thinking={type:'disabled'} returns a 400.
-    for mid in ["claude-fable-5-1", "claude-fable-5", "claude-opus-5-5"]:
+    for mid in ["claude-fable-5-2", "claude-fable-5-1", "claude-fable-5", "claude-opus-5-5"]:
         tc = get_thinking_config("anthropic", mid)[mid]
         assert tc.can_disable is False, mid
 
@@ -203,9 +203,9 @@ def test_qwen_thinking_config():
 # Models a human has confirmed are reasoning-capable. If one of these ever
 # resolves to supported=False, its config was dropped/renamed — fail loudly.
 _KNOWN_THINKING = {
-    "anthropic": ["claude-fable-5-1", "claude-fable-5", "claude-opus-5-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-5-5", "claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-haiku-5-5"],
+    "anthropic": ["claude-fable-5-2", "claude-fable-5-1", "claude-fable-5", "claude-opus-5-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-5", "claude-sonnet-5-5", "claude-sonnet-4-6", "claude-haiku-4-5-20251001", "claude-haiku-5-5"],
     "openai": ["gpt-5", "gpt-5.5", "gpt-5.4", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6-astra", "gpt-6-sol", "gpt-6-luna", "o3", "o4-mini"],
-    "google": ["gemini-4-argon", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite", "gemini-robotics-er-2-preview", "gemini-robotics-er-1.5-preview"],
+    "google": ["gemini-4-hydrogen", "gemini-4-carbon", "gemini-4-argon", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite", "gemini-robotics-er-2-preview", "gemini-robotics-er-1.5-preview"],
     "deepseek": ["deepseek-flash", "deepseek-v4-pro", "deepseek-v4-flash", "deepseek-v4-flash-vision-exp"],
     "inception": ["mercury-3", "mercury-2.5", "mercury-2", "mercury-edit", "mercury-edit-2", "mercury-voice"],
     "zai": ["glm-5.3", "glm-5.3-flash", "glm-5.3-flashx", "glm-5.3-flashx-legal", "glm-5.2", "glm-5.1",
@@ -373,7 +373,7 @@ def test_anthropic_sampling_constraint_generation_split():
     from llm_api_search.providers.thinking.anthropic import THINKING_CONFIGS
 
     always_locked = [
-        "claude-fable-5", "claude-opus-5-5", "claude-opus-5", "claude-opus-4-8",
+        "claude-fable-5-2", "claude-fable-5", "claude-opus-5-5", "claude-opus-5", "claude-opus-4-8",
         "claude-opus-4-7", "claude-sonnet-5-5", "claude-sonnet-5",
     ]
     for mid in always_locked:

@@ -68,6 +68,15 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-4-argon": _gemini3(
         "medium", can_disable=False, levels=["low", "medium", "high"],
     ),
+    # Thinking page (verified 2026-11-16): Carbon "On (medium)" with
+    # low/medium/high like Argon; Hydrogen "On (high)" and adds "xhigh".
+    # "minimal" is not supported on any Gemini 4 model.
+    "gemini-4-carbon": _gemini3(
+        "medium", can_disable=False, levels=["low", "medium", "high"],
+    ),
+    "gemini-4-hydrogen": _gemini3(
+        "high", can_disable=False, levels=["low", "medium", "high", "xhigh"],
+    ),
     # Gemini 3.x (thinking levels)
     "gemini-3-pro-preview": _gemini3("high", can_disable=False),
     "gemini-3.1-pro-preview": _gemini3("high", can_disable=False),
