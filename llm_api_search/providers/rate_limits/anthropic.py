@@ -1,7 +1,8 @@
 """Anthropic rate limits — published API limits per model.
 
 Source: https://platform.claude.com/docs/en/api/rate-limits
-Verified: 2026-07-07
+Verified: 2026-11-16 (RPM raised for Fable 5/5.1, Opus 5.5, Sonnet 5.5 and
+Haiku 5.5; Fable 5.2 added)
 
 Anthropic has no free tier. Usage tiers are named Start / Build / Scale /
 Custom (renamed from the older "Tier 1".."Tier 4" scheme). Custom is
@@ -11,65 +12,84 @@ across Opus 4.8/4.7/4.6/4.5, and the Sonnet 4.x limit is shared across
 Sonnet 4.6/4.5 — Claude Sonnet 5.5 and Claude Sonnet 5 each have their own
 separate limit, not part of that combined bucket. Claude Opus 5 is likewise a separate bucket and does
 not draw from the combined Opus 4.x pool, and Claude Opus 5.5 has its own
-separate bucket too. Claude Fable 5 also has its own
-dedicated limits.
+separate bucket too. Claude Fable 5.1 and Claude Fable 5 share one combined
+Fable bucket; Claude Fable 5.2 has its own separate limit outside it.
 """
 
 from llm_api_search.providers.base import RateLimit
 
 RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
+    # Own bucket per footnote 1 ("Claude Fable 5.2 has a separate rate limit
+    # and is not part of this combined bucket"); numbers match the 5.1/5 row.
+    "claude-fable-5-2": {
+        "start": RateLimit(
+            requests_per_minute=4_000,
+            input_tokens_per_minute=500_000,
+            output_tokens_per_minute=100_000,
+        ),
+        "build": RateLimit(
+            requests_per_minute=10_000,
+            input_tokens_per_minute=1_500_000,
+            output_tokens_per_minute=300_000,
+        ),
+        "scale": RateLimit(
+            requests_per_minute=13_000,
+            input_tokens_per_minute=4_000_000,
+            output_tokens_per_minute=800_000,
+        ),
+    },
     # Per the rate-limit page's footnote 1, the Fable numbers are a *combined*
     # limit across Claude Fable 5.1 and Claude Fable 5 — traffic to both draws
     # from one bucket, so the two entries are identical by design, not copied.
     "claude-fable-5-1": {
         "start": RateLimit(
-            requests_per_minute=1_000,
+            requests_per_minute=4_000,
             input_tokens_per_minute=500_000,
             output_tokens_per_minute=100_000,
         ),
         "build": RateLimit(
-            requests_per_minute=2_000,
+            requests_per_minute=10_000,
             input_tokens_per_minute=1_500_000,
             output_tokens_per_minute=300_000,
         ),
         "scale": RateLimit(
-            requests_per_minute=4_000,
+            requests_per_minute=13_000,
             input_tokens_per_minute=4_000_000,
             output_tokens_per_minute=800_000,
         ),
     },
     "claude-fable-5": {
         "start": RateLimit(
-            requests_per_minute=1_000,
+            requests_per_minute=4_000,
             input_tokens_per_minute=500_000,
             output_tokens_per_minute=100_000,
         ),
         "build": RateLimit(
-            requests_per_minute=2_000,
+            requests_per_minute=10_000,
             input_tokens_per_minute=1_500_000,
             output_tokens_per_minute=300_000,
         ),
         "scale": RateLimit(
-            requests_per_minute=4_000,
+            requests_per_minute=13_000,
             input_tokens_per_minute=4_000_000,
             output_tokens_per_minute=800_000,
         ),
     },
     # Own bucket per footnote 2 ("Claude Opus 5.5 and Claude Opus 5 each have a
-    # separate rate limit"); the numbers happen to match Opus 5's.
+    # separate rate limit"); same token limits as Opus 5, higher RPM.
     "claude-opus-5-5": {
         "start": RateLimit(
-            requests_per_minute=1_000,
+            requests_per_minute=4_000,
             input_tokens_per_minute=2_000_000,
             output_tokens_per_minute=400_000,
         ),
         "build": RateLimit(
-            requests_per_minute=5_000,
+            requests_per_minute=10_000,
             input_tokens_per_minute=5_000_000,
             output_tokens_per_minute=1_000_000,
         ),
         "scale": RateLimit(
-            requests_per_minute=10_000,
+            requests_per_minute=13_000,
             input_tokens_per_minute=10_000_000,
             output_tokens_per_minute=2_000_000,
         ),
@@ -143,20 +163,20 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         ),
     },
     # Own bucket per footnote 3 ("Claude Sonnet 5.5 and Claude Sonnet 5 each
-    # have a separate rate limit"); numbers match Claude Sonnet 5.
+    # have a separate rate limit"); same token limits as Sonnet 5, higher RPM.
     "claude-sonnet-5-5": {
         "start": RateLimit(
-            requests_per_minute=1_000,
+            requests_per_minute=4_000,
             input_tokens_per_minute=2_000_000,
             output_tokens_per_minute=400_000,
         ),
         "build": RateLimit(
-            requests_per_minute=5_000,
+            requests_per_minute=10_000,
             input_tokens_per_minute=5_000_000,
             output_tokens_per_minute=1_000_000,
         ),
         "scale": RateLimit(
-            requests_per_minute=10_000,
+            requests_per_minute=13_000,
             input_tokens_per_minute=10_000_000,
             output_tokens_per_minute=2_000_000,
         ),
@@ -214,17 +234,17 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
     },
     "claude-haiku-5-5": {
         "start": RateLimit(
-            requests_per_minute=1_000,
+            requests_per_minute=4_000,
             input_tokens_per_minute=2_000_000,
             output_tokens_per_minute=400_000,
         ),
         "build": RateLimit(
-            requests_per_minute=5_000,
+            requests_per_minute=10_000,
             input_tokens_per_minute=5_000_000,
             output_tokens_per_minute=1_000_000,
         ),
         "scale": RateLimit(
-            requests_per_minute=10_000,
+            requests_per_minute=13_000,
             input_tokens_per_minute=10_000_000,
             output_tokens_per_minute=2_000_000,
         ),

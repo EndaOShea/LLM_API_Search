@@ -26,6 +26,19 @@ _STATIC_MODELS = [
         output_cost_per_mtok=20.0,
     ),
     TextModelInfo(
+        model_id='claude-fable-5-2',
+        display_name='Claude Fable 5.2',
+        description='Most capable widely released model, for demanding reasoning and long-horizon agentic work. Adaptive thinking is always on, default effort high. Rejects forced tool use. Cache hits cost 0.025x base input, not the usual 0.1x. Own rate-limit bucket, separate from Fable 5.1/5.',
+        context_window=1_000_000,
+        max_output_tokens=128_000,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=8.0,
+        output_cost_per_mtok=40.0,
+    ),
+    TextModelInfo(
         model_id='claude-fable-5',
         display_name='Claude Fable 5',
         description='Most capable widely released model for demanding reasoning and long-horizon agentic work',
@@ -271,19 +284,6 @@ _STATIC_MODELS = [
         supports_computer_use=False,
         input_cost_per_mtok=0.1,
         output_cost_per_mtok=0.5,
-    ),
-    TextModelInfo(
-        model_id='claude-fable-5-2',
-        display_name='Claude Fable 5.2',
-        description='',
-        context_window=None,
-        max_output_tokens=None,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
     ),
 ]
 

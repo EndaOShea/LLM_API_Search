@@ -1,7 +1,8 @@
 """Anthropic thinking configurations.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking
-Verified: 2026-06-04 (Opus 5.5 added 2026-09-23, Sonnet 5.5 added 2026-10-04)
+Verified: 2026-06-04 (Opus 5.5 added 2026-09-23, Sonnet 5.5 added 2026-10-04,
+Fable 5.2 added 2026-11-16)
 can_disable source:
 https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
 (per-model table), verified 2026-10-04.
@@ -43,6 +44,17 @@ _SAMPLING_THINKING_ONLY = {
 }
 
 THINKING_CONFIGS: dict[str, ThinkingConfig] = {
+    # Models overview: "Adaptive (always on)", default effort "high". Like 5.1,
+    # thinking={type:'disabled'} and budget_tokens both return a 400.
+    "claude-fable-5-2": ThinkingConfig(
+        supported=True, mode=ThinkingMode.EFFORT_LEVELS,
+        parameter="output_config.effort",
+        levels=["low", "medium", "high", "xhigh", "max"],
+        default_level="high", can_disable=False,
+        sampling_params_allowed=_SAMPLING_LOCKED_ALWAYS,
+        notes=_ADAPTIVE_NOTE + "Adaptive thinking is always on; thinking={type:'disabled'} "
+                               "returns a 400. Manual budget_tokens is rejected (400).",
+    ),
     # The thinking-troubleshooting table lists both Fable models as "Always on"
     # and rejecting thinking={type:'disabled'} with a 400 — hence
     # can_disable=False on both. Both default to effort "high".

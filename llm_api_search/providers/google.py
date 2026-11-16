@@ -15,6 +15,19 @@ from llm_api_search.providers.base import (
 
 _STATIC_MODELS = [
     TextModelInfo(
+        model_id='gemini-4-hydrogen',
+        display_name='Gemini 4 Hydrogen',
+        description='Fast, efficient Gemini 4 model for everyday coding and agentic workflows; the model used throughout the quickstart. Text/image/video/audio/PDF input, text output. Thinking via thinkingLevel (low/medium/high/xhigh, default high). 65,536 output tokens by default; long decode raises this to 1,048,576. Implicit caching only. Available on the free tier.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=1.5,
+        output_cost_per_mtok=7.5,
+    ),
+    TextModelInfo(
         model_id='gemini-3.8-flash',
         display_name='Gemini 3.8 Flash',
         description='Most intelligent Flash model, for long-horizon software engineering, autonomous agents, and complex enterprise workflows. Text/image/video/audio/PDF input. Thinking via thinkingLevel (low/medium/high; minimal errors).',
@@ -31,6 +44,19 @@ _STATIC_MODELS = [
         model_id='gemini-4-argon',
         display_name='Gemini 4 Argon',
         description='Flagship reasoning model and first of the Gemini 4 family, for complex software engineering, deep math and science, and autonomous multi-step agents. Text/image/video/audio/PDF input, text output. Thinking via thinkingLevel (low/medium/high). 65,536 output tokens by default; long decode raises this to 1,048,576. Computer use is in preview. Implicit caching only. Not on the free tier.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=2.0,  # introductory; $4.00 from 2026-12-01
+        output_cost_per_mtok=10.0,  # introductory; $20.00 from 2026-12-01
+    ),
+    TextModelInfo(
+        model_id='gemini-4-carbon',
+        display_name='Gemini 4 Carbon',
+        description='Most capable Gemini reasoning model, for complex software engineering, multimodal knowledge work, scientific reasoning, and cybersecurity defense. Text/image/video/audio/PDF input, text output. Thinking via thinkingLevel (low/medium/high). 65,536 output tokens by default; long decode raises this to 1,048,576. Implicit caching only. Not on the free tier.',
         context_window=1_048_576,
         max_output_tokens=65_536,
         supports_vision=True,
@@ -1018,32 +1044,6 @@ _STATIC_MODELS = [
         supports_audio=True,
         cost_per_second=0.07,
         cost_per_video=None,
-    ),
-    TextModelInfo(
-        model_id='gemini-4-carbon',
-        display_name='Gemini 4 Carbon',
-        description='Gemini 4 Carbon',
-        context_window=1_048_576,
-        max_output_tokens=32_768,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
-    ),
-    TextModelInfo(
-        model_id='gemini-4-hydrogen',
-        display_name='Gemini 4 Hydrogen',
-        description='Gemini 4 Hydrogen',
-        context_window=1_048_576,
-        max_output_tokens=65_536,
-        supports_vision=False,
-        supports_tool_use=False,
-        supports_image_generation=False,
-        supports_computer_use=False,
-        input_cost_per_mtok=None,  # TODO: add pricing
-        output_cost_per_mtok=None,  # TODO: add pricing
     ),
 ]
 
