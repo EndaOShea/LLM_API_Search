@@ -1045,6 +1045,19 @@ _STATIC_MODELS = [
         cost_per_second=0.07,
         cost_per_video=None,
     ),
+    TextModelInfo(
+        model_id='gemini-4-neon',
+        display_name='Gemini 4 Neon',
+        description='Gemini 4 Neon',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=False,
+        supports_tool_use=False,
+        supports_image_generation=False,
+        supports_computer_use=False,
+        input_cost_per_mtok=None,  # TODO: add pricing
+        output_cost_per_mtok=None,  # TODO: add pricing
+    ),
 ]
 
 
