@@ -1,12 +1,13 @@
 name: Update model data
 
 on:
-  schedule:
-    # Every Friday at 06:17 UTC — after the Tue/Thu provider release days.
-    # Off the hour because GitHub delays top-of-hour schedules most (runs
-    # have started up to ~6h late). The pricing-fill routine fires Fri 13:30
-    # UTC to clear that delay; move both together.
-    - cron: "17 6 * * 5"
+  # No cron: GitHub's schedule ran this up to 8h late and on 2026-11-20 never
+  # fired at all. The weekly trigger is the Claude Code routine
+  # trig_017zEANuGUrDpGZ4G6WQWqvP (Fri 07:00 UTC), which dispatches this
+  # workflow itself, waits for it, then fills pricing on the resulting PR.
+  # A cron here would be unsafe as well as redundant: a late scheduled run
+  # regenerates auto/update-models from scratch and would wipe the routine's
+  # fill commits. The routine skips dispatch while that PR is still open.
   workflow_dispatch: # Allow manual trigger
 
 permissions:
