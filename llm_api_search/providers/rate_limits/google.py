@@ -102,6 +102,13 @@ RATE_LIMITS: dict[str, dict[str, RateLimit]] = {
         "tier-2": RateLimit(batch_queue_limit=400_000_000),
         "tier-3": RateLimit(batch_queue_limit=1_000_000_000),
     },
+    # Neon (verified 2026-11-20): only batch enqueued tokens are published,
+    # same as the rest of Gemini 4. Free-tier eligibility isn't stated.
+    "gemini-4-neon": {
+        "tier-1": RateLimit(batch_queue_limit=5_000_000),
+        "tier-2": RateLimit(batch_queue_limit=500_000_000),
+        "tier-3": RateLimit(batch_queue_limit=1_000_000_000),
+    },
     "gemini-3.1-pro-preview": {
         "tier-1": RateLimit(requests_per_minute=25, tokens_per_minute=2_000_000, requests_per_day=250),
         "tier-2": RateLimit(requests_per_minute=1_000, tokens_per_minute=5_000_000, requests_per_day=50_000),

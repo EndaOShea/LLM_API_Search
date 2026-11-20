@@ -77,6 +77,10 @@ THINKING_CONFIGS: dict[str, ThinkingConfig] = {
     "gemini-4-hydrogen": _gemini3(
         "high", can_disable=False, levels=["low", "medium", "high", "xhigh"],
     ),
+    # Neon (thinking page, verified 2026-11-20): "On (high)" with xhigh, like Hydrogen.
+    "gemini-4-neon": _gemini3(
+        "high", can_disable=False, levels=["low", "medium", "high", "xhigh"],
+    ),
     # Gemini 3.x (thinking levels)
     "gemini-3-pro-preview": _gemini3("high", can_disable=False),
     "gemini-3.1-pro-preview": _gemini3("high", can_disable=False),
