@@ -67,6 +67,19 @@ _STATIC_MODELS = [
         output_cost_per_mtok=10.0,  # introductory; $20.00 from 2026-12-01
     ),
     TextModelInfo(
+        model_id='gemini-4-neon',
+        display_name='Gemini 4 Neon',
+        description='Frontier-level intelligence with fast end-to-end task completion for complex software engineering, knowledge work, and science workflows. Text/image/video/audio/PDF input, text output. Thinking via thinkingLevel (low/medium/high/xhigh, default high). 65,536 output tokens by default; long decode raises this to 1,048,576. Implicit caching only.',
+        context_window=1_048_576,
+        max_output_tokens=65_536,
+        supports_vision=True,
+        supports_tool_use=True,
+        supports_image_generation=False,
+        supports_computer_use=True,
+        input_cost_per_mtok=3.0,
+        output_cost_per_mtok=15.0,
+    ),
+    TextModelInfo(
         model_id='gemini-3.7-flash',
         display_name='Gemini 3.7 Flash',
         description='Latest and most capable Flash model, built for complex coding, agentic workflows, and reliable multi-step execution. Text/image/video/audio/PDF input. Thinking via thinkingLevel (low/medium/high; minimal errors).',
