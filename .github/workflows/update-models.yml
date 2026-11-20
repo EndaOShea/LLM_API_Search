@@ -3,11 +3,19 @@ name: Update model data
 on:
   # No cron: GitHub's schedule ran this up to 8h late and on 2026-11-20 never
   # fired at all. The weekly trigger is the Claude Code routine
-  # trig_017zEANuGUrDpGZ4G6WQWqvP (Fri 07:00 UTC), which dispatches this
-  # workflow itself, waits for it, then fills pricing on the resulting PR.
+  # trig_017zEANuGUrDpGZ4G6WQWqvP (Fri 07:00 UTC), which starts this workflow
+  # itself, waits for it, then fills pricing on the resulting PR.
   # A cron here would be unsafe as well as redundant: a late scheduled run
   # regenerates auto/update-models from scratch and would wipe the routine's
-  # fill commits. The routine skips dispatch while that PR is still open.
+  # fill commits. The routine skips starting a run while that PR is still open.
+  #
+  # The routine starts runs with repository_dispatch, not workflow_dispatch:
+  # its GitHub App token has Contents: write but not Actions: write, so
+  # POST .../actions/workflows/<id>/dispatches returns 403, while
+  # POST /repos/<owner>/<repo>/dispatches (event_type=update-models) is
+  # allowed. repository_dispatch always runs against the default branch.
+  repository_dispatch:
+    types: [update-models]
   workflow_dispatch: # Allow manual trigger
 
 permissions:
