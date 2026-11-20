@@ -109,7 +109,7 @@ Drop a new Python file in `mcp_servers/` with a `mcp` instance, `MOUNT_PATH`, an
 
 ## Automatic model updates
 
-A GitHub Actions workflow runs every Friday to fetch the latest model lists from each provider's API and open a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
+A GitHub Actions workflow (started every Friday by a scheduled Claude Code routine, or by hand via `workflow_dispatch`) fetches the latest model lists from each provider's API and opens a PR with any changes. New models are added automatically; pricing is preserved for existing models and flagged for manual review on new ones.
 
 Three providers are curated by hand instead, because their live catalogs can't be auto-added safely: **DeepSeek**'s live list is only used to drop models it no longer serves, while **Qwen** and **Mistral** return hundreds of non-frontier variants and every legacy snapshot. To avoid silently missing a genuinely new model from those, the update reports any unrecognized upstream IDs — surfaced in the PR body, the workflow run summary, and a CI warning — for someone to add manually. Qwen and Mistral filter that report down to genuinely-new frontier releases so the weekly signal stays readable; Mistral compares release stamps, so aliases, superseded snapshots, and alternate spellings of an already-curated model don't show up.
 
