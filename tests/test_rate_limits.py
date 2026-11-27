@@ -156,6 +156,7 @@ _RATE_LIMIT_COVERAGE_EXEMPT: dict[str, set[str]] = {
         "glm-4.5",
         "glm-4.7",
         "glm-5-turbo",
+        "glm-5.4",
     },
     # Mistral publishes no fixed public per-model rate-limit numbers — limits
     # are per-workspace and vary by billed-usage tier and model (docs point to
